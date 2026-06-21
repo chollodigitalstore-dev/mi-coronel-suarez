@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Guía local de profesionales, comercios y servicios de Coronel Suárez.">
+  <title>Mi Coronel Suárez — Todo lo que buscás, cerca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="Mi Coronel Suárez, inicio">
+      <span class="brand-mark">CS</span>
+      <span>Mi <strong>Coronel Suárez</strong></span>
+    </a>
+    <nav aria-label="Navegación principal">
+      <a href="#rubros">Rubros</a>
+      <a href="#resultados">Guía local</a>
+      <button class="button button-outline" data-open-form>Sumá tu actividad</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy">
+        <span class="eyebrow">La guía local hecha para vos</span>
+        <h1>Todo lo que buscás,<br><em>más cerca.</em></h1>
+        <p>Profesionales, comercios y servicios de Coronel Suárez y la zona, en un solo lugar.</p>
+
+        <form class="search-box" id="searchForm" role="search">
+          <label class="search-input">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="¿Qué necesitás? Ej: manicura, carpintero…" autocomplete="off">
+          </label>
+          <label class="location-select">
+            <span aria-hidden="true">●</span>
+            <select id="locationSelect" aria-label="Elegir localidad">
+              <option value="todas">Toda la zona</option>
+              <option value="coronel-suarez">Coronel Suárez</option>
+              <option value="huanguelen">Huanguelén</option>
+              <option value="pueblo-san-jose">Pueblo San José</option>
+              <option value="pueblo-santa-maria">Pueblo Santa María</option>
+              <option value="pueblo-santa-trinidad">Pueblo Santa Trinidad</option>
+            </select>
+          </label>
+          <button class="button button-primary" type="submit">Buscar</button>
+        </form>
+        <p class="popular">Búsquedas frecuentes: <button data-query="electricista">electricista</button> · <button data-query="peluquería">peluquería</button> · <button data-query="comida">comida</button></p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="map-shape"><span class="map-pin">♥</span></div>
+        <div class="floating-card card-one"><b>✓</b><span><strong>Datos verificados</strong><small>Información confiable</small></span></div>
+        <div class="floating-card card-two"><b>⌖</b><span><strong>Cerca tuyo</strong><small>En toda la zona</small></span></div>
+      </div>
+    </section>
+
+    <section class="section" id="rubros">
+      <div class="section-heading">
+        <div><span class="eyebrow">Explorá la ciudad</span><h2>¿Qué estás buscando?</h2></div>
+        <button class="text-link" id="showAllCategories">Ver todos los rubros →</button>
+      </div>
+      <div class="category-grid" id="categoryGrid"></div>
+    </section>
+
+    <section class="section results-section" id="resultados">
+      <div class="section-heading">
+        <div><span class="eyebrow">Recomendados cerca tuyo</span><h2 id="resultsTitle">Conocé nuestra guía local</h2></div>
+        <span class="result-count" id="resultCount"></span>
+      </div>
+      <div class="listing-grid" id="listingGrid"></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <span>⌕</span><h3>No encontramos resultados</h3><p>Probá con otra palabra o elegí “Toda la zona”.</p>
+        <button class="button button-primary" id="clearFilters">Limpiar búsqueda</button>
+      </div>
+    </section>
+
+    <section class="join-banner">
+      <div><span class="eyebrow">Hagamos crecer la guía</span><h2>¿Tenés un comercio o brindás un servicio?</h2><p>Sumate para que más vecinos puedan encontrarte.</p></div>
+      <button class="button button-light" data-open-form>Publicá tu actividad gratis</button>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="#inicio"><span class="brand-mark">CS</span><span>Mi <strong>Coronel Suárez</strong></span></a>
+    <p>Una guía hecha por y para nuestra comunidad.</p>
+    <small>Prototipo inicial · Los datos publicados son demostrativos.</small>
+  </footer>
+
+  <dialog id="joinDialog">
+    <button class="dialog-close" aria-label="Cerrar">×</button>
+    <span class="eyebrow">Sumate a la guía</span>
+    <h2>Contanos sobre tu actividad</h2>
+    <p>En esta primera versión vamos a registrar tu interés. El formulario definitivo incluirá validación de datos.</p>
+    <form id="joinForm">
+      <label>Nombre de la actividad<input required name="name" placeholder="Ej: Carpintería El Roble"></label>
+      <label>Rubro<input required name="category" placeholder="Ej: Carpintería"></label>
+      <label>WhatsApp o teléfono<input required name="phone" inputmode="tel" placeholder="2926…"></label>
+      <button class="button button-primary" type="submit">Quiero sumarme</button>
+    </form>
+    <p class="form-success" id="formSuccess" hidden>¡Gracias! En la versión conectada, este registro llegará al administrador.</p>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
