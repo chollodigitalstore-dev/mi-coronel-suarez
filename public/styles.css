@@ -31,6 +31,11 @@ nav a:hover { color: var(--green); }
 .button-primary:hover { background: var(--green-dark); }
 .button-outline { color: var(--green); background: transparent; border: 1px solid var(--green); }
 .button-light { color: var(--green-dark); background: white; padding: 15px 24px; }
+.auth-button { white-space: nowrap; }
+.user-menu { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.user-menu img { width: 34px; height: 34px; border-radius: 50%; background: var(--mint); }
+.user-menu span { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+.user-menu button { padding: 3px; border: 0; color: var(--muted); background: none; font-size: 12px; }
 
 .hero { min-height: 550px; padding: 72px max(5vw, 24px); display: grid; grid-template-columns: 1.12fr .88fr; align-items: center; gap: 40px; overflow: hidden; background: var(--cream); }
 .eyebrow { display: block; color: var(--green); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
@@ -80,6 +85,8 @@ h1 em { color: var(--green); font-style: normal; }
 .listing-meta { display: flex; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
 .listing-actions { display: flex; gap: 8px; }
 .listing-actions a { flex: 1; padding: 10px; border-radius: 10px; text-align: center; color: var(--green); background: var(--mint); font-size: 13px; font-weight: 700; }
+.listing-actions button { flex: 1; padding: 10px; border: 0; border-radius: 10px; color: white; background: var(--green); font-size: 13px; font-weight: 700; }
+.rating-summary { color: #a66f00; font-size: 13px; font-weight: 700; }
 .empty-state { padding: 60px 20px; text-align: center; }
 .empty-state > span { font-size: 45px; }
 .empty-state p { color: var(--muted); }
@@ -100,6 +107,15 @@ dialog form { display: grid; gap: 14px; margin-top: 22px; }
 dialog label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; }
 dialog input { padding: 12px; border: 1px solid var(--line); border-radius: 10px; outline: 0; }
 dialog input:focus { border-color: var(--green); }
+.review-close { top: 12px; }
+dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line); border-radius: 10px; outline: 0; }
+.rating-field { margin: 0; padding: 0; border: 0; }
+.rating-field legend { margin-bottom: 5px; font-size: 13px; font-weight: 700; }
+.star-rating { width: max-content; display: flex; flex-direction: row-reverse; gap: 3px; }
+.star-rating input { position: absolute; opacity: 0; pointer-events: none; }
+.star-rating label { color: #cbd2cf; font-size: 34px; cursor: pointer; transition: .15s ease; }
+.star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: var(--yellow); }
+.toast { position: fixed; right: 22px; bottom: 22px; z-index: 30; max-width: 360px; padding: 14px 18px; border-radius: 12px; color: white; background: var(--green-dark); box-shadow: var(--shadow); }
 .form-success { padding: 12px; color: var(--green-dark); background: var(--mint); border-radius: 10px; }
 
 @media (max-width: 900px) {

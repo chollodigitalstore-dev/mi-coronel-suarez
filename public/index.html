@@ -20,6 +20,10 @@
       <a href="#rubros">Rubros</a>
       <a href="#resultados">Guía local</a>
       <button class="button button-outline" data-open-form>Sumá tu actividad</button>
+      <button class="button button-primary auth-button" id="authButton">Ingresar con Google</button>
+      <div class="user-menu" id="userMenu" hidden>
+        <img id="userAvatar" alt=""><span id="userName"></span><button id="logoutButton">Salir</button>
+      </div>
     </nav>
   </header>
 
@@ -104,6 +108,31 @@
     <p class="form-success" id="formSuccess" hidden>¡Gracias! En la versión conectada, este registro llegará al administrador.</p>
   </dialog>
 
-  <script src="app.js"></script>
+  <dialog id="reviewDialog">
+    <button class="dialog-close review-close" aria-label="Cerrar">×</button>
+    <span class="eyebrow">Tu experiencia ayuda</span>
+    <h2 id="reviewBusinessName">Calificá esta actividad</h2>
+    <p>Tu nombre de pila y foto podrán mostrarse junto a la opinión. Tu correo nunca será público.</p>
+    <form id="reviewForm">
+      <input type="hidden" id="reviewListingSlug">
+      <fieldset class="rating-field">
+        <legend>Calificación</legend>
+        <div class="star-rating" aria-label="Elegí de una a cinco estrellas">
+          <input required type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+          <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+          <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+          <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+          <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+        </div>
+      </fieldset>
+      <label>Comentario <span>(opcional)</span><textarea id="reviewComment" minlength="3" maxlength="800" rows="4" placeholder="Contá cómo fue tu experiencia, con respeto y datos concretos."></textarea></label>
+      <button class="button button-primary" type="submit">Publicar opinión</button>
+    </form>
+    <p class="form-success" id="reviewSuccess" hidden>Tu opinión quedó publicada. ¡Gracias por ayudar a la comunidad!</p>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
