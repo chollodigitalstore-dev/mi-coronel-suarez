@@ -20,17 +20,17 @@ Todos los nombres, teléfonos y estados son datos ficticios de demostración.
 
 Validar rubros y localidades con usuarios reales, definir la identidad visual y convertir el prototipo en una aplicación con base de datos, administración y carga pública moderada.
 
-## Publicación en Cloudflare Pages
+## Publicación en Cloudflare Workers
 
-El proyecto ya incluye `wrangler.toml` y cabeceras de seguridad para Cloudflare.
+El proyecto incluye `wrangler.toml`, recursos estáticos y cabeceras de seguridad para Cloudflare Workers.
 
 ### Opción recomendada: repositorio conectado
 
 1. Crear un repositorio en GitHub con estos archivos.
-2. En Cloudflare, ingresar a **Workers & Pages → Create → Pages → Connect to Git**.
+2. En Cloudflare, ingresar a **Workers & Pages → Create → Import a repository**.
 3. Elegir el repositorio.
 4. No indicar comando de compilación.
-5. Usar `/` como directorio de salida si estos archivos están en la raíz del repositorio.
+5. Usar `npx wrangler deploy` como comando de implementación.
 6. Publicar y luego asociar el dominio desde **Custom domains**.
 
 Cada cambio subido al repositorio se publicará automáticamente.
@@ -40,7 +40,7 @@ Cada cambio subido al repositorio se publicará automáticamente.
 Desde esta carpeta, con Node.js y Wrangler disponibles:
 
 ```powershell
-npx wrangler pages deploy . --project-name mi-coronel-suarez
+npx wrangler deploy
 ```
 
 Cloudflare solicitará iniciar sesión la primera vez. La carga directa es cómoda para una prueba, pero conectar un repositorio es más conveniente para mantener el sitio.
