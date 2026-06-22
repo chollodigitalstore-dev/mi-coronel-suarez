@@ -30,7 +30,7 @@ La versión actualmente publicada contiene:
 
 Último commit publicado antes del trabajo de Supabase: `f4fce4a`.
 
-## Trabajo preparado localmente, todavía no publicado
+## Integración de Supabase preparada
 
 Commit local: `12cf5e3` — `Prepare Supabase authentication and reviews`.
 
@@ -45,24 +45,18 @@ Incluye:
 - Esquema SQL con perfiles, actividades, reseñas, respuestas y denuncias.
 - Políticas RLS para limitar operaciones según identidad y propiedad.
 
-No subir este commit a GitHub hasta completar el esquema SQL y habilitar Google, para evitar publicar una experiencia incompleta.
+El esquema SQL fue ejecutado correctamente, se cargaron las seis actividades de prueba y la API pública respondió con estado 200. Google OAuth fue configurado tanto en Google Cloud como en Supabase.
+
+URL pública y de retorno configurada:
+
+`https://mi-coronel-suarez.chollodigital-store.workers.dev`
 
 ## Próximo paso exacto
 
-1. Abrir Supabase.
-2. Entrar en **SQL Editor**.
-3. Crear una consulta con **New query**.
-4. Copiar todo el contenido de `supabase/schema.sql`.
-5. Ejecutarlo con **Run**.
-6. Confirmar si aparece éxito o copiar el error completo.
-
-Después:
-
-1. Configurar Google OAuth en Google Cloud y Supabase Authentication.
-2. Agregar como URL autorizada el callback que muestra Supabase.
-3. Agregar la URL pública de Cloudflare a las Redirect URLs de Supabase.
-4. Probar ingreso, cierre de sesión, publicación y edición de una reseña.
-5. Ejecutar `git push` para publicar el commit local cuando todo esté configurado.
+1. Publicar los commits pendientes en GitHub/Cloudflare.
+2. Confirmar que el usuario de prueba esté permitido en Google Auth Platform mientras la aplicación esté en modo de prueba.
+3. Probar ingreso, cierre de sesión, publicación y edición de una reseña.
+4. Corregir cualquier hallazgo antes de abrir la beta.
 
 ## Archivos importantes
 
