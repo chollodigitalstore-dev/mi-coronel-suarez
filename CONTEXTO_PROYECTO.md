@@ -58,6 +58,15 @@ URL pública y de retorno configurada:
 3. Probar ingreso, cierre de sesión, publicación y edición de una reseña.
 4. Corregir cualquier hallazgo antes de abrir la beta.
 
+## Verificación de producción
+
+- El despliegue automático publicó correctamente la interfaz de autenticación y reseñas.
+- La URL pública respondió con HTTP 200.
+- Las seis actividades fueron visibles a través de la API pública con RLS activo.
+- El botón “Ingresar con Google” redirigió correctamente al selector oficial de cuentas de Google.
+- Se corrigió la aparición simultánea de “Ingresar con Google” y “Salir” para usuarios sin sesión.
+- Pendiente: realizar una autenticación real con una cuenta permitida y publicar/editar una reseña de prueba.
+
 ## Archivos importantes
 
 - `public/index.html`: interfaz y diálogos.
