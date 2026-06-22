@@ -71,6 +71,7 @@ Después:
 - `public/app.js`: búsqueda, autenticación y reseñas.
 - `public/supabase-config.js`: URL y clave pública de Supabase.
 - `supabase/schema.sql`: esquema y reglas de seguridad para ejecutar en Supabase.
+- `supabase/seed.sql`: seis actividades ficticias para pruebas; ejecución repetible sin duplicados.
 - `worker.js`: Worker que entrega los recursos y agrega cabeceras de seguridad.
 - `wrangler.toml`: configuración de Cloudflare.
 - `public/assets/logo-mapa-clasificados-v2.png`: logo vigente.
