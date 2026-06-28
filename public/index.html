@@ -19,6 +19,7 @@
     <nav aria-label="Navegación principal">
       <a href="#rubros">Rubros</a>
       <a href="#resultados">Guía local</a>
+      <a href="#como-funciona">Cómo funciona</a>
       <button class="button button-outline" data-open-form>Sumá tu actividad</button>
       <button class="button button-primary auth-button" id="authButton">Ingresar con Google</button>
       <div class="user-menu" id="userMenu" hidden>
@@ -30,9 +31,14 @@
   <main>
     <section class="hero" id="inicio">
       <div class="hero-copy">
-        <span class="eyebrow">La guía local hecha para vos</span>
-        <h1>Todo lo que buscás,<br><em>más cerca.</em></h1>
-        <p>Profesionales, comercios y servicios de Coronel Suárez y la zona, en un solo lugar.</p>
+        <span class="eyebrow">La guía local hecha para Coronel Suárez</span>
+        <h1>Encontrá, recomendá y publicá <em>con confianza.</em></h1>
+        <p>Una guía práctica de profesionales, comercios y servicios. Podés buscar libremente; para publicar o calificar, ingresás con tu cuenta de Google.</p>
+
+        <div class="hero-actions">
+          <a class="button button-primary" href="#resultados">Buscar en la guía</a>
+          <button class="button button-outline" data-open-form>Publicar con Google</button>
+        </div>
 
         <form class="search-box" id="searchForm" role="search">
           <label class="search-input">
@@ -57,8 +63,39 @@
       <div class="hero-art" aria-hidden="true">
         <div class="sun"></div>
         <img class="hero-logo" src="assets/logo-mapa-clasificados-v2.png" alt="">
-        <div class="floating-card card-one"><b>✓</b><span><strong>Datos verificados</strong><small>Información confiable</small></span></div>
-        <div class="floating-card card-two"><b>⌖</b><span><strong>Cerca tuyo</strong><small>En toda la zona</small></span></div>
+        <div class="floating-card card-one"><b>G</b><span><strong>Ingreso con Google</strong><small>Más identidad, menos spam</small></span></div>
+        <div class="floating-card card-two"><b>★</b><span><strong>Reputación local</strong><small>Opiniones de vecinos</small></span></div>
+      </div>
+    </section>
+
+    <section class="ad-section" aria-label="Publicidad local">
+      <span class="ad-label">Publicidad local</span>
+      <a class="ad-banner" href="feria-americana-el-garage.html">
+        <img src="assets/banner-feria-americana-el-garage.png" alt="Feria Americana el Garage">
+      </a>
+    </section>
+
+    <section class="section trust-section" id="como-funciona">
+      <div class="section-heading centered-heading">
+        <div><span class="eyebrow">Cómo funciona</span><h2>Una guía abierta para buscar, cuidada para publicar</h2></div>
+        <p>Queremos que sea simple para el vecino y más seria para quien aparece en la guía.</p>
+      </div>
+      <div class="trust-grid">
+        <article class="trust-card">
+          <span>1</span>
+          <h3>Buscás sin registrarte</h3>
+          <p>Encontrá rubros, localidades, teléfonos y recomendaciones sin crear cuenta.</p>
+        </article>
+        <article class="trust-card featured">
+          <span>G</span>
+          <h3>Publicás con Google</h3>
+          <p>Para sumar un comercio, servicio o profesional te pedimos identificarte con Google.</p>
+        </article>
+        <article class="trust-card">
+          <span>★</span>
+          <h3>Calificás con identidad</h3>
+          <p>Las opiniones ayudan a construir reputación real. Tu correo no se muestra públicamente.</p>
+        </article>
       </div>
     </section>
 
@@ -83,8 +120,8 @@
     </section>
 
     <section class="join-banner">
-      <div><span class="eyebrow">Hagamos crecer la guía</span><h2>¿Tenés un comercio o brindás un servicio?</h2><p>Sumate para que más vecinos puedan encontrarte.</p></div>
-      <button class="button button-light" data-open-form>Publicá tu actividad gratis</button>
+      <div><span class="eyebrow">Hagamos crecer la guía</span><h2>¿Tenés un comercio o brindás un servicio?</h2><p>Publicá tu actividad gratis. Para cuidar la calidad de la guía, primero ingresás con Google.</p></div>
+      <button class="button button-light" data-open-form>Publicar con Google</button>
     </section>
   </main>
 
@@ -97,8 +134,15 @@
   <dialog id="joinDialog">
     <button class="dialog-close" aria-label="Cerrar">×</button>
     <span class="eyebrow">Sumate a la guía</span>
-    <h2>Contanos sobre tu actividad</h2>
-    <p>En esta primera versión vamos a registrar tu interés. El formulario definitivo incluirá validación de datos.</p>
+    <h2 id="joinDialogTitle">Publicá tu actividad</h2>
+    <p id="joinDialogIntro">Para publicar en Mi Coronel Suárez necesitás ingresar con Google. Así cuidamos la calidad de los datos y evitamos publicaciones anónimas.</p>
+    <div class="auth-gate" id="joinAuthGate">
+      <div>
+        <strong>Ingresá para continuar</strong>
+        <small>Usaremos tu nombre y correo solo para identificar la publicación. Tu correo no será público.</small>
+      </div>
+      <button class="button button-primary" id="joinLoginButton" type="button">Ingresar con Google</button>
+    </div>
     <form id="joinForm">
       <label>Nombre de la actividad<input required name="name" placeholder="Ej: Carpintería El Roble"></label>
       <label>Rubro<input required name="category" placeholder="Ej: Carpintería"></label>

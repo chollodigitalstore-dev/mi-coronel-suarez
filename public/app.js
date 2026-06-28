@@ -111,10 +111,30 @@ document.querySelector("#clearFilters").addEventListener("click", () => {
 });
 
 const dialog = document.querySelector("#joinDialog");
-document.querySelectorAll("[data-open-form]").forEach(button => button.addEventListener("click", () => dialog.showModal()));
+const joinForm = document.querySelector("#joinForm");
+const joinAuthGate = document.querySelector("#joinAuthGate");
+const joinDialogIntro = document.querySelector("#joinDialogIntro");
+const joinDialogTitle = document.querySelector("#joinDialogTitle");
+const formSuccess = document.querySelector("#formSuccess");
+
+function renderJoinDialogState() {
+  const isLoggedIn = Boolean(currentUser);
+  joinAuthGate.hidden = isLoggedIn;
+  joinForm.hidden = !isLoggedIn;
+  formSuccess.hidden = true;
+  joinDialogTitle.textContent = isLoggedIn ? "Contanos sobre tu actividad" : "Publicá tu actividad con Google";
+  joinDialogIntro.textContent = isLoggedIn
+    ? "Ya estás identificado. En esta primera versión vamos a registrar tu interés; el formulario definitivo incluirá validación de datos."
+    : "Para publicar en Mi Coronel Suárez necesitás ingresar con Google. Así cuidamos la calidad de los datos y evitamos publicaciones anónimas.";
+}
+
+document.querySelectorAll("[data-open-form]").forEach(button => button.addEventListener("click", () => {
+  renderJoinDialogState();
+  dialog.showModal();
+}));
 document.querySelector(".dialog-close").addEventListener("click", () => dialog.close());
-document.querySelector("#joinForm").addEventListener("submit", event => {
-  event.preventDefault(); event.currentTarget.reset(); document.querySelector("#formSuccess").hidden = false;
+joinForm.addEventListener("submit", event => {
+  event.preventDefault(); event.currentTarget.reset(); formSuccess.hidden = false;
 });
 
 const reviewDialog = document.querySelector("#reviewDialog");
@@ -132,6 +152,7 @@ function renderUser(user) {
   currentUser = user;
   authButton.hidden = Boolean(user);
   userMenu.hidden = !user;
+  renderJoinDialogState();
   if (!user) return;
   document.querySelector("#userName").textContent = user.user_metadata?.full_name?.split(" ")[0] || "Usuario";
   document.querySelector("#userAvatar").src = user.user_metadata?.avatar_url || "";
@@ -144,10 +165,13 @@ async function loadRatings() {
   renderListings();
 }
 
-authButton.addEventListener("click", async () => {
+async function signInWithGoogle() {
   const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
   if (error) showToast("No pudimos iniciar sesión. Probá nuevamente.");
-});
+}
+
+authButton.addEventListener("click", signInWithGoogle);
+document.querySelector("#joinLoginButton").addEventListener("click", signInWithGoogle);
 
 document.querySelector("#logoutButton").addEventListener("click", async () => {
   await supabase.auth.signOut(); renderUser(null);
