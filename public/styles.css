@@ -63,6 +63,7 @@ h1 em { color: var(--green); font-style: normal; }
 .value-card { width: min(310px, 58%); align-items: start; padding: 16px; }
 .value-card b { flex: 0 0 auto; }
 .value-card strong { margin-bottom: 4px; color: var(--ink); font-size: 16px; line-height: 1.1; }
+.value-card mark { padding: 2px 7px 3px; border-radius: 999px; color: var(--green-dark); background: #f7d978; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .value-card small { font-size: 13px; line-height: 1.35; }
 .card-one { top: 32px; left: -12px; }
 .card-two { right: -5px; bottom: 26px; }
