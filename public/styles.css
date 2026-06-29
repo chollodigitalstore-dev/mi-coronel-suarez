@@ -45,8 +45,6 @@ h1 { font-size: clamp(44px, 5vw, 72px); letter-spacing: -3px; }
 h1 em { color: var(--green); font-style: normal; }
 .hero-copy > p { max-width: 600px; color: var(--muted); font-size: 18px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
-.value-pills { max-width: 760px; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-.value-pills span { padding: 9px 13px; border: 1px solid rgba(39,109,85,.14); border-radius: 999px; color: var(--green-dark); background: rgba(255,255,255,.72); font-size: 13px; font-weight: 800; box-shadow: 0 8px 22px rgba(22,74,57,.05); }
 .search-box { max-width: 780px; min-height: 68px; display: flex; align-items: center; margin-top: 32px; padding: 8px; gap: 4px; background: white; border-radius: 16px; box-shadow: var(--shadow); position: relative; z-index: 3; }
 .search-input, .location-select { display: flex; align-items: center; gap: 10px; padding: 0 14px; }
 .search-input { flex: 1; }
@@ -62,8 +60,12 @@ h1 em { color: var(--green); font-style: normal; }
 .floating-card b { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: white; background: var(--coral); }
 .floating-card span { display: flex; flex-direction: column; }
 .floating-card small { color: var(--muted); }
-.card-one { top: 50px; left: 0; }
-.card-two { right: -5px; bottom: 45px; }
+.value-card { width: min(310px, 58%); align-items: start; padding: 16px; }
+.value-card b { flex: 0 0 auto; }
+.value-card strong { margin-bottom: 4px; color: var(--ink); font-size: 16px; line-height: 1.1; }
+.value-card small { font-size: 13px; line-height: 1.35; }
+.card-one { top: 32px; left: -12px; }
+.card-two { right: -5px; bottom: 26px; }
 
 .ad-section { padding: 34px max(5vw, 24px); background: #fffdf8; }
 .ad-label { display: block; margin-bottom: 10px; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; }
@@ -163,15 +165,17 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   .hero-copy > p { font-size: 16px; }
   .search-box { display: grid; grid-template-columns: 1fr auto; }
   .hero-actions .button { width: 100%; text-align: center; }
-  .value-pills span { width: 100%; text-align: center; }
   .search-input { grid-column: 1 / -1; height: 46px; }
   .location-select { width: auto; height: 42px; border-left: 0; border-top: 1px solid var(--line); }
   .hero-art { height: 280px; transform: scale(.9); }
   .sun { width: 250px; height: 250px; }
   .hero-logo { width: 280px; top: -6px; }
-  .floating-card { min-width: 160px; padding: 9px; font-size: 12px; }
-  .card-one { left: -20px; }
-  .card-two { right: -20px; }
+  .floating-card { min-width: 160px; padding: 10px; font-size: 12px; }
+  .value-card { width: 230px; }
+  .value-card strong { font-size: 13px; }
+  .value-card small { font-size: 11px; }
+  .card-one { left: -18px; top: 2px; }
+  .card-two { right: -18px; bottom: 0; }
   .section { padding-top: 58px; padding-bottom: 58px; }
   .section-heading { align-items: start; flex-direction: column; }
   .centered-heading { align-items: center; }
