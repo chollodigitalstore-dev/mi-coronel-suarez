@@ -148,6 +148,49 @@ function showToast(message) {
   window.setTimeout(() => { toast.hidden = true; }, 4500);
 }
 
+function weatherIcon(code = 0) {
+  if (code === 0) return "☀️";
+  if ([1, 2].includes(code)) return "🌤️";
+  if (code === 3) return "☁️";
+  if ([45, 48].includes(code)) return "🌫️";
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "🌧️";
+  if (code >= 71 && code <= 77) return "❄️";
+  if (code >= 95) return "⛈️";
+  return "🌡️";
+}
+
+async function loadWeather() {
+  const weatherWidget = document.querySelector("#weatherWidget");
+  const weatherText = document.querySelector("#weatherText");
+  const weatherIconElement = document.querySelector("#weatherIcon");
+  if (!weatherWidget || !weatherText || !weatherIconElement) return;
+
+  try {
+    const params = new URLSearchParams({
+      latitude: "-37.4547",
+      longitude: "-61.9334",
+      current: "temperature_2m,weather_code",
+      daily: "temperature_2m_max,temperature_2m_min,weather_code",
+      forecast_days: "2",
+      timezone: "America/Argentina/Buenos_Aires"
+    });
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+    if (!response.ok) throw new Error("Weather request failed");
+    const weather = await response.json();
+    const currentTemp = Math.round(weather.current?.temperature_2m);
+    const tomorrowMax = Math.round(weather.daily?.temperature_2m_max?.[1]);
+    const tomorrowMin = Math.round(weather.daily?.temperature_2m_min?.[1]);
+    const icon = weatherIcon(weather.current?.weather_code);
+    if ([currentTemp, tomorrowMax, tomorrowMin].some(Number.isNaN)) throw new Error("Weather data incomplete");
+    weatherIconElement.textContent = icon;
+    weatherText.textContent = `Ahora ${currentTemp}° · Mañana ${tomorrowMin}°/${tomorrowMax}°`;
+    weatherWidget.title = "Clima de Coronel Suárez · Fuente: Open-Meteo";
+  } catch (_error) {
+    weatherIconElement.textContent = "🌡️";
+    weatherText.textContent = "Clima no disponible";
+  }
+}
+
 function renderUser(user) {
   currentUser = user;
   authButton.hidden = Boolean(user);
@@ -251,3 +294,4 @@ supportPanel.addEventListener("click", event => {
 renderCategories();
 renderListings();
 loadRatings();
+loadWeather();
