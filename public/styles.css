@@ -71,6 +71,15 @@ h1 em { color: var(--green); font-style: normal; }
 .card-one { top: 32px; left: -12px; }
 .card-two { right: -5px; bottom: 26px; }
 
+.utility-section { padding: 34px max(5vw, 24px) 0; background: #fffdf8; }
+.pharmacy-card { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 24px clamp(22px, 4vw, 42px); border: 1px solid rgba(39,109,85,.16); border-radius: 24px; background: linear-gradient(135deg, #ffffff, var(--mint)); box-shadow: 0 14px 45px rgba(22,74,57,.08); }
+.pharmacy-copy h2 { font-size: clamp(26px, 3vw, 38px); letter-spacing: -1px; }
+.pharmacy-copy p { margin: 10px 0; color: var(--muted); }
+.pharmacy-copy small { color: var(--muted); }
+.pharmacy-detail { display: grid; gap: 4px; margin: 12px 0; }
+.pharmacy-detail strong { font-size: 20px; }
+.pharmacy-detail span { color: var(--muted); }
+
 .ad-section { padding: 34px max(5vw, 24px); background: #fffdf8; }
 .ad-label { display: block; margin-bottom: 10px; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; }
 .ad-banner { display: block; overflow: hidden; border-radius: 24px; border: 1px solid var(--line); background: #fbf0de; box-shadow: 0 14px 45px rgba(22,74,57,.1); transition: .2s ease; }
@@ -170,6 +179,7 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   .category-grid { grid-template-columns: repeat(3, 1fr); }
   .trust-grid { grid-template-columns: 1fr; }
   .trust-card.featured { transform: none; }
+  .pharmacy-card { align-items: start; flex-direction: column; }
   .listing-grid { grid-template-columns: repeat(2, 1fr); }
   footer { flex-wrap: wrap; }
 }

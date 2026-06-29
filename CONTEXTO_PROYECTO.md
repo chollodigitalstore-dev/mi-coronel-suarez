@@ -118,6 +118,7 @@ Pendiente verificar si `https://www.guiasuarez.ar` también abre. Si no abre, re
 - `public/supabase-config.js`: URL y clave pública de Supabase.
 - `supabase/schema.sql`: esquema y reglas de seguridad para ejecutar en Supabase.
 - `supabase/seed.sql`: seis actividades ficticias para pruebas; ejecución repetible sin duplicados.
+- `supabase/pharmacy-shifts.sql`: tabla de farmacias de turno.
 - `worker.js`: Worker que entrega los recursos y agrega cabeceras de seguridad.
 - `wrangler.toml`: configuración de Cloudflare.
 - `public/assets/logo-mapa-clasificados-v2.png`: logo vigente.
@@ -140,7 +141,8 @@ Pendiente verificar si `https://www.guiasuarez.ar` también abre. Si no abre, re
 - Footer/branding: incluir “Powered by Blu Software” o “Desarrollado por Blu Software”.
 - Se agregó un botón flotante de soporte/asistente en la home. Por ahora funciona como ayuda guiada con respuestas predefinidas; explica cómo autenticarse, cómo publicar una actividad, cómo calificar, cómo modificar/pausar/eliminar un aviso y cómo funciona la reputación.
 - Header: incluye fecha actual junto a la marca y clima actual/pronóstico de mañana para Coronel Suárez.
-- Dato local futuro prioritario: farmacia de turno. Fuentes públicas detectadas para evaluar/integrar: La Nueva Radio Suárez, Suárez al Día, Radio Coronel Suárez y FarmaciaDeTurnoAhora. Por tratarse de salud, conviene mostrar fuente, horario del turno y recomendación de confirmar telefónicamente.
+- Dato local prioritario: farmacia de turno. Se agregó tarjeta pública que consulta Supabase (`pharmacy_shifts`) y muestra nombre, dirección, horario y botón llamar. No se muestra fuente públicamente; se recomienda confirmar telefónicamente antes de acercarse.
+- SQL pendiente/útil: `supabase/pharmacy-shifts.sql` crea la tabla `public.pharmacy_shifts`, RLS de lectura pública para turnos activos y ejemplo de carga manual.
 
 ## Scoring propuesto
 

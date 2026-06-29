@@ -202,6 +202,58 @@ async function loadWeather() {
   }
 }
 
+function formatShiftHours(startsAt, endsAt) {
+  const formatter = new Intl.DateTimeFormat("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const start = formatter.format(new Date(startsAt));
+  const end = formatter.format(new Date(endsAt));
+  return `Turno de ${start} a ${end}`;
+}
+
+async function loadPharmacyShift() {
+  const status = document.querySelector("#pharmacyStatus");
+  const detail = document.querySelector("#pharmacyDetail");
+  const name = document.querySelector("#pharmacyName");
+  const address = document.querySelector("#pharmacyAddress");
+  const hours = document.querySelector("#pharmacyHours");
+  const phone = document.querySelector("#pharmacyPhone");
+  if (!status || !detail || !name || !address || !hours || !phone) return;
+
+  try {
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("pharmacy_shifts")
+      .select("pharmacy_name,address,phone,starts_at,ends_at,notes")
+      .eq("active", true)
+      .lte("starts_at", now)
+      .gt("ends_at", now)
+      .order("starts_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) throw new Error("No current pharmacy shift");
+
+    status.hidden = true;
+    name.textContent = data.pharmacy_name;
+    address.textContent = data.address || "Dirección no informada";
+    hours.textContent = data.starts_at && data.ends_at ? formatShiftHours(data.starts_at, data.ends_at) : "Horario de turno no informado";
+    detail.hidden = false;
+
+    if (data.phone) {
+      const normalizedPhone = data.phone.replace(/[^\d+]/g, "");
+      phone.href = `tel:${normalizedPhone}`;
+      phone.textContent = `Llamar ${data.phone}`;
+      phone.hidden = false;
+    } else {
+      phone.hidden = true;
+    }
+  } catch (_error) {
+    status.hidden = false;
+    status.textContent = "Todavía no hay una farmacia de turno cargada para este momento.";
+    detail.hidden = true;
+    phone.hidden = true;
+  }
+}
+
 function renderUser(user) {
   currentUser = user;
   authButton.hidden = Boolean(user);
@@ -307,3 +359,4 @@ renderListings();
 loadRatings();
 renderCurrentDate();
 loadWeather();
+loadPharmacyShift();
