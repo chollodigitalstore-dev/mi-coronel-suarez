@@ -139,7 +139,6 @@ joinForm.addEventListener("submit", event => {
 
 const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
-const authButton = document.querySelector("#authButton");
 const userMenu = document.querySelector("#userMenu");
 
 function showToast(message) {
@@ -223,7 +222,6 @@ async function loadPharmacyShift() {
 
 function renderUser(user) {
   currentUser = user;
-  authButton.hidden = Boolean(user);
   userMenu.hidden = !user;
   renderJoinDialogState();
   if (!user) return;
@@ -243,7 +241,6 @@ async function signInWithGoogle() {
   if (error) showToast("No pudimos iniciar sesión. Probá nuevamente.");
 }
 
-authButton.addEventListener("click", signInWithGoogle);
 document.querySelector("#joinLoginButton").addEventListener("click", signInWithGoogle);
 
 document.querySelector("#logoutButton").addEventListener("click", async () => {
@@ -253,7 +250,12 @@ document.querySelector("#logoutButton").addEventListener("click", async () => {
 listingGrid.addEventListener("click", event => {
   const button = event.target.closest("[data-review]");
   if (!button) return;
-  if (!currentUser) { showToast("Ingresá con Google para dejar una calificación."); authButton.focus(); return; }
+  if (!currentUser) {
+    showToast("Ingresá con Google para dejar una calificación.");
+    renderJoinDialogState();
+    dialog.showModal();
+    return;
+  }
   reviewForm.reset(); document.querySelector("#reviewSuccess").hidden = true; reviewForm.hidden = false;
   document.querySelector("#reviewListingSlug").value = button.dataset.review;
   document.querySelector("#reviewBusinessName").textContent = `Calificá ${button.dataset.name}`;
