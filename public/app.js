@@ -204,6 +204,50 @@ const { data: { session } } = await supabase.auth.getSession();
 renderUser(session?.user || null);
 supabase.auth.onAuthStateChange((_event, nextSession) => renderUser(nextSession?.user || null));
 
+const supportFab = document.querySelector("#supportFab");
+const supportPanel = document.querySelector("#supportPanel");
+const supportClose = document.querySelector("#supportClose");
+const supportAnswer = document.querySelector("#supportAnswer");
+const helpTopics = {
+  auth: {
+    title: "Cómo ingresar con Google",
+    body: "Tocá “Ingresar con Google”, elegí tu cuenta y aceptá el acceso. Usamos tu identidad para publicar, editar avisos y dejar reseñas; tu correo no se muestra públicamente."
+  },
+  publish: {
+    title: "Cómo publicar una actividad",
+    body: "Ingresá con Google y tocá “Sumá tu actividad”. Completá nombre, rubro y teléfono. La publicación básica será gratis para siempre y quedará asociada a tu cuenta para que puedas administrarla."
+  },
+  review: {
+    title: "Cómo calificar un servicio",
+    body: "Buscá la actividad, tocá “Calificar”, ingresá con Google si todavía no lo hiciste y dejá de 1 a 5 estrellas. Podés sumar un comentario respetuoso para ayudar a otros vecinos."
+  },
+  manage: {
+    title: "Cómo modificar o pausar mi aviso",
+    body: "La idea es que cada aviso quede vinculado a quien lo publicó. Desde tu cuenta vas a poder editar datos, pausar la publicación o pedir la baja. Esta sección de administración será el próximo paso."
+  },
+  reputation: {
+    title: "Cómo funciona la reputación",
+    body: "La reputación se construye con calificaciones de usuarios identificados. La publicidad puede dar visibilidad, pero no mejora el puntaje: las opiniones y la confianza de la ficha son independientes."
+  }
+};
+
+function toggleSupportPanel(forceOpen) {
+  const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : supportPanel.hidden;
+  supportPanel.hidden = !shouldOpen;
+  supportFab.setAttribute("aria-expanded", String(shouldOpen));
+}
+
+supportFab.addEventListener("click", () => toggleSupportPanel());
+supportClose.addEventListener("click", () => toggleSupportPanel(false));
+supportPanel.addEventListener("click", event => {
+  const button = event.target.closest("[data-help-topic]");
+  if (!button) return;
+  const topic = helpTopics[button.dataset.helpTopic];
+  if (!topic) return;
+  supportPanel.querySelectorAll("[data-help-topic]").forEach(item => item.classList.toggle("active", item === button));
+  supportAnswer.innerHTML = `<h3>${topic.title}</h3><p>${topic.body}</p>`;
+});
+
 renderCategories();
 renderListings();
 loadRatings();

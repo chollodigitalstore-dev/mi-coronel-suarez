@@ -138,7 +138,7 @@ Pendiente verificar si `https://www.guiasuarez.ar` también abre. Si no abre, re
 - La publicidad no debe alterar el scoring ni la reputación. Un comercio puede pagar visibilidad, pero no mejorar artificialmente su puntaje.
 - Monetización inicial: banners de publicidad local. Primer anunciante previsto: feria americana “El Garage de Bettina”.
 - Footer/branding: incluir “Powered by Blu Software” o “Desarrollado por Blu Software”.
-- Agregar más adelante un botón de soporte/asistente para orientar al usuario. Debe poder explicar cómo autenticarse, cómo publicar una actividad, cómo calificar, cómo modificar/pausar/eliminar un aviso y cómo funciona la reputación.
+- Se agregó un botón flotante de soporte/asistente en la home. Por ahora funciona como ayuda guiada con respuestas predefinidas; explica cómo autenticarse, cómo publicar una actividad, cómo calificar, cómo modificar/pausar/eliminar un aviso y cómo funciona la reputación.
 
 ## Scoring propuesto
 

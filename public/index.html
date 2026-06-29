@@ -176,6 +176,34 @@
 
   <div class="toast" id="toast" role="status" hidden></div>
 
+  <button class="support-fab" id="supportFab" type="button" aria-expanded="false" aria-controls="supportPanel">
+    <span>?</span>
+    Ayuda
+  </button>
+
+  <aside class="support-panel" id="supportPanel" aria-label="Asistente de ayuda" hidden>
+    <div class="support-header">
+      <div>
+        <span class="eyebrow">Asistente</span>
+        <h2>¿Necesitás ayuda?</h2>
+      </div>
+      <button class="support-close" id="supportClose" type="button" aria-label="Cerrar ayuda">×</button>
+    </div>
+    <p class="support-intro">Te guiamos en los pasos principales de Guía Suárez.</p>
+    <div class="support-options" role="list">
+      <button type="button" data-help-topic="auth">Cómo ingresar con Google</button>
+      <button type="button" data-help-topic="publish">Cómo publicar una actividad</button>
+      <button type="button" data-help-topic="review">Cómo calificar un servicio</button>
+      <button type="button" data-help-topic="manage">Cómo modificar o pausar mi aviso</button>
+      <button type="button" data-help-topic="reputation">Cómo funciona la reputación</button>
+    </div>
+    <div class="support-answer" id="supportAnswer" role="status">
+      <h3>Elegí una consulta</h3>
+      <p>Seleccioná una opción y te mostramos una explicación corta.</p>
+    </div>
+    <small class="support-note">Powered by Blu Software</small>
+  </aside>
+
   <script type="module" src="app.js"></script>
 </body>
 </html>
