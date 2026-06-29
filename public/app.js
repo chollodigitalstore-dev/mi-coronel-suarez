@@ -20,12 +20,12 @@ const categories = [
 
 // Datos ficticios para demostrar el funcionamiento del prototipo.
 const listings = [
-  { slug: "carpinteria-el-roble", name: "Carpintería El Roble", category: "hogar", tags: "carpintero muebles madera arreglos", location: "coronel-suarez", place: "Coronel Suárez", icon: "🪵", phone: "2926 000001", verified: true },
-  { slug: "estudio-norte", name: "Estudio Norte", category: "profesionales", tags: "arquitectura planos construcción profesional", location: "coronel-suarez", place: "Coronel Suárez", icon: "📐", phone: "2926 000002", verified: true },
-  { slug: "manos-bonitas", name: "Manos Bonitas", category: "belleza", tags: "manicura uñas belleza pedicura", location: "pueblo-san-jose", place: "Pueblo San José", icon: "💅", phone: "2926 000003", verified: true },
-  { slug: "sabores-de-casa", name: "Sabores de Casa", category: "gastronomia", tags: "comida viandas pastas caseras", location: "huanguelen", place: "Huanguelén", icon: "🥟", phone: "2926 000004", verified: false },
-  { slug: "electro-suarez", name: "Electro Suárez", category: "hogar", tags: "electricista electricidad instalaciones urgencias", location: "pueblo-santa-trinidad", place: "Pueblo Santa Trinidad", icon: "⚡", phone: "2926 000005", verified: true },
-  { slug: "veterinaria-la-comarca", name: "Veterinaria La Comarca", category: "mascotas", tags: "veterinaria mascotas alimento perros gatos", location: "coronel-suarez", place: "Coronel Suárez", icon: "🐕", phone: "2926 000006", verified: true }
+  { slug: "carpinteria-el-roble", name: "Carpintería El Roble", category: "hogar", tags: "carpintero muebles madera arreglos", location: "coronel-suarez", place: "Coronel Suárez", icon: "🪵", phone: "2926 000001", whatsapp: "542926000001", verified: true },
+  { slug: "estudio-norte", name: "Estudio Norte", category: "profesionales", tags: "arquitectura planos construcción profesional", location: "coronel-suarez", place: "Coronel Suárez", icon: "📐", phone: "2926 000002", whatsapp: "542926000002", verified: true },
+  { slug: "manos-bonitas", name: "Manos Bonitas", category: "belleza", tags: "manicura uñas belleza pedicura", location: "pueblo-san-jose", place: "Pueblo San José", icon: "💅", phone: "2926 000003", whatsapp: "542926000003", verified: true },
+  { slug: "sabores-de-casa", name: "Sabores de Casa", category: "gastronomia", tags: "comida viandas pastas caseras", location: "huanguelen", place: "Huanguelén", icon: "🥟", phone: "2926 000004", whatsapp: "542926000004", verified: false },
+  { slug: "electro-suarez", name: "Electro Suárez", category: "hogar", tags: "electricista electricidad instalaciones urgencias", location: "pueblo-santa-trinidad", place: "Pueblo Santa Trinidad", icon: "⚡", phone: "2926 000005", whatsapp: "542926000005", verified: true },
+  { slug: "veterinaria-la-comarca", name: "Veterinaria La Comarca", category: "mascotas", tags: "veterinaria mascotas alimento perros gatos", location: "coronel-suarez", place: "Coronel Suárez", icon: "🐕", phone: "2926 000006", whatsapp: "542926000006", verified: true }
 ];
 
 const categoryGrid = document.querySelector("#categoryGrid");
@@ -42,6 +42,21 @@ let ratingStats = {};
 
 function normalize(text) {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function phoneHref(phone = "") {
+  return `tel:${phone.replace(/[^\d+]/g, "")}`;
+}
+
+function whatsappHref(item) {
+  const phone = item.whatsapp || `54${item.phone.replace(/[^\d]/g, "")}`;
+  const text = encodeURIComponent(`Hola, te encontré en Guía Suárez y quería consultar por ${item.name}.`);
+  return `https://wa.me/${phone}?text=${text}`;
+}
+
+function mapsHref(item) {
+  const query = encodeURIComponent(`${item.name} ${item.place} Buenos Aires Argentina`);
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
 }
 
 function renderCategories() {
@@ -66,16 +81,21 @@ function renderListings() {
     const category = categories.find(c => c.id === item.category)?.name;
     const stats = ratingStats[item.slug];
     const rating = stats ? `<span class="rating-summary">★ ${Number(stats.average_rating).toFixed(1)} · ${stats.review_count} opiniones</span>` : '<span class="rating-summary">Sin opiniones todavía</span>';
-    return `<article class="listing-card">
-      <div class="listing-cover"><span>${item.icon}</span>${item.verified ? '<span class="verified">✓ Verificado</span>' : ""}</div>
+    return `<article class="listing-card" aria-label="${item.name} en ${item.place}">
+      <div class="listing-cover" role="img" aria-label="${category}: ${item.name}"><span>${item.icon}</span>${item.verified ? '<span class="verified">✓ Verificado</span>' : ""}</div>
       <div class="listing-body"><span class="listing-category">${category}</span><h3>${item.name}</h3>${rating}
       <div class="listing-meta"><span>⌖ ${item.place}</span><span>● Abierto hoy</span></div>
-      <div class="listing-actions"><a href="tel:${item.phone.replaceAll(" ", "")}">Llamar</a><button data-review="${item.slug}" data-name="${item.name}">Calificar</button></div></div>
+      <div class="listing-actions" aria-label="Acciones rápidas">
+        <a href="${phoneHref(item.phone)}" aria-label="Llamar a ${item.name}"><span>☎</span>Llamar</a>
+        <a href="${whatsappHref(item)}" target="_blank" rel="noopener" aria-label="Enviar WhatsApp a ${item.name}"><span>☘</span>WhatsApp</a>
+        <a href="${mapsHref(item)}" target="_blank" rel="noopener" aria-label="Ver ${item.name} en Google Maps"><span>⌖</span>Mapa</a>
+      </div>
+      <button class="review-action" data-review="${item.slug}" data-name="${item.name}">★ Calificar servicio</button></div>
     </article>`;
   }).join("");
 
   const hasFilter = query || activeCategory || location !== "todas";
-  resultsTitle.textContent = hasFilter ? "Resultados de tu búsqueda" : "Conocé nuestra guía local";
+  resultsTitle.textContent = hasFilter ? "Resultados de tu búsqueda" : "Comercios y servicios destacados en Coronel Suárez";
   resultCount.textContent = `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
   emptyState.hidden = filtered.length > 0;
   listingGrid.hidden = filtered.length === 0;
@@ -278,6 +298,9 @@ reviewForm.addEventListener("submit", async event => {
 const { data: { session } } = await supabase.auth.getSession();
 renderUser(session?.user || null);
 supabase.auth.onAuthStateChange((_event, nextSession) => renderUser(nextSession?.user || null));
+
+const initialQuery = new URLSearchParams(window.location.search).get("q");
+if (initialQuery) searchInput.value = initialQuery;
 
 const supportFab = document.querySelector("#supportFab");
 const supportPanel = document.querySelector("#supportPanel");

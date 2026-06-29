@@ -115,6 +115,7 @@ Pendiente verificar si `https://www.guiasuarez.ar` también abre. Si no abre, re
 - `public/index.html`: interfaz y diálogos.
 - `public/styles.css`: diseño responsive.
 - `public/app.js`: búsqueda, autenticación y reseñas.
+- `public/business-schema-template.js`: plantilla JSON-LD `LocalBusiness` para futuras fichas individuales.
 - `public/supabase-config.js`: URL y clave pública de Supabase.
 - `supabase/schema.sql`: esquema y reglas de seguridad para ejecutar en Supabase.
 - `supabase/seed.sql`: seis actividades ficticias para pruebas; ejecución repetible sin duplicados.
@@ -145,6 +146,9 @@ Pendiente verificar si `https://www.guiasuarez.ar` también abre. Si no abre, re
 - La farmacia de turno se consulta automáticamente desde el Worker en `/api/pharmacy-turn`, consolidando dos fuentes públicas: La Nueva Radio Suárez y FarmaciaDeTurnoAhora. No se muestra fuente públicamente.
 - Si ambas fuentes fallan, se muestra “Farmacia de turno no disponible”.
 - `supabase/pharmacy-shifts.sql` queda como alternativa/fallback para carga manual si en el futuro se desea administrar turnos desde Supabase.
+- SEO Home: título, descripción, canonical, Open Graph y JSON-LD `WebSite` con `SearchAction`.
+- Tarjetas de comercio: acciones rápidas mobile para llamar, WhatsApp y Google Maps; calificación queda separada como acción de reputación.
+- Performance: imágenes principales con `width`, `height`, `decoding`, `fetchpriority`/`loading` según corresponda para reducir CLS y carga innecesaria.
 
 ## Scoring propuesto
 

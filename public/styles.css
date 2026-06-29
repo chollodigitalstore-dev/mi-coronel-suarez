@@ -112,9 +112,12 @@ h1 em { color: var(--green); font-style: normal; }
 .listing-body h3 { font-size: 21px; margin-bottom: 5px; }
 .listing-category { color: var(--green); font-size: 13px; font-weight: 700; }
 .listing-meta { display: flex; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
-.listing-actions { display: flex; gap: 8px; }
-.listing-actions a { flex: 1; padding: 10px; border-radius: 10px; text-align: center; color: var(--green); background: var(--mint); font-size: 13px; font-weight: 700; }
-.listing-actions button { flex: 1; padding: 10px; border: 0; border-radius: 10px; color: white; background: var(--green); font-size: 13px; font-weight: 700; }
+.listing-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--line); }
+.listing-actions a { min-height: 54px; display: grid; place-items: center; gap: 2px; padding: 8px 4px; text-align: center; color: var(--green); background: white; font-size: 12px; font-weight: 800; }
+.listing-actions a span { font-size: 17px; line-height: 1; }
+.listing-actions a:hover { background: var(--mint); }
+.review-action { width: 100%; margin-top: 10px; padding: 11px; border: 0; border-radius: 12px; color: white; background: var(--green); font-size: 13px; font-weight: 800; }
+.review-action:hover { background: var(--green-dark); }
 .rating-summary { color: #a66f00; font-size: 13px; font-weight: 700; }
 .empty-state { padding: 60px 20px; text-align: center; }
 .empty-state > span { font-size: 45px; }

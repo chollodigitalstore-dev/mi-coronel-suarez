@@ -3,12 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Guía local de profesionales, comercios y servicios de Coronel Suárez.">
-  <title>Mi Coronel Suárez — Todo lo que buscás, cerca</title>
+  <meta name="description" content="Guía comercial de Coronel Suárez: encontrá comercios, profesionales, servicios, farmacia de turno, calificaciones y datos útiles de la ciudad.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://guiasuarez.ar/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Guía Suárez — Comercios en Coronel Suárez">
+  <meta property="og:description" content="Comercios, profesionales y servicios de Coronel Suárez en una guía local rápida y fácil de usar.">
+  <meta property="og:url" content="https://guiasuarez.ar/">
+  <title>Guía Suárez — Comercios en Coronel Suárez, profesionales y servicios</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Guía Suárez",
+    "alternateName": "Mi Coronel Suárez",
+    "url": "https://guiasuarez.ar/",
+    "inLanguage": "es-AR",
+    "description": "Guía comercial de Coronel Suárez con comercios, profesionales, servicios y calificaciones locales.",
+    "areaServed": {
+      "@type": "City",
+      "name": "Coronel Suárez"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://guiasuarez.ar/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
   <header class="site-header">
@@ -39,9 +65,9 @@
   <main>
     <section class="hero" id="inicio">
       <div class="hero-copy">
-        <span class="eyebrow">La guía local hecha para Coronel Suárez</span>
-        <h1>Encontrá, recomendá y publicá <em>con confianza.</em></h1>
-        <p>Una guía práctica de profesionales, comercios y servicios. Podés buscar libremente; para publicar o calificar, ingresás con tu cuenta de Google.</p>
+        <span class="eyebrow">Guía comercial de Coronel Suárez</span>
+        <h1>Comercios en Coronel Suárez, profesionales y servicios <em>con confianza.</em></h1>
+        <p>Encontrá comercios, profesionales y servicios locales. Buscá libremente, compará calificaciones y publicá tu actividad gratis para siempre.</p>
 
         <div class="hero-actions">
           <a class="button button-primary" href="#resultados">Buscar en la guía</a>
@@ -50,7 +76,7 @@
         <form class="search-box" id="searchForm" role="search">
           <label class="search-input">
             <span aria-hidden="true">⌕</span>
-            <input id="searchInput" type="search" placeholder="¿Qué necesitás? Ej: manicura, carpintero…" autocomplete="off">
+            <input id="searchInput" type="search" name="q" placeholder="¿Qué necesitás? Ej: manicura, carpintero…" autocomplete="off" aria-label="Buscar comercios, profesionales o servicios en Coronel Suárez">
           </label>
           <label class="location-select">
             <span aria-hidden="true">●</span>
@@ -69,7 +95,7 @@
       </div>
       <div class="hero-art" aria-hidden="true">
         <div class="sun"></div>
-        <img class="hero-logo" src="assets/logo-mapa-clasificados-v2.png" alt="">
+        <img class="hero-logo" src="assets/logo-mapa-clasificados-v2.png" width="1254" height="1254" alt="" fetchpriority="high" decoding="async">
         <div class="floating-card card-one value-card"><b>✓</b><span><strong>Publicá <mark>gratis para siempre</mark></strong><small>Sumá tu comercio, profesión o servicio sin costo. Ingresás con Google para poder editar o pausar tu anuncio.</small></span></div>
         <div class="floating-card card-two value-card"><b>★</b><span><strong>Reputación local</strong><small>Calificá servicios y elegí la mejor opción según las opiniones de vecinos identificados.</small></span></div>
       </div>
@@ -78,13 +104,13 @@
     <section class="ad-section" aria-label="Publicidad local">
       <span class="ad-label">Publicidad local</span>
       <a class="ad-banner" href="feria-americana-el-garage.html">
-        <img src="assets/banner-feria-americana-el-garage.png" alt="Feria Americana el Garage">
+        <img src="assets/banner-feria-americana-el-garage.png" width="1774" height="887" loading="lazy" decoding="async" alt="Feria Americana el Garage">
       </a>
     </section>
 
     <section class="section trust-section" id="como-funciona">
       <div class="section-heading centered-heading">
-        <div><span class="eyebrow">Cómo funciona</span><h2>Una guía abierta para buscar, cuidada para publicar</h2></div>
+        <div><span class="eyebrow">Cómo funciona</span><h2>Guía comercial abierta para buscar, cuidada para publicar</h2></div>
         <p>Queremos que sea simple para el vecino y más seria para quien aparece en la guía.</p>
       </div>
       <div class="trust-grid">
@@ -108,7 +134,7 @@
 
     <section class="section" id="rubros">
       <div class="section-heading">
-        <div><span class="eyebrow">Explorá la ciudad</span><h2>¿Qué estás buscando?</h2></div>
+        <div><span class="eyebrow">Comercios por rubro</span><h2>Buscá comercios en Coronel Suárez por categoría</h2></div>
         <button class="text-link" id="showAllCategories">Ver todos los rubros →</button>
       </div>
       <div class="category-grid" id="categoryGrid"></div>
@@ -116,7 +142,7 @@
 
     <section class="section results-section" id="resultados">
       <div class="section-heading">
-        <div><span class="eyebrow">Recomendados cerca tuyo</span><h2 id="resultsTitle">Conocé nuestra guía local</h2></div>
+        <div><span class="eyebrow">Guía local</span><h2 id="resultsTitle">Comercios y servicios destacados en Coronel Suárez</h2></div>
         <span class="result-count" id="resultCount"></span>
       </div>
       <div class="listing-grid" id="listingGrid"></div>
@@ -127,7 +153,7 @@
     </section>
 
     <section class="join-banner">
-      <div><span class="eyebrow">Hagamos crecer la guía</span><h2>¿Tenés un comercio o brindás un servicio?</h2><p>Publicá tu actividad gratis. Para cuidar la calidad de la guía, primero ingresás con Google.</p></div>
+      <div><span class="eyebrow">Publicá gratis para siempre</span><h2>Sumá tu comercio, profesión o servicio a Guía Suárez</h2><p>Publicá tu actividad gratis. Para cuidar la calidad de la guía, primero ingresás con Google.</p></div>
       <button class="button button-light" data-open-form>Publicar con Google</button>
     </section>
   </main>
