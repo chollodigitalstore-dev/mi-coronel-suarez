@@ -141,8 +141,10 @@ Pendiente verificar si `https://www.guiasuarez.ar` también abre. Si no abre, re
 - Footer/branding: incluir “Powered by Blu Software” o “Desarrollado por Blu Software”.
 - Se agregó un botón flotante de soporte/asistente en la home. Por ahora funciona como ayuda guiada con respuestas predefinidas; explica cómo autenticarse, cómo publicar una actividad, cómo calificar, cómo modificar/pausar/eliminar un aviso y cómo funciona la reputación.
 - Header: incluye fecha actual junto a la marca y clima actual/pronóstico de mañana para Coronel Suárez.
-- Dato local prioritario: farmacia de turno. Se agregó tarjeta pública que consulta Supabase (`pharmacy_shifts`) y muestra nombre, dirección, horario y botón llamar. No se muestra fuente públicamente; se recomienda confirmar telefónicamente antes de acercarse.
-- SQL pendiente/útil: `supabase/pharmacy-shifts.sql` crea la tabla `public.pharmacy_shifts`, RLS de lectura pública para turnos activos y ejemplo de carga manual.
+- Dato local prioritario: farmacia de turno. Se movió al header, junto al clima, mostrando solo nombre y dirección.
+- La farmacia de turno se consulta automáticamente desde el Worker en `/api/pharmacy-turn`, consolidando dos fuentes públicas: La Nueva Radio Suárez y FarmaciaDeTurnoAhora. No se muestra fuente públicamente.
+- Si ambas fuentes fallan, se muestra “Farmacia de turno no disponible”.
+- `supabase/pharmacy-shifts.sql` queda como alternativa/fallback para carga manual si en el futuro se desea administrar turnos desde Supabase.
 
 ## Scoring propuesto
 
