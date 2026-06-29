@@ -148,6 +148,17 @@ function showToast(message) {
   window.setTimeout(() => { toast.hidden = true; }, 4500);
 }
 
+function renderCurrentDate() {
+  const currentDate = document.querySelector("#currentDate");
+  if (!currentDate) return;
+  const formatted = new Intl.DateTimeFormat("es-AR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short"
+  }).format(new Date());
+  currentDate.textContent = formatted.replace(".", "");
+}
+
 function weatherIcon(code = 0) {
   if (code === 0) return "☀️";
   if ([1, 2].includes(code)) return "🌤️";
@@ -294,4 +305,5 @@ supportPanel.addEventListener("click", event => {
 renderCategories();
 renderListings();
 loadRatings();
+renderCurrentDate();
 loadWeather();

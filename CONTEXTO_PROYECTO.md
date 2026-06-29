@@ -139,6 +139,8 @@ Pendiente verificar si `https://www.guiasuarez.ar` también abre. Si no abre, re
 - Monetización inicial: banners de publicidad local. Primer anunciante previsto: feria americana “El Garage de Bettina”.
 - Footer/branding: incluir “Powered by Blu Software” o “Desarrollado por Blu Software”.
 - Se agregó un botón flotante de soporte/asistente en la home. Por ahora funciona como ayuda guiada con respuestas predefinidas; explica cómo autenticarse, cómo publicar una actividad, cómo calificar, cómo modificar/pausar/eliminar un aviso y cómo funciona la reputación.
+- Header: incluye fecha actual junto a la marca y clima actual/pronóstico de mañana para Coronel Suárez.
+- Dato local futuro prioritario: farmacia de turno. Fuentes públicas detectadas para evaluar/integrar: La Nueva Radio Suárez, Suárez al Día, Radio Coronel Suárez y FarmaciaDeTurnoAhora. Por tratarse de salud, conviene mostrar fuente, horario del turno y recomendación de confirmar telefónicamente.
 
 ## Scoring propuesto
 
