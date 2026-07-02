@@ -130,6 +130,14 @@ h1 em { color: var(--green); font-style: normal; }
 footer { padding: 40px max(5vw, 24px); display: flex; align-items: center; gap: 30px; border-top: 1px solid var(--line); }
 footer p { flex: 1; color: var(--muted); }
 footer small { color: var(--muted); }
+footer small a { color: var(--green); font-weight: 800; }
+
+.legal-page { min-height: 100vh; padding: 44px max(5vw, 22px); background: var(--cream); }
+.legal-card { max-width: 860px; margin-top: 34px; padding: clamp(28px, 5vw, 56px); border: 1px solid var(--line); border-radius: 28px; background: white; box-shadow: var(--shadow); }
+.legal-card h1 { margin-bottom: 20px; font-size: clamp(38px, 5vw, 62px); }
+.legal-card h2 { margin-top: 28px; margin-bottom: 10px; font-size: 24px; letter-spacing: -.5px; }
+.legal-card p { color: var(--muted); }
+.legal-updated { margin-top: 32px; font-size: 14px; }
 
 dialog { width: min(500px, calc(100% - 30px)); padding: 34px; color: var(--ink); border: 0; border-radius: 22px; box-shadow: 0 25px 80px rgba(0,0,0,.25); }
 dialog::backdrop { background: rgba(12,35,28,.65); backdrop-filter: blur(4px); }
