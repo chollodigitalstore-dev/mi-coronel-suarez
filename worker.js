@@ -324,10 +324,10 @@ export default {
       return handleSupabaseNotify(request, env);
     }
 
-    const assetRequest = request.method === "GET"
+    const assetRequest = ["GET", "HEAD"].includes(request.method)
       && !url.pathname.includes(".")
       && url.pathname !== "/"
-        ? new Request(new URL("/index.html", url.origin), request)
+        ? new Request(new URL("/", url.origin), request)
         : request;
     const response = await env.ASSETS.fetch(assetRequest);
     const headers = new Headers(response.headers);
