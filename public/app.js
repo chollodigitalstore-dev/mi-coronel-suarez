@@ -252,6 +252,12 @@ function continuePendingIntent() {
   }
 }
 
+function openPublishDialogAfterLogin() {
+  if (!currentUser || dialog.open || reviewDialog.open) return;
+  renderJoinDialogState();
+  dialog.showModal();
+}
+
 async function signInWithGoogle() {
   const intent = readRememberedIntent() || "publish";
   rememberIntent(intent);
@@ -540,9 +546,12 @@ supportPanel.addEventListener("click", event => {
 const { data: { session } } = await supabase.auth.getSession();
 renderUser(session?.user || null);
 continuePendingIntent();
-supabase.auth.onAuthStateChange((_event, nextSession) => {
+supabase.auth.onAuthStateChange((event, nextSession) => {
   renderUser(nextSession?.user || null);
   continuePendingIntent();
+  if (event === "SIGNED_IN" && !readRememberedIntent()) {
+    openPublishDialogAfterLogin();
+  }
 });
 
 const initialQuery = new URLSearchParams(window.location.search).get("q");
