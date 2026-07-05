@@ -49,6 +49,8 @@ const joinAuthGate = document.querySelector("#joinAuthGate");
 const joinDialogIntro = document.querySelector("#joinDialogIntro");
 const joinDialogTitle = document.querySelector("#joinDialogTitle");
 const formSuccess = document.querySelector("#formSuccess");
+const viewPublishedListing = document.querySelector("#viewPublishedListing");
+const closeJoinDialog = document.querySelector("#closeJoinDialog");
 const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
 const userMenu = document.querySelector("#userMenu");
@@ -59,6 +61,7 @@ let activeCategory = null;
 let expandedCategories = false;
 let currentUser = null;
 let ratingStats = {};
+let lastPublishedSlug = null;
 
 function normalize(text = "") {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -370,6 +373,18 @@ document.querySelectorAll("[data-open-form]").forEach(button => button.addEventL
 }));
 
 document.querySelector(".dialog-close").addEventListener("click", () => dialog.close());
+closeJoinDialog?.addEventListener("click", () => dialog.close());
+viewPublishedListing?.addEventListener("click", () => {
+  dialog.close();
+  if (lastPublishedSlug) {
+    searchInput.value = listings.find(item => item.slug === lastPublishedSlug)?.name || "";
+    activeCategory = null;
+    locationSelect.value = "todas";
+    renderCategories();
+    renderListings();
+  }
+  document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
+});
 document.querySelector("#joinLoginButton").addEventListener("click", signInWithGoogle);
 document.querySelector("#logoutButton").addEventListener("click", async () => {
   await supabase.auth.signOut();
@@ -421,10 +436,13 @@ joinForm.addEventListener("submit", async event => {
   }
 
   listings.unshift(hydrateListing(data));
+  lastPublishedSlug = data.slug;
   event.currentTarget.reset();
+  joinForm.hidden = true;
   formSuccess.hidden = false;
   renderCategories();
   renderListings();
+  showToast("Tu aviso ya está publicado en la guía.");
 });
 
 listingGrid.addEventListener("click", event => {

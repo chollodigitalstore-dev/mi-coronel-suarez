@@ -186,7 +186,11 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
 .star-rating label { color: #cbd2cf; font-size: 34px; cursor: pointer; transition: .15s ease; }
 .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: var(--yellow); }
 .toast { position: fixed; right: 22px; bottom: 22px; z-index: 30; max-width: 360px; padding: 14px 18px; border-radius: 12px; color: white; background: var(--green-dark); box-shadow: var(--shadow); }
-.form-success { padding: 12px; color: var(--green-dark); background: var(--mint); border-radius: 10px; }
+.form-success { display: grid; gap: 12px; padding: 14px; color: var(--green-dark); background: var(--mint); border-radius: 14px; }
+.form-success[hidden] { display: none; }
+.form-success p { margin: 0; color: var(--green-dark); }
+.success-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.success-actions .button { padding: 10px 14px; font-size: 14px; }
 .support-fab { position: fixed; left: 22px; bottom: 22px; z-index: 35; display: inline-flex; align-items: center; gap: 9px; padding: 12px 17px 12px 12px; border: 0; border-radius: 999px; color: white; background: var(--green-dark); box-shadow: 0 16px 38px rgba(22,74,57,.24); font-weight: 800; }
 .support-fab span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: var(--green-dark); background: var(--yellow); font-size: 20px; }
 .support-panel { width: min(390px, calc(100vw - 28px)); max-height: min(720px, calc(100vh - 110px)); overflow: auto; position: fixed; left: 22px; bottom: 86px; z-index: 36; padding: 22px; border: 1px solid var(--line); border-radius: 24px; background: #fffdf8; box-shadow: 0 25px 80px rgba(12,35,28,.24); }

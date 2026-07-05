@@ -223,7 +223,13 @@
       <label>WhatsApp o teléfono<input required name="phone" inputmode="tel" placeholder="2926…"></label>
       <button class="button button-primary" type="submit">Publicar aviso</button>
     </form>
-    <p class="form-success" id="formSuccess" hidden>¡Listo! Tu aviso quedó cargado y asociado a tu cuenta de Google.</p>
+    <div class="form-success" id="formSuccess" hidden>
+      <p>¡Listo! Tu aviso quedó cargado y asociado a tu cuenta de Google.</p>
+      <div class="success-actions">
+        <button class="button button-primary" type="button" id="viewPublishedListing">Ver aviso en la guía</button>
+        <button class="button button-outline" type="button" id="closeJoinDialog">Cerrar</button>
+      </div>
+    </div>
   </dialog>
 
   <dialog id="reviewDialog">
