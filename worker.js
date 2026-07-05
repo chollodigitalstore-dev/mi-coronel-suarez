@@ -19,6 +19,22 @@ const CATEGORY_LABELS = {
   turismo: "Turismo y ocio"
 };
 
+const CATEGORY_PATHS = {
+  automotor: "automotor",
+  belleza: "belleza-y-bienestar",
+  comercios: "comercios",
+  educacion: "educacion",
+  eventos: "eventos",
+  gastronomia: "gastronomia",
+  hogar: "hogar-y-oficios",
+  mascotas: "mascotas",
+  profesionales: "profesionales",
+  salud: "salud",
+  servicios: "servicios",
+  tecnologia: "tecnologia",
+  turismo: "turismo-y-ocio"
+};
+
 function decodeHtml(text = "") {
   return text
     .replace(/&nbsp;/gi, " ")
@@ -69,6 +85,16 @@ function parseTurnoAhora(html) {
 
 function normalizeForCompare(text = "") {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function slugify(text = "") {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 70);
 }
 
 function choosePharmacy(results) {
@@ -190,7 +216,9 @@ async function sendNotificationEmail(env, { subject, html, text }) {
 function listingEmail(record = {}) {
   const category = CATEGORY_LABELS[record.category] || record.category || "";
   const title = record.name || "Nuevo aviso";
-  const url = record.slug ? `https://guiasuarez.ar/?q=${encodeURIComponent(record.name || record.slug)}#resultados` : "https://guiasuarez.ar";
+  const categoryPath = CATEGORY_PATHS[record.category] || record.category || "";
+  const publicSlug = slugify(record.name || record.slug || "");
+  const url = publicSlug && categoryPath ? `https://guiasuarez.ar/${categoryPath}/${publicSlug}` : "https://guiasuarez.ar";
   const html = `
     <h1>Nuevo aviso publicado en Guía Suárez</h1>
     ${formatField("Actividad", title)}
@@ -222,7 +250,9 @@ function listingEmail(record = {}) {
 async function reviewEmail(env, record = {}) {
   const listing = await fetchListingById(env, record.listing_id);
   const listingName = listing?.name || "un aviso";
-  const url = listing?.slug ? `https://guiasuarez.ar/?q=${encodeURIComponent(listingName)}#resultados` : "https://guiasuarez.ar";
+  const categoryPath = CATEGORY_PATHS[listing?.category] || listing?.category || "";
+  const publicSlug = slugify(listingName);
+  const url = publicSlug && categoryPath ? `https://guiasuarez.ar/${categoryPath}/${publicSlug}` : "https://guiasuarez.ar";
   const html = `
     <h1>Nueva calificación en Guía Suárez</h1>
     ${formatField("Aviso", listingName)}
@@ -294,7 +324,12 @@ export default {
       return handleSupabaseNotify(request, env);
     }
 
-    const response = await env.ASSETS.fetch(request);
+    const assetRequest = request.method === "GET"
+      && !url.pathname.includes(".")
+      && url.pathname !== "/"
+        ? new Request(new URL("/index.html", url.origin), request)
+        : request;
+    const response = await env.ASSETS.fetch(assetRequest);
     const headers = new Headers(response.headers);
 
     headers.set("X-Content-Type-Options", "nosniff");

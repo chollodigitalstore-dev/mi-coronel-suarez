@@ -5,19 +5,19 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const SITE_URL = "https://guiasuarez.ar";
 
 const categories = [
-  { id: "automotor", name: "Automotor", icon: "🚙" },
-  { id: "belleza", name: "Belleza y bienestar", icon: "✦" },
-  { id: "comercios", name: "Comercios", icon: "🛍️" },
-  { id: "educacion", name: "Educación", icon: "📚" },
-  { id: "eventos", name: "Eventos", icon: "🎈" },
-  { id: "gastronomia", name: "Gastronomía", icon: "🍴" },
-  { id: "hogar", name: "Hogar y oficios", icon: "🛠️" },
-  { id: "mascotas", name: "Mascotas", icon: "🐾" },
-  { id: "profesionales", name: "Profesionales", icon: "💼" },
-  { id: "salud", name: "Salud", icon: "✚" },
-  { id: "servicios", name: "Servicios", icon: "🤝" },
-  { id: "tecnologia", name: "Tecnología", icon: "💻" },
-  { id: "turismo", name: "Turismo y ocio", icon: "☀️" }
+  { id: "automotor", name: "Automotor", icon: "🚙", path: "automotor" },
+  { id: "belleza", name: "Belleza y bienestar", icon: "✦", path: "belleza-y-bienestar" },
+  { id: "comercios", name: "Comercios", icon: "🛍️", path: "comercios" },
+  { id: "educacion", name: "Educación", icon: "📚", path: "educacion" },
+  { id: "eventos", name: "Eventos", icon: "🎈", path: "eventos" },
+  { id: "gastronomia", name: "Gastronomía", icon: "🍴", path: "gastronomia" },
+  { id: "hogar", name: "Hogar y oficios", icon: "🛠️", path: "hogar-y-oficios" },
+  { id: "mascotas", name: "Mascotas", icon: "🐾", path: "mascotas" },
+  { id: "profesionales", name: "Profesionales", icon: "💼", path: "profesionales" },
+  { id: "salud", name: "Salud", icon: "✚", path: "salud" },
+  { id: "servicios", name: "Servicios", icon: "🤝", path: "servicios" },
+  { id: "tecnologia", name: "Tecnología", icon: "💻", path: "tecnologia" },
+  { id: "turismo", name: "Turismo y ocio", icon: "☀️", path: "turismo-y-ocio" }
 ];
 
 const locationLabels = {
@@ -60,6 +60,7 @@ let ratingStats = {};
 let lastPublishedSlug = null;
 let editingListingSlug = null;
 let listingDescriptionAvailable = true;
+let routeListingSlug = null;
 
 const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
 const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
@@ -91,6 +92,23 @@ function escapeHtml(text = "") {
 
 function categoryById(id) {
   return categories.find(category => category.id === id);
+}
+
+function categoryByPath(path) {
+  return categories.find(category => category.path === path);
+}
+
+function listingUrl(item) {
+  const categoryPath = categoryById(item.category)?.path || slugify(item.category || "rubro");
+  return `${SITE_URL}/${categoryPath}/${slugify(item.name || item.slug)}`;
+}
+
+function readListingRoute() {
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  if (parts.length < 2) return null;
+  const category = categoryByPath(parts[0]);
+  if (!category) return null;
+  return { categoryId: category.id, slug: parts[1] };
 }
 
 function phoneHref(phone = "") {
@@ -169,6 +187,7 @@ function renderListings() {
     const categoryName = categoryById(item.category)?.name || item.category;
     const haystack = normalize(`${item.name} ${item.tags} ${categoryName} ${item.description}`);
     return item.active !== false
+      && (!routeListingSlug || item.slug === routeListingSlug)
       && (!query || haystack.includes(query))
       && (!activeCategory || item.category === activeCategory)
       && (location === "todas" || item.location === location);
@@ -181,6 +200,7 @@ function renderListings() {
       ? `<span class="rating-summary">★ ${Number(stats.average_rating).toFixed(1)} · ${stats.review_count} opiniones</span>`
       : '<span class="rating-summary">Sin opiniones todavía</span>';
     const description = item.description ? `<p class="listing-description">${escapeHtml(item.description)}</p>` : "";
+    const shareUrl = listingUrl(item);
 
     const mapAction = item.address
       ? `<a href="${mapsHref(item)}" target="_blank" rel="noopener" aria-label="Ver ${item.name} en Google Maps"><span>⌖</span>Mapa</a>`
@@ -196,12 +216,16 @@ function renderListings() {
         <a href="${whatsappHref(item)}" target="_blank" rel="noopener" aria-label="Enviar WhatsApp a ${item.name}"><span>${whatsappIcon()}</span>WhatsApp</a>
         ${mapAction}
       </div>
+      <div class="listing-secondary-actions">
+        <a href="${shareUrl}" aria-label="Abrir ficha de ${item.name}">Ver ficha</a>
+        <button type="button" data-share-listing="${item.slug}">Compartir ficha</button>
+      </div>
       <button class="review-action" data-review="${item.slug}" data-name="${item.name}">★ Calificar servicio</button></div>
     </article>`;
   }).join("");
 
-  const hasFilter = query || activeCategory || location !== "todas";
-  resultsTitle.textContent = hasFilter ? "Resultados de tu búsqueda" : "Comercios y servicios destacados en Coronel Suárez";
+  const hasFilter = query || activeCategory || location !== "todas" || routeListingSlug;
+  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Comercios y servicios destacados en Coronel Suárez");
   resultCount.textContent = `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
   emptyState.hidden = filtered.length > 0;
   listingGrid.hidden = filtered.length === 0;
@@ -223,8 +247,24 @@ async function loadListings() {
 
   if (error) console.error("Supabase listings load error", error);
   if (!error && data?.length) listings = data.map(hydrateListing);
+  applyListingRoute();
   renderCategories();
   renderListings();
+}
+
+function applyListingRoute() {
+  const route = readListingRoute();
+  if (!route) return;
+  const item = listings.find(listing =>
+    listing.category === route.categoryId
+    && (listing.slug === route.slug || slugify(listing.name) === route.slug)
+  );
+  if (!item) return;
+  routeListingSlug = item.slug;
+  activeCategory = item.category;
+  searchInput.value = "";
+  locationSelect.value = "todas";
+  document.title = `${item.name} — Guía Suárez`;
 }
 
 function renderManageListings(items = []) {
@@ -501,6 +541,8 @@ async function loadRatings() {
 categoryGrid.addEventListener("click", event => {
   const card = event.target.closest("[data-category]");
   if (!card) return;
+  routeListingSlug = null;
+  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#rubros");
   activeCategory = activeCategory === card.dataset.category ? null : card.dataset.category;
   renderCategories();
   renderListings();
@@ -515,6 +557,8 @@ document.querySelector("#showAllCategories").addEventListener("click", event => 
 
 document.querySelector("#searchForm").addEventListener("submit", event => {
   event.preventDefault();
+  routeListingSlug = null;
+  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#resultados");
   activeCategory = null;
   renderCategories();
   renderListings();
@@ -523,6 +567,8 @@ document.querySelector("#searchForm").addEventListener("submit", event => {
 
 document.querySelectorAll("[data-query]").forEach(button => button.addEventListener("click", () => {
   searchInput.value = button.dataset.query;
+  routeListingSlug = null;
+  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#resultados");
   activeCategory = null;
   renderCategories();
   renderListings();
@@ -534,6 +580,8 @@ document.querySelector("#clearFilters").addEventListener("click", () => {
   searchInput.value = "";
   locationSelect.value = "todas";
   activeCategory = null;
+  routeListingSlug = null;
+  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#resultados");
   renderCategories();
   renderListings();
 });
@@ -551,12 +599,10 @@ document.querySelector(".dialog-close").addEventListener("click", () => dialog.c
 closeJoinDialog?.addEventListener("click", () => dialog.close());
 viewPublishedListing?.addEventListener("click", () => {
   dialog.close();
-  if (lastPublishedSlug) {
-    searchInput.value = listings.find(item => item.slug === lastPublishedSlug)?.name || "";
-    activeCategory = null;
-    locationSelect.value = "todas";
-    renderCategories();
-    renderListings();
+  const item = listings.find(listing => listing.slug === lastPublishedSlug);
+  if (item) {
+    window.location.href = listingUrl(item);
+    return;
   }
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 });
@@ -694,6 +740,21 @@ joinForm.addEventListener("submit", async event => {
 }, { capture: true });
 
 listingGrid.addEventListener("click", event => {
+  const shareButton = event.target.closest("[data-share-listing]");
+  if (shareButton) {
+    const item = listings.find(listing => listing.slug === shareButton.dataset.shareListing);
+    if (!item) return;
+    const url = listingUrl(item);
+    const text = `${item.name} en Guía Suárez`;
+    if (navigator.share) {
+      navigator.share({ title: text, text, url }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(url);
+      showToast("Link de la ficha copiado.");
+    }
+    return;
+  }
+
   const button = event.target.closest("[data-review]");
   if (!button) return;
   if (!currentUser) {

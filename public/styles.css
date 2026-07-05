@@ -149,6 +149,10 @@ h1 em { color: var(--green); font-style: normal; }
 .listing-actions .action-icon { width: 18px; height: 18px; display: block; fill: currentColor; }
 .listing-actions .action-icon-whatsapp { color: #25d366; }
 .listing-actions a:hover { background: var(--mint); }
+.listing-secondary-actions { display: flex; gap: 8px; margin-top: 10px; }
+.listing-secondary-actions a, .listing-secondary-actions button { flex: 1; padding: 10px 8px; border: 1px solid var(--line); border-radius: 11px; color: var(--green-dark); background: white; text-align: center; font-size: 12px; font-weight: 900; }
+.listing-secondary-actions button { cursor: pointer; }
+.listing-secondary-actions a:hover, .listing-secondary-actions button:hover { border-color: var(--green); background: var(--mint); }
 .review-action { width: 100%; margin-top: 10px; padding: 11px; border: 0; border-radius: 12px; color: white; background: var(--green); font-size: 13px; font-weight: 800; }
 .review-action:hover { background: var(--green-dark); }
 .rating-summary { color: #a66f00; font-size: 13px; font-weight: 700; }
