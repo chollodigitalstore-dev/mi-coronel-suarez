@@ -51,6 +51,10 @@ const joinDialogTitle = document.querySelector("#joinDialogTitle");
 const formSuccess = document.querySelector("#formSuccess");
 const viewPublishedListing = document.querySelector("#viewPublishedListing");
 const closeJoinDialog = document.querySelector("#closeJoinDialog");
+const manageDialog = document.querySelector("#manageDialog");
+const manageListingsButton = document.querySelector("#manageListingsButton");
+const manageListingsList = document.querySelector("#manageListingsList");
+const emptyManageListings = document.querySelector("#emptyManageListings");
 const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
 const userMenu = document.querySelector("#userMenu");
@@ -183,6 +187,78 @@ async function loadListings() {
   if (!error && data?.length) listings = data.map(hydrateListing);
   renderCategories();
   renderListings();
+}
+
+function renderManageListings(items = []) {
+  if (!manageListingsList || !emptyManageListings) return;
+  emptyManageListings.hidden = items.length > 0;
+  manageListingsList.innerHTML = items.map(item => {
+    const category = categoryById(item.category)?.name || item.category;
+    const status = item.active ? "Activo" : "Pausado";
+    return `<article class="manage-item" data-owner-listing="${item.slug}">
+      <header>
+        <div>
+          <h3>${item.name}</h3>
+          <small>${category} · ${item.place || locationLabels[item.location] || "Coronel Suárez"}</small>
+        </div>
+        <span class="manage-status ${item.active ? "" : "paused"}">${status}</span>
+      </header>
+      <div class="manage-actions">
+        <button type="button" data-owner-toggle="${item.slug}">${item.active ? "Pausar" : "Activar"}</button>
+        <button type="button" class="danger" data-owner-delete="${item.slug}">Eliminar</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+async function loadOwnerListings() {
+  if (!currentUser) return [];
+  const { data, error } = await supabase
+    .from("listings")
+    .select("slug,name,category,location,place,active")
+    .eq("owner_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    showToast(`No pudimos cargar tus avisos: ${error.message}`);
+    return [];
+  }
+  renderManageListings(data || []);
+  return data || [];
+}
+
+function updateLocalListing(slug, patch) {
+  listings = listings.map(item => item.slug === slug ? { ...item, ...patch } : item);
+  renderCategories();
+  renderListings();
+}
+
+async function toggleOwnerListing(slug) {
+  const item = listings.find(listing => listing.slug === slug);
+  const nextActive = !item?.active;
+  const { error } = await supabase.from("listings").update({ active: nextActive }).eq("slug", slug);
+  if (error) {
+    showToast(`No pudimos actualizar el aviso: ${error.message}`);
+    return;
+  }
+  updateLocalListing(slug, { active: nextActive });
+  await loadOwnerListings();
+}
+
+async function deleteOwnerListing(slug) {
+  const item = listings.find(listing => listing.slug === slug);
+  if (!window.confirm(`¿Eliminar "${item?.name || "este aviso"}"? Esta acción no se puede deshacer.`)) return;
+
+  const { error } = await supabase.from("listings").delete().eq("slug", slug);
+  if (error) {
+    showToast(`No pudimos eliminar el aviso: ${error.message}`);
+    return;
+  }
+  listings = listings.filter(listing => listing.slug !== slug);
+  renderCategories();
+  renderListings();
+  await loadOwnerListings();
+  showToast("Aviso eliminado.");
 }
 
 function renderJoinDialogState() {
@@ -400,6 +476,17 @@ viewPublishedListing?.addEventListener("click", () => {
   }
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 });
+manageListingsButton?.addEventListener("click", async () => {
+  await loadOwnerListings();
+  manageDialog.showModal();
+});
+document.querySelector(".manage-close")?.addEventListener("click", () => manageDialog.close());
+manageListingsList?.addEventListener("click", async event => {
+  const toggleButton = event.target.closest("[data-owner-toggle]");
+  const deleteButton = event.target.closest("[data-owner-delete]");
+  if (toggleButton) await toggleOwnerListing(toggleButton.dataset.ownerToggle);
+  if (deleteButton) await deleteOwnerListing(deleteButton.dataset.ownerDelete);
+});
 document.querySelector("#joinLoginButton").addEventListener("click", signInWithGoogle);
 document.querySelector("#logoutButton").addEventListener("click", async () => {
   await supabase.auth.signOut();
@@ -468,6 +555,7 @@ joinForm.addEventListener("submit", async event => {
     formSuccess.hidden = false;
     renderCategories();
     renderListings();
+    if (manageDialog?.open) await loadOwnerListings();
     showToast("Tu aviso ya está publicado en la guía.");
   } catch (error) {
     console.error("Supabase listing insert timeout/error", error);

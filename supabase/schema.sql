@@ -97,6 +97,7 @@ create policy "Users update own profile" on public.profiles for update using (au
 create policy "Active listings are public" on public.listings for select using (active = true or auth.uid() = owner_id);
 create policy "Users create own listings" on public.listings for insert to authenticated with check (auth.uid() = owner_id);
 create policy "Owners update listings" on public.listings for update using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+create policy "Owners delete listings" on public.listings for delete to authenticated using (auth.uid() = owner_id);
 
 create policy "Published reviews are public" on public.reviews for select using (status = 'published' or auth.uid() = user_id);
 create policy "Users create own review" on public.reviews for insert to authenticated with check (auth.uid() = user_id and status = 'published');

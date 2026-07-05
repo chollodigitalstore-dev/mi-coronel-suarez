@@ -57,7 +57,7 @@
       <a href="#como-funciona">Cómo funciona</a>
       <button class="button button-outline" data-open-form>Sumá tu actividad</button>
       <div class="user-menu" id="userMenu" hidden>
-        <img id="userAvatar" alt=""><span id="userName"></span><button id="logoutButton">Salir</button>
+        <img id="userAvatar" alt=""><span id="userName"></span><button id="manageListingsButton" type="button">Mis avisos</button><button id="logoutButton">Salir</button>
       </div>
     </nav>
   </header>
@@ -230,6 +230,15 @@
         <button class="button button-outline" type="button" id="closeJoinDialog">Cerrar</button>
       </div>
     </div>
+  </dialog>
+
+  <dialog id="manageDialog">
+    <button class="dialog-close manage-close" aria-label="Cerrar">×</button>
+    <span class="eyebrow">Tus publicaciones</span>
+    <h2>Mis avisos</h2>
+    <p>Activá, pausá o eliminá los avisos que cargaste con tu cuenta de Google.</p>
+    <div class="manage-list" id="manageListingsList"></div>
+    <p class="empty-manage" id="emptyManageListings" hidden>Todavía no tenés avisos publicados.</p>
   </dialog>
 
   <dialog id="reviewDialog">
