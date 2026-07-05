@@ -59,6 +59,14 @@ let currentUser = null;
 let ratingStats = {};
 let lastPublishedSlug = null;
 let editingListingSlug = null;
+let listingDescriptionAvailable = true;
+
+const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
+const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
+const OWNER_LISTING_SELECT_FIELDS = "slug,name,category,location,place,address,description,phone,icon,active";
+const OWNER_LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,location,place,address,phone,icon,active";
+const EDIT_LISTING_SELECT_FIELDS = "slug,name,category,location,place,address,description,phone,icon,active,verified,owner_id,tags";
+const EDIT_LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,location,place,address,phone,icon,active,verified,owner_id,tags";
 
 function normalize(text = "") {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -109,6 +117,10 @@ function showToast(message) {
   toast.textContent = message;
   toast.hidden = false;
   window.setTimeout(() => { toast.hidden = true; }, 4500);
+}
+
+function isMissingDescriptionColumn(error) {
+  return error?.code === "42703" && /description/i.test(error.message || "");
 }
 
 window.addEventListener("error", event => {
@@ -190,11 +202,20 @@ function renderListings() {
 }
 
 async function loadListings() {
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("listings")
-    .select("slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id")
+    .select(listingDescriptionAvailable ? LISTING_SELECT_FIELDS : LISTING_SELECT_FIELDS_LEGACY)
     .order("created_at", { ascending: false });
 
+  if (isMissingDescriptionColumn(error)) {
+    listingDescriptionAvailable = false;
+    ({ data, error } = await supabase
+      .from("listings")
+      .select(LISTING_SELECT_FIELDS_LEGACY)
+      .order("created_at", { ascending: false }));
+  }
+
+  if (error) console.error("Supabase listings load error", error);
   if (!error && data?.length) listings = data.map(hydrateListing);
   renderCategories();
   renderListings();
@@ -225,11 +246,20 @@ function renderManageListings(items = []) {
 
 async function loadOwnerListings() {
   if (!currentUser) return [];
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("listings")
-    .select("slug,name,category,location,place,address,description,phone,icon,active")
+    .select(listingDescriptionAvailable ? OWNER_LISTING_SELECT_FIELDS : OWNER_LISTING_SELECT_FIELDS_LEGACY)
     .eq("owner_id", currentUser.id)
     .order("created_at", { ascending: false });
+
+  if (isMissingDescriptionColumn(error)) {
+    listingDescriptionAvailable = false;
+    ({ data, error } = await supabase
+      .from("listings")
+      .select(OWNER_LISTING_SELECT_FIELDS_LEGACY)
+      .eq("owner_id", currentUser.id)
+      .order("created_at", { ascending: false }));
+  }
 
   if (error) {
     showToast(`No pudimos cargar tus avisos: ${error.message}`);
@@ -248,11 +278,19 @@ function updateLocalListing(slug, patch) {
 async function editOwnerListing(slug) {
   let item = listings.find(listing => listing.slug === slug);
   if (!item) {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("listings")
-      .select("slug,name,category,location,place,address,description,phone,icon,active,verified,owner_id,tags")
+      .select(listingDescriptionAvailable ? EDIT_LISTING_SELECT_FIELDS : EDIT_LISTING_SELECT_FIELDS_LEGACY)
       .eq("slug", slug)
       .single();
+    if (isMissingDescriptionColumn(error)) {
+      listingDescriptionAvailable = false;
+      ({ data, error } = await supabase
+        .from("listings")
+        .select(EDIT_LISTING_SELECT_FIELDS_LEGACY)
+        .eq("slug", slug)
+        .single());
+    }
     if (error) {
       showToast(`No pudimos abrir el aviso: ${error.message}`);
       return;
@@ -592,22 +630,27 @@ joinForm.addEventListener("submit", async event => {
   submitButton.textContent = editingListingSlug ? "Guardando..." : "Publicando...";
 
   try {
+    const listingPayload = listingDescriptionAvailable
+      ? newListing
+      : Object.fromEntries(Object.entries(newListing).filter(([key]) => key !== "description"));
+    const listingUpdatePayload = {
+      name,
+      category,
+      tags: [name, categoryInfo?.name || category],
+      location,
+      place: newListing.place,
+      address,
+      icon: newListing.icon,
+      phone
+    };
+    if (listingDescriptionAvailable) listingUpdatePayload.description = description;
+
     const savePromise = editingListingSlug
       ? supabase
         .from("listings")
-        .update({
-          name,
-          category,
-          tags: [name, categoryInfo?.name || category],
-          location,
-          place: newListing.place,
-          address,
-          description,
-          icon: newListing.icon,
-          phone
-        })
+        .update(listingUpdatePayload)
         .eq("slug", editingListingSlug)
-      : supabase.from("listings").insert(newListing);
+      : supabase.from("listings").insert(listingPayload);
     const timeoutPromise = new Promise((_, reject) => {
       window.setTimeout(() => reject(new Error("La operación tardó demasiado. Probá nuevamente.")), 12000);
     });
