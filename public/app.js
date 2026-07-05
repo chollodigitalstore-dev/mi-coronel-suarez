@@ -409,18 +409,19 @@ document.querySelector("#logoutButton").addEventListener("click", async () => {
 joinForm.addEventListener("submit", async event => {
   event.preventDefault();
   event.stopImmediatePropagation();
+  const form = event.currentTarget;
 
   if (!currentUser) {
     showToast("Ingresá con Google para publicar tu actividad.");
     return;
   }
 
-  const submitButton = event.currentTarget.querySelector("button[type='submit']");
+  const submitButton = form.querySelector("button[type='submit']");
   if (!submitButton) {
     showToast("No encontramos el boton de publicacion. Recarga la pagina e intenta de nuevo.");
     return;
   }
-  const formData = new FormData(event.currentTarget);
+  const formData = new FormData(form);
   const name = String(formData.get("name") || "").trim();
   const category = String(formData.get("category") || "");
   const location = String(formData.get("location") || "");
@@ -462,7 +463,7 @@ joinForm.addEventListener("submit", async event => {
 
     listings.unshift(hydrateListing(newListing));
     lastPublishedSlug = newListing.slug;
-    event.currentTarget.reset();
+    form.reset();
     joinForm.hidden = true;
     formSuccess.hidden = false;
     renderCategories();
