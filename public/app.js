@@ -401,6 +401,10 @@ joinForm.addEventListener("submit", async event => {
   }
 
   const submitButton = event.currentTarget.querySelector("button[type='submit']");
+  if (!submitButton) {
+    showToast("No encontramos el boton de publicacion. Recarga la pagina e intenta de nuevo.");
+    return;
+  }
   const formData = new FormData(event.currentTarget);
   const name = String(formData.get("name")).trim();
   const category = String(formData.get("category"));
@@ -453,61 +457,6 @@ joinForm.addEventListener("submit", async event => {
     submitButton.textContent = "Publicar aviso";
   }
 }, { capture: true });
-
-joinForm.addEventListener("submit", async event => {
-  event.preventDefault();
-  if (!currentUser) {
-    showToast("Ingresá con Google para publicar tu actividad.");
-    return;
-  }
-
-  const submitButton = event.currentTarget.querySelector("button[type='submit']");
-  const formData = new FormData(event.currentTarget);
-  const name = String(formData.get("name")).trim();
-  const category = String(formData.get("category"));
-  const location = String(formData.get("location"));
-  const phone = String(formData.get("phone")).trim();
-  const categoryInfo = categoryById(category);
-
-  submitButton.disabled = true;
-  submitButton.textContent = "Publicando...";
-
-  const { data, error } = await supabase
-    .from("listings")
-    .insert({
-      slug: `${slugify(name)}-${Date.now().toString(36)}`,
-      name,
-      category,
-      tags: [name, categoryInfo?.name || category],
-      location,
-      place: locationLabels[location] || "Coronel Suárez",
-      icon: categoryInfo?.icon || "•",
-      phone,
-      verified: false,
-      active: true,
-      owner_id: currentUser.id
-    })
-    .select("slug,name,category,tags,location,place,icon,phone,verified,active,owner_id")
-    .single();
-
-  submitButton.disabled = false;
-  submitButton.textContent = "Publicar aviso";
-
-  if (error) {
-    console.error("Supabase listing insert error", error);
-    showToast(`No pudimos publicar el aviso: ${error.message || "revisá Supabase"}`);
-    return;
-  }
-
-  listings.unshift(hydrateListing(data));
-  lastPublishedSlug = data.slug;
-  event.currentTarget.reset();
-  joinForm.hidden = true;
-  formSuccess.hidden = false;
-  renderCategories();
-  renderListings();
-  showToast("Tu aviso ya está publicado en la guía.");
-});
 
 listingGrid.addEventListener("click", event => {
   const button = event.target.closest("[data-review]");
