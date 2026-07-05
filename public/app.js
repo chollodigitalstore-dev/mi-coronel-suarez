@@ -393,6 +393,69 @@ document.querySelector("#logoutButton").addEventListener("click", async () => {
 
 joinForm.addEventListener("submit", async event => {
   event.preventDefault();
+  event.stopImmediatePropagation();
+
+  if (!currentUser) {
+    showToast("Ingresá con Google para publicar tu actividad.");
+    return;
+  }
+
+  const submitButton = event.currentTarget.querySelector("button[type='submit']");
+  const formData = new FormData(event.currentTarget);
+  const name = String(formData.get("name")).trim();
+  const category = String(formData.get("category"));
+  const location = String(formData.get("location"));
+  const phone = String(formData.get("phone")).trim();
+  const categoryInfo = categoryById(category);
+  const newListing = {
+    slug: `${slugify(name)}-${Date.now().toString(36)}`,
+    name,
+    category,
+    tags: [name, categoryInfo?.name || category],
+    location,
+    place: locationLabels[location] || "Coronel Suárez",
+    icon: categoryInfo?.icon || "•",
+    phone,
+    verified: false,
+    active: true,
+    owner_id: currentUser.id
+  };
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Publicando...";
+
+  try {
+    const insertPromise = supabase.from("listings").insert(newListing);
+    const timeoutPromise = new Promise((_, reject) => {
+      window.setTimeout(() => reject(new Error("La publicación tardó demasiado. Probá nuevamente.")), 12000);
+    });
+    const { error } = await Promise.race([insertPromise, timeoutPromise]);
+
+    if (error) {
+      console.error("Supabase listing insert error", error);
+      showToast(`No pudimos publicar el aviso: ${error.message || "revisá Supabase"}`);
+      return;
+    }
+
+    listings.unshift(hydrateListing(newListing));
+    lastPublishedSlug = newListing.slug;
+    event.currentTarget.reset();
+    joinForm.hidden = true;
+    formSuccess.hidden = false;
+    renderCategories();
+    renderListings();
+    showToast("Tu aviso ya está publicado en la guía.");
+  } catch (error) {
+    console.error("Supabase listing insert timeout/error", error);
+    showToast(error.message || "No pudimos publicar el aviso. Probá nuevamente.");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Publicar aviso";
+  }
+}, { capture: true });
+
+joinForm.addEventListener("submit", async event => {
+  event.preventDefault();
   if (!currentUser) {
     showToast("Ingresá con Google para publicar tu actividad.");
     return;
