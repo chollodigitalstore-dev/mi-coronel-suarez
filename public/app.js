@@ -52,6 +52,7 @@ const formSuccess = document.querySelector("#formSuccess");
 const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
 const userMenu = document.querySelector("#userMenu");
+const publishResume = document.querySelector("#publishResume");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -187,24 +188,34 @@ function rememberIntent(intent) {
     intent,
     createdAt: Date.now()
   }));
+  document.cookie = `pendingIntent=${encodeURIComponent(intent)}; max-age=600; path=/; SameSite=Lax; Secure`;
+}
+
+function readCookie(name) {
+  return document.cookie
+    .split("; ")
+    .find(row => row.startsWith(`${name}=`))
+    ?.split("=")[1];
 }
 
 function readRememberedIntent() {
+  const cookieIntent = decodeURIComponent(readCookie("pendingIntent") || "") || null;
   try {
     const stored = JSON.parse(localStorage.getItem("pendingIntent") || "null");
     if (!stored?.intent || Date.now() - stored.createdAt > 10 * 60 * 1000) {
       localStorage.removeItem("pendingIntent");
-      return null;
+      return cookieIntent;
     }
     return stored.intent;
   } catch (_error) {
     localStorage.removeItem("pendingIntent");
-    return null;
+    return cookieIntent;
   }
 }
 
 function clearRememberedIntent() {
   localStorage.removeItem("pendingIntent");
+  document.cookie = "pendingIntent=; max-age=0; path=/; SameSite=Lax; Secure";
 }
 
 function rememberReviewIntent(slug, name) {
@@ -272,6 +283,7 @@ async function signInWithGoogle() {
 function renderUser(user) {
   currentUser = user;
   userMenu.hidden = !user;
+  if (publishResume) publishResume.hidden = !user;
   renderJoinDialogState();
   if (!user) return;
   document.querySelector("#userName").textContent = user.user_metadata?.full_name?.split(" ")[0] || "Usuario";
