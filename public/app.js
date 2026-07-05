@@ -772,6 +772,10 @@ const helpTopics = {
   reputation: {
     title: "Cómo funciona la reputación",
     body: "La reputación se construye con calificaciones de usuarios identificados. La publicidad puede dar visibilidad, pero no mejora el puntaje: las opiniones y la confianza de la ficha son independientes."
+  },
+  contact: {
+    title: "Contactar al equipo",
+    body: "Podés escribirnos a <a href=\"mailto:guiasuarezweb@gmail.com\">guiasuarezweb@gmail.com</a> para consultas, sugerencias o correcciones sobre la guía."
   }
 };
 
