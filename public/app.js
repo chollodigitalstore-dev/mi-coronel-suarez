@@ -95,10 +95,25 @@ function mapsHref(item) {
 
 function showToast(message) {
   const toast = document.querySelector("#toast");
+  if (!toast) {
+    console.error(message);
+    return;
+  }
   toast.textContent = message;
   toast.hidden = false;
   window.setTimeout(() => { toast.hidden = true; }, 4500);
 }
+
+window.addEventListener("error", event => {
+  console.error("Unhandled browser error", event.error || event.message);
+  showToast(`Error de la pagina: ${event.message}`);
+});
+
+window.addEventListener("unhandledrejection", event => {
+  const reason = event.reason;
+  console.error("Unhandled promise rejection", reason);
+  showToast(`Error inesperado: ${reason?.message || reason || "revisar consola"}`);
+});
 
 function hydrateListing(item) {
   return {
@@ -406,10 +421,14 @@ joinForm.addEventListener("submit", async event => {
     return;
   }
   const formData = new FormData(event.currentTarget);
-  const name = String(formData.get("name")).trim();
-  const category = String(formData.get("category"));
-  const location = String(formData.get("location"));
-  const phone = String(formData.get("phone")).trim();
+  const name = String(formData.get("name") || "").trim();
+  const category = String(formData.get("category") || "");
+  const location = String(formData.get("location") || "");
+  const phone = String(formData.get("phone") || "").trim();
+  if (!name || !category || !location || !phone) {
+    showToast("Completá nombre, rubro, localidad y teléfono para publicar.");
+    return;
+  }
   const categoryInfo = categoryById(category);
   const newListing = {
     slug: `${slugify(name)}-${Date.now().toString(36)}`,
