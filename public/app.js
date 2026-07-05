@@ -5,17 +5,17 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const SITE_URL = "https://guiasuarez.ar";
 
 const categories = [
-  { id: "hogar", name: "Hogar y oficios", icon: "🛠️" },
-  { id: "belleza", name: "Belleza y bienestar", icon: "✦" },
-  { id: "salud", name: "Salud", icon: "✚" },
-  { id: "gastronomia", name: "Gastronomía", icon: "🍴" },
-  { id: "comercios", name: "Comercios", icon: "🛍️" },
-  { id: "servicios", name: "Servicios", icon: "🤝" },
   { id: "automotor", name: "Automotor", icon: "🚙" },
-  { id: "profesionales", name: "Profesionales", icon: "💼" },
-  { id: "mascotas", name: "Mascotas", icon: "🐾" },
-  { id: "eventos", name: "Eventos", icon: "🎈" },
+  { id: "belleza", name: "Belleza y bienestar", icon: "✦" },
+  { id: "comercios", name: "Comercios", icon: "🛍️" },
   { id: "educacion", name: "Educación", icon: "📚" },
+  { id: "eventos", name: "Eventos", icon: "🎈" },
+  { id: "gastronomia", name: "Gastronomía", icon: "🍴" },
+  { id: "hogar", name: "Hogar y oficios", icon: "🛠️" },
+  { id: "mascotas", name: "Mascotas", icon: "🐾" },
+  { id: "profesionales", name: "Profesionales", icon: "💼" },
+  { id: "salud", name: "Salud", icon: "✚" },
+  { id: "servicios", name: "Servicios", icon: "🤝" },
   { id: "tecnologia", name: "Tecnología", icon: "💻" },
   { id: "turismo", name: "Turismo y ocio", icon: "☀️" }
 ];
