@@ -245,34 +245,42 @@ async function reviewEmail(env, record = {}) {
 }
 
 async function handleSupabaseNotify(request, env) {
-  if (request.method !== "POST") {
-    return Response.json({ error: "Method not allowed" }, { status: 405 });
+  try {
+    if (request.method !== "POST") {
+      return Response.json({ error: "Method not allowed" }, { status: 405 });
+    }
+
+    if (!env.NOTIFY_WEBHOOK_SECRET || getWebhookSecret(request) !== env.NOTIFY_WEBHOOK_SECRET) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const payload = await request.json();
+    const table = payload.table || payload.table_name;
+    const type = (payload.type || payload.eventType || payload.event || "").toUpperCase();
+    const record = payload.record || payload.new || payload.new_record || {};
+
+    if (type && type !== "INSERT") {
+      return Response.json({ ok: true, skipped: "Only INSERT events are notified." });
+    }
+
+    let email;
+    if (table === "listings") {
+      email = listingEmail(record);
+    } else if (table === "reviews") {
+      email = await reviewEmail(env, record);
+    } else {
+      return Response.json({ ok: true, skipped: `No notification configured for ${table || "unknown table"}.` });
+    }
+
+    await sendNotificationEmail(env, email);
+    return Response.json({ ok: true });
+  } catch (error) {
+    console.error("Notification webhook failed", error);
+    return Response.json({
+      ok: false,
+      error: error?.message || "Notification webhook failed"
+    }, { status: 500 });
   }
-
-  if (!env.NOTIFY_WEBHOOK_SECRET || getWebhookSecret(request) !== env.NOTIFY_WEBHOOK_SECRET) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const payload = await request.json();
-  const table = payload.table || payload.table_name;
-  const type = (payload.type || payload.eventType || payload.event || "").toUpperCase();
-  const record = payload.record || payload.new || payload.new_record || {};
-
-  if (type && type !== "INSERT") {
-    return Response.json({ ok: true, skipped: "Only INSERT events are notified." });
-  }
-
-  let email;
-  if (table === "listings") {
-    email = listingEmail(record);
-  } else if (table === "reviews") {
-    email = await reviewEmail(env, record);
-  } else {
-    return Response.json({ ok: true, skipped: `No notification configured for ${table || "unknown table"}.` });
-  }
-
-  await sendNotificationEmail(env, email);
-  return Response.json({ ok: true });
 }
 
 export default {
