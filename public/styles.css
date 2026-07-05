@@ -146,6 +146,8 @@ h1 em { color: var(--green); font-style: normal; }
 .listing-actions.actions-2 { grid-template-columns: repeat(2, 1fr); }
 .listing-actions a { min-height: 54px; display: grid; place-items: center; gap: 2px; padding: 8px 4px; text-align: center; color: var(--green); background: white; font-size: 12px; font-weight: 800; }
 .listing-actions a span { font-size: 17px; line-height: 1; }
+.listing-actions .action-icon { width: 18px; height: 18px; display: block; fill: currentColor; }
+.listing-actions .action-icon-whatsapp { color: #25d366; }
 .listing-actions a:hover { background: var(--mint); }
 .review-action { width: 100%; margin-top: 10px; padding: 11px; border: 0; border-radius: 12px; color: white; background: var(--green); font-size: 13px; font-weight: 800; }
 .review-action:hover { background: var(--green-dark); }
