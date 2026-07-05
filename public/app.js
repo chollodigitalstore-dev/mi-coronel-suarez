@@ -86,7 +86,7 @@ function whatsappHref(item) {
 }
 
 function mapsHref(item) {
-  const query = encodeURIComponent(`${item.name} ${item.place} Buenos Aires Argentina`);
+  const query = encodeURIComponent(`${item.address} ${item.place} Buenos Aires Argentina`);
   return `https://www.google.com/maps/search/?api=1&query=${query}`;
 }
 
@@ -117,6 +117,7 @@ function hydrateListing(item) {
     ...item,
     tags: Array.isArray(item.tags) ? item.tags.join(" ") : (item.tags || ""),
     place: item.place || locationLabels[item.location] || "Coronel Suárez",
+    address: item.address || "",
     icon: item.icon || categoryById(item.category)?.icon || "•",
     whatsapp: item.phone ? `54${item.phone.replace(/[^\d]/g, "")}` : ""
   };
@@ -151,14 +152,18 @@ function renderListings() {
       ? `<span class="rating-summary">★ ${Number(stats.average_rating).toFixed(1)} · ${stats.review_count} opiniones</span>`
       : '<span class="rating-summary">Sin opiniones todavía</span>';
 
+    const mapAction = item.address
+      ? `<a href="${mapsHref(item)}" target="_blank" rel="noopener" aria-label="Ver ${item.name} en Google Maps"><span>⌖</span>Mapa</a>`
+      : "";
+    const actionCount = item.address ? 3 : 2;
     return `<article class="listing-card" aria-label="${item.name} en ${item.place}">
       <div class="listing-cover" role="img" aria-label="${category}: ${item.name}"><span>${item.icon}</span>${item.verified ? '<span class="verified">✓ Verificado</span>' : ""}</div>
       <div class="listing-body"><span class="listing-category">${category}</span><h3>${item.name}</h3>${rating}
-      <div class="listing-meta"><span>⌖ ${item.place}</span><span>● Abierto hoy</span></div>
-      <div class="listing-actions" aria-label="Acciones rápidas">
+      <div class="listing-meta"><span>⌖ ${item.address || item.place}</span><span>● Abierto hoy</span></div>
+      <div class="listing-actions actions-${actionCount}" aria-label="Acciones rápidas">
         <a href="${phoneHref(item.phone)}" aria-label="Llamar a ${item.name}"><span>☎</span>Llamar</a>
         <a href="${whatsappHref(item)}" target="_blank" rel="noopener" aria-label="Enviar WhatsApp a ${item.name}"><span>☘</span>WhatsApp</a>
-        <a href="${mapsHref(item)}" target="_blank" rel="noopener" aria-label="Ver ${item.name} en Google Maps"><span>⌖</span>Mapa</a>
+        ${mapAction}
       </div>
       <button class="review-action" data-review="${item.slug}" data-name="${item.name}">★ Calificar servicio</button></div>
     </article>`;
@@ -174,7 +179,7 @@ function renderListings() {
 async function loadListings() {
   const { data, error } = await supabase
     .from("listings")
-    .select("slug,name,category,tags,location,place,icon,phone,verified,active,owner_id")
+    .select("slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id")
     .order("created_at", { ascending: false });
 
   if (!error && data?.length) listings = data.map(hydrateListing);
@@ -209,7 +214,7 @@ async function loadOwnerListings() {
   if (!currentUser) return [];
   const { data, error } = await supabase
     .from("listings")
-    .select("slug,name,category,location,place,phone,icon,active")
+    .select("slug,name,category,location,place,address,phone,icon,active")
     .eq("owner_id", currentUser.id)
     .order("created_at", { ascending: false });
 
@@ -232,7 +237,7 @@ async function editOwnerListing(slug) {
   if (!item) {
     const { data, error } = await supabase
       .from("listings")
-      .select("slug,name,category,location,place,phone,icon,active,verified,owner_id,tags")
+      .select("slug,name,category,location,place,address,phone,icon,active,verified,owner_id,tags")
       .eq("slug", slug)
       .single();
     if (error) {
@@ -252,6 +257,7 @@ async function editOwnerListing(slug) {
   joinForm.elements.category.value = item.category || "";
   joinForm.elements.location.value = item.location || "coronel-suarez";
   joinForm.elements.phone.value = item.phone || "";
+  joinForm.elements.address.value = item.address || "";
   joinForm.querySelector("button[type='submit']").textContent = "Guardar cambios";
   manageDialog.close();
   dialog.showModal();
@@ -541,6 +547,7 @@ joinForm.addEventListener("submit", async event => {
   const category = String(formData.get("category") || "");
   const location = String(formData.get("location") || "");
   const phone = String(formData.get("phone") || "").trim();
+  const address = String(formData.get("address") || "").trim() || null;
   if (!name || !category || !location || !phone) {
     showToast("Completá nombre, rubro, localidad y teléfono para publicar.");
     return;
@@ -553,6 +560,7 @@ joinForm.addEventListener("submit", async event => {
     tags: [name, categoryInfo?.name || category],
     location,
     place: locationLabels[location] || "Coronel Suárez",
+    address,
     icon: categoryInfo?.icon || "•",
     phone,
     verified: false,
@@ -573,6 +581,7 @@ joinForm.addEventListener("submit", async event => {
           tags: [name, categoryInfo?.name || category],
           location,
           place: newListing.place,
+          address,
           icon: newListing.icon,
           phone
         })

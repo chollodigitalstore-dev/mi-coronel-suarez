@@ -19,6 +19,7 @@ create table if not exists public.listings (
   tags text[] not null default '{}',
   location text not null,
   place text not null,
+  address text,
   icon text,
   phone text,
   verified boolean not null default false,

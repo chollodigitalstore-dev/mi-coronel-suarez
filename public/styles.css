@@ -138,6 +138,7 @@ h1 em { color: var(--green); font-style: normal; }
 .listing-category { color: var(--green); font-size: 13px; font-weight: 700; }
 .listing-meta { display: flex; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
 .listing-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--line); }
+.listing-actions.actions-2 { grid-template-columns: repeat(2, 1fr); }
 .listing-actions a { min-height: 54px; display: grid; place-items: center; gap: 2px; padding: 8px 4px; text-align: center; color: var(--green); background: white; font-size: 12px; font-weight: 800; }
 .listing-actions a span { font-size: 17px; line-height: 1; }
 .listing-actions a:hover { background: var(--mint); }
