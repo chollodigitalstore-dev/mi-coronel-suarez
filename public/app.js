@@ -730,12 +730,21 @@ async function loadPharmacyShift() {
     if (!response.ok) throw new Error("No current pharmacy shift");
     const data = await response.json();
     if (!data?.name) throw new Error("No current pharmacy shift");
-    const addressText = data.address ? ` · ${data.address}` : "";
-    pharmacyHeaderText.textContent = `${data.name}${addressText}`;
-    pharmacyWidget.title = "Farmacia de turno. Confirmá telefónicamente antes de acercarte.";
+    const details = [
+      data.address ? `Dirección: ${data.address}` : "",
+      data.phone ? `Teléfono: ${data.phone}` : "",
+      "Confirmá telefónicamente antes de acercarte."
+    ].filter(Boolean).join(" · ");
+    pharmacyHeaderText.textContent = data.name;
+    pharmacyWidget.title = details;
+    pharmacyWidget.dataset.tooltip = details;
+    pharmacyWidget.setAttribute("aria-label", `Farmacia de turno: ${data.name}. ${details}`);
+    pharmacyWidget.tabIndex = 0;
   } catch (_error) {
     pharmacyHeaderText.textContent = "Farmacia de turno no disponible";
     pharmacyWidget.title = "No pudimos consultar la farmacia de turno en este momento.";
+    pharmacyWidget.dataset.tooltip = "No pudimos consultar la farmacia de turno en este momento.";
+    pharmacyWidget.setAttribute("aria-label", "Farmacia de turno no disponible");
   }
 }
 
