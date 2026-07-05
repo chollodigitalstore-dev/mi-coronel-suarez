@@ -799,7 +799,7 @@ async function loadPharmacyShift() {
       data.phone ? `Teléfono: ${data.phone}` : "",
       "Confirmá telefónicamente antes de acercarte."
     ].filter(Boolean).join(" · ");
-    pharmacyHeaderText.textContent = data.name;
+    pharmacyHeaderText.textContent = data.address ? `${data.name} · ${data.address}` : data.name;
     pharmacyWidget.title = details;
     pharmacyWidget.dataset.tooltip = details;
     pharmacyWidget.setAttribute("aria-label", `Farmacia de turno: ${data.name}. ${details}`);
