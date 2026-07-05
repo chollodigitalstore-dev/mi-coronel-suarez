@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.108.2";
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-config.js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const SITE_URL = "https://guiasuarez.ar";
 
 const categories = [
   { id: "hogar", name: "Hogar y oficios", icon: "🛠️" },
@@ -257,7 +258,7 @@ async function signInWithGoogle() {
   const params = new URLSearchParams({ intent });
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${window.location.origin}/?${params}` }
+    options: { redirectTo: `${SITE_URL}/?${params}` }
   });
   if (error) showToast("No pudimos iniciar sesión. Probá nuevamente.");
 }
