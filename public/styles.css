@@ -156,7 +156,7 @@ h1 em { color: var(--green); font-style: normal; }
 .join-banner::after { content: "CS"; position: absolute; right: 30%; bottom: -80px; color: rgba(255,255,255,.05); font: 800 180px "Manrope"; }
 .join-banner .eyebrow { color: #bfe0cf; }
 .join-banner p { margin-bottom: 0; color: #d7ebe1; }
-footer { padding: 40px max(5vw, 24px); display: flex; align-items: center; gap: 30px; border-top: 1px solid var(--line); }
+footer { padding: 40px max(5vw, 24px) 96px; display: flex; align-items: center; gap: 30px; border-top: 1px solid var(--line); }
 footer p { flex: 1; color: var(--muted); }
 footer small { color: var(--muted); }
 footer small a { color: var(--green); font-weight: 800; }
@@ -275,7 +275,7 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   .listing-grid { grid-template-columns: 1fr; }
   .auth-gate { align-items: stretch; flex-direction: column; }
   .join-banner { margin: 30px 18px; padding: 34px 24px; flex-direction: column; align-items: start; }
-  footer { align-items: start; flex-direction: column; gap: 8px; }
+  footer { align-items: start; flex-direction: column; gap: 8px; padding-bottom: 112px; }
   .support-fab { right: 14px; bottom: 14px; }
   .support-panel { left: 14px; right: 14px; bottom: 76px; width: auto; }
 }
