@@ -37,6 +37,9 @@ const locationSelect = document.querySelector("#locationSelect");
 const resultsTitle = document.querySelector("#resultsTitle");
 const resultCount = document.querySelector("#resultCount");
 const emptyState = document.querySelector("#emptyState");
+const listingRouteHero = document.querySelector("#listingRouteHero");
+const listingRouteTitle = document.querySelector("#listingRouteTitle");
+const listingRouteIntro = document.querySelector("#listingRouteIntro");
 const dialog = document.querySelector("#joinDialog");
 const joinForm = document.querySelector("#joinForm");
 const joinAuthGate = document.querySelector("#joinAuthGate");
@@ -143,6 +146,14 @@ function showToast(message) {
   window.setTimeout(() => { toast.hidden = true; }, 4500);
 }
 
+function exitListingRoute(target = "/#resultados") {
+  routeListingSlug = null;
+  document.body.classList.remove("listing-route-page");
+  if (listingRouteHero) listingRouteHero.hidden = true;
+  if (window.location.pathname !== "/") window.history.pushState({}, "", target);
+  document.title = "Guía Suárez — Comercios en Coronel Suárez, profesionales y servicios";
+}
+
 function isMissingDescriptionColumn(error) {
   return error?.code === "42703" && /description/i.test(error.message || "");
 }
@@ -226,7 +237,7 @@ function renderListings() {
 
   const hasFilter = query || activeCategory || location !== "todas" || routeListingSlug;
   resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Comercios y servicios destacados en Coronel Suárez");
-  resultCount.textContent = `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
+  resultCount.textContent = routeListingSlug ? "" : `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
   emptyState.hidden = filtered.length > 0;
   listingGrid.hidden = filtered.length === 0;
 }
@@ -265,6 +276,12 @@ function applyListingRoute() {
   searchInput.value = "";
   locationSelect.value = "todas";
   document.title = `${item.name} — Guía Suárez`;
+  document.body.classList.add("listing-route-page");
+  if (listingRouteHero) {
+    listingRouteHero.hidden = false;
+    listingRouteTitle.textContent = item.name;
+    listingRouteIntro.textContent = `${item.name} está en Guía Suárez. También podés visitar la guía completa para encontrar otros comercios, profesionales y servicios de Coronel Suárez.`;
+  }
 }
 
 function renderManageListings(items = []) {
@@ -541,8 +558,7 @@ async function loadRatings() {
 categoryGrid.addEventListener("click", event => {
   const card = event.target.closest("[data-category]");
   if (!card) return;
-  routeListingSlug = null;
-  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#rubros");
+  exitListingRoute("/#rubros");
   activeCategory = activeCategory === card.dataset.category ? null : card.dataset.category;
   renderCategories();
   renderListings();
@@ -557,8 +573,7 @@ document.querySelector("#showAllCategories").addEventListener("click", event => 
 
 document.querySelector("#searchForm").addEventListener("submit", event => {
   event.preventDefault();
-  routeListingSlug = null;
-  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#resultados");
+  exitListingRoute("/#resultados");
   activeCategory = null;
   renderCategories();
   renderListings();
@@ -567,21 +582,22 @@ document.querySelector("#searchForm").addEventListener("submit", event => {
 
 document.querySelectorAll("[data-query]").forEach(button => button.addEventListener("click", () => {
   searchInput.value = button.dataset.query;
-  routeListingSlug = null;
-  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#resultados");
+  exitListingRoute("/#resultados");
   activeCategory = null;
   renderCategories();
   renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 }));
 
-locationSelect.addEventListener("change", renderListings);
+locationSelect.addEventListener("change", () => {
+  if (routeListingSlug) exitListingRoute("/#resultados");
+  renderListings();
+});
 document.querySelector("#clearFilters").addEventListener("click", () => {
   searchInput.value = "";
   locationSelect.value = "todas";
   activeCategory = null;
-  routeListingSlug = null;
-  if (window.location.pathname !== "/") window.history.pushState({}, "", "/#resultados");
+  exitListingRoute("/#resultados");
   renderCategories();
   renderListings();
 });
