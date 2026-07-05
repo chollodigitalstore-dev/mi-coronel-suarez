@@ -420,7 +420,8 @@ function openReviewDialog(slug, name) {
 function continuePendingIntent() {
   const params = new URLSearchParams(window.location.search);
   const urlIntent = params.get("intent") || params.get("publish");
-  const pendingIntent = readRememberedIntent() || urlIntent;
+  const pendingIntent = urlIntent ? (readRememberedIntent() || urlIntent) : null;
+  if (!pendingIntent) return;
 
   if (pendingIntent === "review" && currentUser) {
     const pendingReview = readRememberedReview();
@@ -437,12 +438,6 @@ function continuePendingIntent() {
     renderJoinDialogState();
     if (!dialog.open) dialog.showModal();
   }
-}
-
-function openPublishDialogAfterLogin() {
-  if (!currentUser || dialog.open || reviewDialog.open) return;
-  renderJoinDialogState();
-  dialog.showModal();
 }
 
 async function completeOAuthRedirectIfNeeded() {
@@ -866,10 +861,7 @@ renderUser(session?.user || null);
 continuePendingIntent();
 supabase.auth.onAuthStateChange((event, nextSession) => {
   renderUser(nextSession?.user || null);
-  continuePendingIntent();
-  if (event === "SIGNED_IN" && !readRememberedIntent()) {
-    openPublishDialogAfterLogin();
-  }
+  if (event === "SIGNED_IN" && new URLSearchParams(window.location.search).has("intent")) continuePendingIntent();
 });
 
 const initialQuery = new URLSearchParams(window.location.search).get("q");
