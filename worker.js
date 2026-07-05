@@ -9,6 +9,7 @@ const CATEGORY_LABELS = {
   salud: "Salud",
   gastronomia: "Gastronomía",
   comercios: "Comercios",
+  servicios: "Servicios",
   automotor: "Automotor",
   profesionales: "Profesionales",
   mascotas: "Mascotas",

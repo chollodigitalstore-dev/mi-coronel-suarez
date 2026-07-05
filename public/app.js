@@ -10,6 +10,7 @@ const categories = [
   { id: "salud", name: "Salud", icon: "✚" },
   { id: "gastronomia", name: "Gastronomía", icon: "🍴" },
   { id: "comercios", name: "Comercios", icon: "🛍️" },
+  { id: "servicios", name: "Servicios", icon: "🤝" },
   { id: "automotor", name: "Automotor", icon: "🚙" },
   { id: "profesionales", name: "Profesionales", icon: "💼" },
   { id: "mascotas", name: "Mascotas", icon: "🐾" },
