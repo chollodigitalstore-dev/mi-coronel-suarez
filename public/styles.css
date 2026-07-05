@@ -55,6 +55,9 @@ h1 em { color: var(--green); font-style: normal; }
 .publish-resume div { display: grid; gap: 2px; }
 .publish-resume strong { color: var(--green-dark); }
 .publish-resume small { color: var(--muted); }
+.auth-warning { max-width: 620px; display: grid; gap: 3px; margin-top: 18px; padding: 15px 16px; border: 1px solid rgba(231,124,99,.25); border-radius: 18px; color: var(--green-dark); background: rgba(255,239,230,.9); box-shadow: 0 12px 32px rgba(22,74,57,.06); }
+.auth-warning[hidden] { display: none; }
+.auth-warning small { color: var(--muted); }
 .search-box { max-width: 780px; min-height: 68px; display: flex; align-items: center; margin-top: 32px; padding: 8px; gap: 4px; background: white; border-radius: 16px; box-shadow: var(--shadow); position: relative; z-index: 3; }
 .search-input, .location-select { display: flex; align-items: center; gap: 10px; padding: 0 14px; }
 .search-input { flex: 1; }
