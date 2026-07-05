@@ -80,8 +80,17 @@ function pickEmptyOrLowCategories(listings) {
     .slice(0, 4);
 }
 
-function firstNameList(listings, limit = 5) {
-  return listings.slice(0, limit).map(item => `- ${item.name} (${categories[item.category] || item.category})`).join("\n") || "- Todavía estamos esperando los primeros avisos reales.";
+const needExamples = [
+  "¿Dónde encuentro una manicura?",
+  "¿Quién hace arreglos eléctricos?",
+  "¿Dónde busco un carpintero?",
+  "¿A quién llamo para limpieza?",
+  "¿Qué comercio local tiene lo que necesito?",
+  "¿Dónde encuentro un profesional en Coronel Suárez?"
+];
+
+function weeklyNeedExamples() {
+  return needExamples.slice(0, 4).map(item => `- ${item}`).join("\n");
 }
 
 function postBlock(title, body) {
@@ -90,11 +99,10 @@ function postBlock(title, body) {
 
 function generateContent(listings) {
   const lowCategories = pickEmptyOrLowCategories(listings);
-  const latest = listings.slice(0, 5);
   const topCategory = Object.entries(countByCategory(listings)).sort((a, b) => b[1] - a[1])[0];
   const topCategoryName = topCategory ? categories[topCategory[0]] || topCategory[0] : "comercios y servicios";
   const lowCategoryNames = lowCategories.map(item => item.name.toLowerCase()).join(", ");
-  const shareText = "Conocé Guía Suárez: una guía local para buscar comercios, profesionales y servicios de Coronel Suárez. Publicar es gratis para siempre: https://guiasuarez.ar";
+  const shareText = "Conocé Guía Suárez: una guía local para buscar comercios, profesionales y servicios de Coronel Suárez. Entrá, buscá por rubro y compartila con quien la necesite: https://guiasuarez.ar";
 
   return `# Contenido semanal automático — Guía Suárez
 
@@ -104,60 +112,66 @@ Avisos activos detectados: ${listings.length}
 
 ## Resumen para publicar esta semana
 
-- Meta de campaña: primeros 100 avisos.
-- Rubros a empujar: ${lowCategoryNames || "oficios, belleza, gastronomía y profesionales"}.
-- Rubro con más presencia actual: ${topCategoryName}.
-- CTA principal: publicar gratis para siempre en ${SITE_URL}.
+- Objetivo principal: instalar el hábito de buscar en Guía Suárez.
+- Enfoque de marca: “menos preguntar, más encontrar”.
+- Rubros a mencionar: ${lowCategoryNames || "oficios, belleza, gastronomía y profesionales"}.
+- Rubro con más presencia actual, sólo como dato interno: ${topCategoryName}.
+- CTA principal: entrar a ${SITE_URL} y buscar por rubro.
 
-${postBlock("Post 1 — Lanzamiento / recordatorio general", `
-Nació Guía Suárez: una guía local para encontrar comercios, profesionales y servicios de Coronel Suárez.
+${postBlock("Post 1 — Marca / hábito de uso", `
+Cuando necesitás algo en Coronel Suárez, no siempre sabés por dónde empezar.
 
-Podés buscar por rubro, contactar por WhatsApp y ayudar a otros vecinos con calificaciones.
+¿Una manicura? ¿Un electricista? ¿Un comercio? ¿Un profesional?
 
-Si tenés una actividad, publicarla es gratis para siempre.
+Guía Suárez reúne comercios, profesionales y servicios locales para que puedas buscar más rápido y elegir mejor.
 
-Entrá a ${SITE_URL}
-
-#CoronelSuarez #GuiaSuarez #ComerciosLocales #Emprendedores
-`)}
-
-${postBlock("Post 2 — Primeros 100 avisos", `
-Estamos armando los primeros 100 avisos de Guía Suárez.
-
-Si tenés un comercio, profesión, emprendimiento o servicio en Coronel Suárez, sumá tu actividad gratis.
-
-Y si conocés a alguien que debería aparecer, compartile la guía.
-
+Entrá, buscá por rubro y guardala para cuando la necesites:
 ${SITE_URL}
 
-#CoronelSuarez #ComerciosEnCoronelSuarez #ServiciosLocales
+#CoronelSuarez #GuiaSuarez #ComerciosLocales #ServiciosLocales
 `)}
 
-${postBlock("Post 3 — Rubros que necesitamos sumar", `
-Queremos completar más rubros en Guía Suárez.
+${postBlock("Post 2 — Problema cotidiano", `
+“¿Alguien conoce a alguien que haga...?”
 
-Esta semana buscamos especialmente:
-${lowCategories.map(item => `- ${item.name}`).join("\n")}
+Esa pregunta aparece todos los días.
 
-Publicar es gratis para siempre y ayuda a que más vecinos encuentren servicios locales sin tener que preguntar de cero.
+La idea de Guía Suárez es simple: que puedas encontrar comercios, profesionales y servicios de Coronel Suárez en un solo lugar.
+
+Buscá por rubro, compará opciones y contactá directo.
+${SITE_URL}
+
+#GuiaSuarez #CoronelSuarez #DondeEncuentro
+`)}
+
+${postBlock("Post 3 — Búsquedas posibles", `
+Algunas búsquedas que Guía Suárez quiere resolver:
+
+${weeklyNeedExamples()}
+
+Si buscás algo local, probá primero en Guía Suárez.
 
 ${SITE_URL}
 `)}
 
-${postBlock("Post 4 — Nuevos avisos / actividad reciente", `
-Algunas actividades que ya forman parte de Guía Suárez:
+${postBlock("Post 4 — Comunidad / primeros 100 avisos", `
+Estamos completando Guía Suárez entre todos.
 
-${firstNameList(latest)}
+Cuantos más comercios, profesionales y servicios se sumen, más útil va a ser para cada vecino.
 
-Si querés que tu actividad también aparezca, podés publicarla gratis en ${SITE_URL}
+Si conocés a alguien que debería aparecer en la guía, compartile este link.
+
+Y si tenés una actividad, podés publicarla gratis para siempre.
+
+${SITE_URL}
 `)}
 
 ${postBlock("Historia Instagram / Facebook", `
 Texto corto:
 
-¿Tenés un comercio o servicio en Coronel Suárez?
+¿Dónde encuentro eso en Coronel Suárez?
 
-Publicalo gratis en Guía Suárez.
+Probá buscarlo en Guía Suárez.
 
 Sticker sugerido:
 👉 guiasuarez.ar
@@ -172,11 +186,13 @@ Permiso, comparto algo útil para la ciudad.
 
 Estamos armando Guía Suárez, una guía local para encontrar comercios, profesionales y servicios de Coronel Suárez.
 
-Buscar es libre y publicar una actividad es gratis para siempre.
+La idea es que cuando alguien necesite una manicura, un electricista, un comercio o un profesional, pueda buscar por rubro en un solo lugar.
 
-Si tenés un comercio, emprendimiento, profesión u oficio, podés sumarte acá:
+Si les sirve, pueden entrar y guardarla:
 
 ${SITE_URL}
+
+Y si conocen a alguien que debería aparecer, se la pueden compartir. Publicar es gratis para siempre.
 `)}
 
 ## Próximas acciones sugeridas

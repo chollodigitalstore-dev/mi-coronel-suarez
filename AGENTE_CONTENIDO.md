@@ -7,7 +7,18 @@ Este agente genera contenido semanal listo para redes a partir de los avisos pub
 - Lee avisos activos de Guía Suárez.
 - Detecta rubros con pocos avisos.
 - Genera posts para Facebook, Instagram, WhatsApp y grupos locales.
+- Promociona la guía como herramienta local; no promociona avisos individuales.
 - Crea un archivo de salida en `marketing/CONTENIDO_SEMANAL.md`.
+
+## Criterio editorial
+
+La marca a instalar es Guía Suárez.
+
+Los avisos publicados se usan como señal interna para entender rubros disponibles o rubros faltantes, pero el contenido orgánico debe empujar el hábito:
+
+> “Cuando necesitás algo en Coronel Suárez, buscalo en Guía Suárez.”
+
+Evitar que el contenido semanal parezca publicidad puntual de un comercio, salvo que más adelante se defina una acción editorial específica.
 
 ## Cómo ejecutarlo
 

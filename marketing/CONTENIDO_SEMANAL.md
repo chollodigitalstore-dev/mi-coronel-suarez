@@ -6,69 +6,74 @@ Avisos activos detectados: 2
 
 ## Resumen para publicar esta semana
 
-- Meta de campaña: primeros 100 avisos.
-- Rubros a empujar: belleza y bienestar, salud, gastronomía, comercios.
-- Rubro con más presencia actual: Hogar y oficios.
-- CTA principal: publicar gratis para siempre en https://guiasuarez.ar.
+- Objetivo principal: instalar el hábito de buscar en Guía Suárez.
+- Enfoque de marca: “menos preguntar, más encontrar”.
+- Rubros a mencionar: belleza y bienestar, salud, gastronomía, comercios.
+- Rubro con más presencia actual, sólo como dato interno: Hogar y oficios.
+- CTA principal: entrar a https://guiasuarez.ar y buscar por rubro.
 
-## Post 1 — Lanzamiento / recordatorio general
+## Post 1 — Marca / hábito de uso
 
-Nació Guía Suárez: una guía local para encontrar comercios, profesionales y servicios de Coronel Suárez.
+Cuando necesitás algo en Coronel Suárez, no siempre sabés por dónde empezar.
 
-Podés buscar por rubro, contactar por WhatsApp y ayudar a otros vecinos con calificaciones.
+¿Una manicura? ¿Un electricista? ¿Un comercio? ¿Un profesional?
 
-Si tenés una actividad, publicarla es gratis para siempre.
+Guía Suárez reúne comercios, profesionales y servicios locales para que puedas buscar más rápido y elegir mejor.
 
-Entrá a https://guiasuarez.ar
+Entrá, buscá por rubro y guardala para cuando la necesites:
+https://guiasuarez.ar
 
-#CoronelSuarez #GuiaSuarez #ComerciosLocales #Emprendedores
+#CoronelSuarez #GuiaSuarez #ComerciosLocales #ServiciosLocales
 
 
-## Post 2 — Primeros 100 avisos
+## Post 2 — Problema cotidiano
 
-Estamos armando los primeros 100 avisos de Guía Suárez.
+“¿Alguien conoce a alguien que haga...?”
 
-Si tenés un comercio, profesión, emprendimiento o servicio en Coronel Suárez, sumá tu actividad gratis.
+Esa pregunta aparece todos los días.
 
-Y si conocés a alguien que debería aparecer, compartile la guía.
+La idea de Guía Suárez es simple: que puedas encontrar comercios, profesionales y servicios de Coronel Suárez en un solo lugar.
+
+Buscá por rubro, compará opciones y contactá directo.
+https://guiasuarez.ar
+
+#GuiaSuarez #CoronelSuarez #DondeEncuentro
+
+
+## Post 3 — Búsquedas posibles
+
+Algunas búsquedas que Guía Suárez quiere resolver:
+
+- ¿Dónde encuentro una manicura?
+- ¿Quién hace arreglos eléctricos?
+- ¿Dónde busco un carpintero?
+- ¿A quién llamo para limpieza?
+
+Si buscás algo local, probá primero en Guía Suárez.
 
 https://guiasuarez.ar
 
-#CoronelSuarez #ComerciosEnCoronelSuarez #ServiciosLocales
 
+## Post 4 — Comunidad / primeros 100 avisos
 
-## Post 3 — Rubros que necesitamos sumar
+Estamos completando Guía Suárez entre todos.
 
-Queremos completar más rubros en Guía Suárez.
+Cuantos más comercios, profesionales y servicios se sumen, más útil va a ser para cada vecino.
 
-Esta semana buscamos especialmente:
-- Belleza y bienestar
-- Salud
-- Gastronomía
-- Comercios
+Si conocés a alguien que debería aparecer en la guía, compartile este link.
 
-Publicar es gratis para siempre y ayuda a que más vecinos encuentren servicios locales sin tener que preguntar de cero.
+Y si tenés una actividad, podés publicarla gratis para siempre.
 
 https://guiasuarez.ar
-
-
-## Post 4 — Nuevos avisos / actividad reciente
-
-Algunas actividades que ya forman parte de Guía Suárez:
-
-- Albañil Juan Rollheiser (Hogar y oficios)
-- Blu Sistemas - Desarrollo Web - IA Aplicada a tu negocio (Tecnología)
-
-Si querés que tu actividad también aparezca, podés publicarla gratis en https://guiasuarez.ar
 
 
 ## Historia Instagram / Facebook
 
 Texto corto:
 
-¿Tenés un comercio o servicio en Coronel Suárez?
+¿Dónde encuentro eso en Coronel Suárez?
 
-Publicalo gratis en Guía Suárez.
+Probá buscarlo en Guía Suárez.
 
 Sticker sugerido:
 👉 guiasuarez.ar
@@ -76,7 +81,7 @@ Sticker sugerido:
 
 ## Mensaje para WhatsApp
 
-Conocé Guía Suárez: una guía local para buscar comercios, profesionales y servicios de Coronel Suárez. Publicar es gratis para siempre: https://guiasuarez.ar
+Conocé Guía Suárez: una guía local para buscar comercios, profesionales y servicios de Coronel Suárez. Entrá, buscá por rubro y compartila con quien la necesite: https://guiasuarez.ar
 
 
 ## Mensaje para grupos de Facebook
@@ -85,11 +90,13 @@ Permiso, comparto algo útil para la ciudad.
 
 Estamos armando Guía Suárez, una guía local para encontrar comercios, profesionales y servicios de Coronel Suárez.
 
-Buscar es libre y publicar una actividad es gratis para siempre.
+La idea es que cuando alguien necesite una manicura, un electricista, un comercio o un profesional, pueda buscar por rubro en un solo lugar.
 
-Si tenés un comercio, emprendimiento, profesión u oficio, podés sumarte acá:
+Si les sirve, pueden entrar y guardarla:
 
 https://guiasuarez.ar
+
+Y si conocen a alguien que debería aparecer, se la pueden compartir. Publicar es gratis para siempre.
 
 
 ## Próximas acciones sugeridas
