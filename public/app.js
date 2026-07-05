@@ -431,7 +431,8 @@ joinForm.addEventListener("submit", async event => {
   submitButton.textContent = "Publicar aviso";
 
   if (error) {
-    showToast("No pudimos publicar el aviso. Revisá la configuración de Supabase.");
+    console.error("Supabase listing insert error", error);
+    showToast(`No pudimos publicar el aviso: ${error.message || "revisá Supabase"}`);
     return;
   }
 
