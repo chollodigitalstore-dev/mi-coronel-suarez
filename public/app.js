@@ -52,7 +52,6 @@ const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
 const userMenu = document.querySelector("#userMenu");
 const publishResume = document.querySelector("#publishResume");
-const authWarning = document.querySelector("#authWarning");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -428,7 +427,6 @@ function renderUser(user) {
   currentUser = user;
   userMenu.hidden = !user;
   if (publishResume) publishResume.hidden = !user;
-  if (authWarning && user) authWarning.hidden = true;
   renderJoinDialogState();
   if (!user) return;
   document.querySelector("#userName").textContent = user.user_metadata?.full_name?.split(" ")[0] || "Usuario";
@@ -791,13 +789,6 @@ supabase.auth.onAuthStateChange((event, nextSession) => {
 
 const initialQuery = new URLSearchParams(window.location.search).get("q");
 if (initialQuery) searchInput.value = initialQuery;
-
-window.setTimeout(async () => {
-  const { data: { session: delayedSession } } = await supabase.auth.getSession();
-  if (!delayedSession?.user && readRememberedIntent() && authWarning) {
-    authWarning.hidden = false;
-  }
-}, 1800);
 
 await loadListings();
 await loadRatings();
