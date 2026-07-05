@@ -270,6 +270,30 @@ function openPublishDialogAfterLogin() {
   dialog.showModal();
 }
 
+async function completeOAuthRedirectIfNeeded() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const error = params.get("error") || params.get("error_code");
+  const errorDescription = params.get("error_description");
+
+  if (error) {
+    showToast(errorDescription ? decodeURIComponent(errorDescription.replace(/\+/g, " ")) : "No pudimos completar el ingreso con Google.");
+    return;
+  }
+
+  if (!code) return;
+
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  if (exchangeError) {
+    showToast("Google volvió correctamente, pero no pudimos crear la sesión. Revisemos Supabase Auth.");
+    return;
+  }
+
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete("code");
+  window.history.replaceState({}, "", `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
+}
+
 async function signInWithGoogle() {
   const intent = readRememberedIntent() || "publish";
   rememberIntent(intent);
@@ -556,6 +580,8 @@ supportPanel.addEventListener("click", event => {
   supportPanel.querySelectorAll("[data-help-topic]").forEach(item => item.classList.toggle("active", item === button));
   supportAnswer.innerHTML = `<h3>${topic.title}</h3><p>${topic.body}</p>`;
 });
+
+await completeOAuthRedirectIfNeeded();
 
 const { data: { session } } = await supabase.auth.getSession();
 renderUser(session?.user || null);
