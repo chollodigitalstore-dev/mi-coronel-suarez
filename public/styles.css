@@ -138,6 +138,7 @@ h1 em { color: var(--green); font-style: normal; }
 .listing-body { padding: 20px; }
 .listing-body h3 { font-size: 21px; margin-bottom: 5px; }
 .listing-category { color: var(--green); font-size: 13px; font-weight: 700; }
+.listing-description { margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
 .listing-meta { display: flex; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
 .listing-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--line); }
 .listing-actions.actions-2 { grid-template-columns: repeat(2, 1fr); }

@@ -20,6 +20,7 @@ create table if not exists public.listings (
   location text not null,
   place text not null,
   address text,
+  description text check (description is null or char_length(description) <= 150),
   icon text,
   phone text,
   verified boolean not null default false,

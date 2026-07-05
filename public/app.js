@@ -71,6 +71,16 @@ function slugify(text) {
     .slice(0, 70) || `aviso-${Date.now()}`;
 }
 
+function escapeHtml(text = "") {
+  return text.replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[character]);
+}
+
 function categoryById(id) {
   return categories.find(category => category.id === id);
 }
@@ -118,6 +128,7 @@ function hydrateListing(item) {
     tags: Array.isArray(item.tags) ? item.tags.join(" ") : (item.tags || ""),
     place: item.place || locationLabels[item.location] || "Coronel Suárez",
     address: item.address || "",
+    description: item.description || "",
     icon: item.icon || categoryById(item.category)?.icon || "•",
     whatsapp: item.phone ? `54${item.phone.replace(/[^\d]/g, "")}` : ""
   };
@@ -138,7 +149,7 @@ function renderListings() {
   const location = locationSelect.value;
   const filtered = listings.filter(item => {
     const categoryName = categoryById(item.category)?.name || item.category;
-    const haystack = normalize(`${item.name} ${item.tags} ${categoryName}`);
+    const haystack = normalize(`${item.name} ${item.tags} ${categoryName} ${item.description}`);
     return item.active !== false
       && (!query || haystack.includes(query))
       && (!activeCategory || item.category === activeCategory)
@@ -151,6 +162,7 @@ function renderListings() {
     const rating = stats
       ? `<span class="rating-summary">★ ${Number(stats.average_rating).toFixed(1)} · ${stats.review_count} opiniones</span>`
       : '<span class="rating-summary">Sin opiniones todavía</span>';
+    const description = item.description ? `<p class="listing-description">${escapeHtml(item.description)}</p>` : "";
 
     const mapAction = item.address
       ? `<a href="${mapsHref(item)}" target="_blank" rel="noopener" aria-label="Ver ${item.name} en Google Maps"><span>⌖</span>Mapa</a>`
@@ -159,6 +171,7 @@ function renderListings() {
     return `<article class="listing-card" aria-label="${item.name} en ${item.place}">
       <div class="listing-cover" role="img" aria-label="${category}: ${item.name}"><span>${item.icon}</span>${item.verified ? '<span class="verified">✓ Verificado</span>' : ""}</div>
       <div class="listing-body"><span class="listing-category">${category}</span><h3>${item.name}</h3>${rating}
+      ${description}
       <div class="listing-meta"><span>⌖ ${item.address || item.place}</span><span>● Abierto hoy</span></div>
       <div class="listing-actions actions-${actionCount}" aria-label="Acciones rápidas">
         <a href="${phoneHref(item.phone)}" aria-label="Llamar a ${item.name}"><span>☎</span>Llamar</a>
@@ -179,7 +192,7 @@ function renderListings() {
 async function loadListings() {
   const { data, error } = await supabase
     .from("listings")
-    .select("slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id")
+    .select("slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id")
     .order("created_at", { ascending: false });
 
   if (!error && data?.length) listings = data.map(hydrateListing);
@@ -214,7 +227,7 @@ async function loadOwnerListings() {
   if (!currentUser) return [];
   const { data, error } = await supabase
     .from("listings")
-    .select("slug,name,category,location,place,address,phone,icon,active")
+    .select("slug,name,category,location,place,address,description,phone,icon,active")
     .eq("owner_id", currentUser.id)
     .order("created_at", { ascending: false });
 
@@ -237,7 +250,7 @@ async function editOwnerListing(slug) {
   if (!item) {
     const { data, error } = await supabase
       .from("listings")
-      .select("slug,name,category,location,place,address,phone,icon,active,verified,owner_id,tags")
+      .select("slug,name,category,location,place,address,description,phone,icon,active,verified,owner_id,tags")
       .eq("slug", slug)
       .single();
     if (error) {
@@ -258,6 +271,7 @@ async function editOwnerListing(slug) {
   joinForm.elements.location.value = item.location || "coronel-suarez";
   joinForm.elements.phone.value = item.phone || "";
   joinForm.elements.address.value = item.address || "";
+  joinForm.elements.description.value = item.description || "";
   joinForm.querySelector("button[type='submit']").textContent = "Guardar cambios";
   manageDialog.close();
   dialog.showModal();
@@ -548,8 +562,13 @@ joinForm.addEventListener("submit", async event => {
   const location = String(formData.get("location") || "");
   const phone = String(formData.get("phone") || "").trim();
   const address = String(formData.get("address") || "").trim() || null;
+  const description = String(formData.get("description") || "").trim() || null;
   if (!name || !category || !location || !phone) {
     showToast("Completá nombre, rubro, localidad y teléfono para publicar.");
+    return;
+  }
+  if (description && description.length > 150) {
+    showToast("La descripción no puede superar los 150 caracteres.");
     return;
   }
   const categoryInfo = categoryById(category);
@@ -561,6 +580,7 @@ joinForm.addEventListener("submit", async event => {
     location,
     place: locationLabels[location] || "Coronel Suárez",
     address,
+    description,
     icon: categoryInfo?.icon || "•",
     phone,
     verified: false,
@@ -582,6 +602,7 @@ joinForm.addEventListener("submit", async event => {
           location,
           place: newListing.place,
           address,
+          description,
           icon: newListing.icon,
           phone
         })
