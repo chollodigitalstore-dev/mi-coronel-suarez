@@ -327,7 +327,10 @@ export default {
     const assetRequest = ["GET", "HEAD"].includes(request.method)
       && !url.pathname.includes(".")
       && url.pathname !== "/"
-        ? new Request(new URL("/", url.origin), request)
+        ? new Request(new URL("/", url.origin), {
+          method: request.method,
+          headers: request.headers
+        })
         : request;
     const response = await env.ASSETS.fetch(assetRequest);
     const headers = new Headers(response.headers);
