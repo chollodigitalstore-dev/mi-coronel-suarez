@@ -145,8 +145,8 @@ dialog::backdrop { background: rgba(12,35,28,.65); backdrop-filter: blur(4px); }
 dialog p { color: var(--muted); }
 dialog form { display: grid; gap: 14px; margin-top: 22px; }
 dialog label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; }
-dialog input { padding: 12px; border: 1px solid var(--line); border-radius: 10px; outline: 0; }
-dialog input:focus { border-color: var(--green); }
+dialog input, dialog select { padding: 12px; border: 1px solid var(--line); border-radius: 10px; outline: 0; background: white; }
+dialog input:focus, dialog select:focus { border-color: var(--green); }
 .auth-gate { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--cream); }
 .auth-gate div { display: grid; gap: 4px; }
 .auth-gate small { color: var(--muted); }

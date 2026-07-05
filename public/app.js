@@ -18,8 +18,15 @@ const categories = [
   { id: "turismo", name: "Turismo y ocio", icon: "☀️" }
 ];
 
-// Datos ficticios para demostrar el funcionamiento del prototipo.
-const listings = [
+const locationLabels = {
+  "coronel-suarez": "Coronel Suárez",
+  "huanguelen": "Huanguelén",
+  "pueblo-san-jose": "Pueblo San José",
+  "pueblo-santa-maria": "Pueblo Santa María",
+  "pueblo-santa-trinidad": "Pueblo Santa Trinidad"
+};
+
+let listings = [
   { slug: "carpinteria-el-roble", name: "Carpintería El Roble", category: "hogar", tags: "carpintero muebles madera arreglos", location: "coronel-suarez", place: "Coronel Suárez", icon: "🪵", phone: "2926 000001", whatsapp: "542926000001", verified: true },
   { slug: "estudio-norte", name: "Estudio Norte", category: "profesionales", tags: "arquitectura planos construcción profesional", location: "coronel-suarez", place: "Coronel Suárez", icon: "📐", phone: "2926 000002", whatsapp: "542926000002", verified: true },
   { slug: "manos-bonitas", name: "Manos Bonitas", category: "belleza", tags: "manicura uñas belleza pedicura", location: "pueblo-san-jose", place: "Pueblo San José", icon: "💅", phone: "2926 000003", whatsapp: "542926000003", verified: true },
@@ -35,13 +42,34 @@ const locationSelect = document.querySelector("#locationSelect");
 const resultsTitle = document.querySelector("#resultsTitle");
 const resultCount = document.querySelector("#resultCount");
 const emptyState = document.querySelector("#emptyState");
+const dialog = document.querySelector("#joinDialog");
+const joinForm = document.querySelector("#joinForm");
+const joinAuthGate = document.querySelector("#joinAuthGate");
+const joinDialogIntro = document.querySelector("#joinDialogIntro");
+const joinDialogTitle = document.querySelector("#joinDialogTitle");
+const formSuccess = document.querySelector("#formSuccess");
+const reviewDialog = document.querySelector("#reviewDialog");
+const reviewForm = document.querySelector("#reviewForm");
+const userMenu = document.querySelector("#userMenu");
+
 let activeCategory = null;
 let expandedCategories = false;
 let currentUser = null;
 let ratingStats = {};
 
-function normalize(text) {
+function normalize(text = "") {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function slugify(text) {
+  return normalize(text)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 70) || `aviso-${Date.now()}`;
+}
+
+function categoryById(id) {
+  return categories.find(category => category.id === id);
 }
 
 function phoneHref(phone = "") {
@@ -49,7 +77,7 @@ function phoneHref(phone = "") {
 }
 
 function whatsappHref(item) {
-  const phone = item.whatsapp || `54${item.phone.replace(/[^\d]/g, "")}`;
+  const phone = item.whatsapp || `54${(item.phone || "").replace(/[^\d]/g, "")}`;
   const text = encodeURIComponent(`Hola, te encontré en Guía Suárez y quería consultar por ${item.name}.`);
   return `https://wa.me/${phone}?text=${text}`;
 }
@@ -59,10 +87,27 @@ function mapsHref(item) {
   return `https://www.google.com/maps/search/?api=1&query=${query}`;
 }
 
+function showToast(message) {
+  const toast = document.querySelector("#toast");
+  toast.textContent = message;
+  toast.hidden = false;
+  window.setTimeout(() => { toast.hidden = true; }, 4500);
+}
+
+function hydrateListing(item) {
+  return {
+    ...item,
+    tags: Array.isArray(item.tags) ? item.tags.join(" ") : (item.tags || ""),
+    place: item.place || locationLabels[item.location] || "Coronel Suárez",
+    icon: item.icon || categoryById(item.category)?.icon || "•",
+    whatsapp: item.phone ? `54${item.phone.replace(/[^\d]/g, "")}` : ""
+  };
+}
+
 function renderCategories() {
   const visible = expandedCategories ? categories : categories.slice(0, 6);
   categoryGrid.innerHTML = visible.map(category => {
-    const count = listings.filter(item => item.category === category.id).length;
+    const count = listings.filter(item => item.category === category.id && item.active !== false).length;
     return `<button class="category-card ${activeCategory === category.id ? "active" : ""}" data-category="${category.id}">
       <span class="category-icon">${category.icon}</span><strong>${category.name}</strong><small>${count || "Próximamente"}</small>
     </button>`;
@@ -73,14 +118,21 @@ function renderListings() {
   const query = normalize(searchInput.value.trim());
   const location = locationSelect.value;
   const filtered = listings.filter(item => {
-    const haystack = normalize(`${item.name} ${item.tags} ${categories.find(c => c.id === item.category)?.name}`);
-    return (!query || haystack.includes(query)) && (!activeCategory || item.category === activeCategory) && (location === "todas" || item.location === location);
+    const categoryName = categoryById(item.category)?.name || item.category;
+    const haystack = normalize(`${item.name} ${item.tags} ${categoryName}`);
+    return item.active !== false
+      && (!query || haystack.includes(query))
+      && (!activeCategory || item.category === activeCategory)
+      && (location === "todas" || item.location === location);
   });
 
   listingGrid.innerHTML = filtered.map(item => {
-    const category = categories.find(c => c.id === item.category)?.name;
+    const category = categoryById(item.category)?.name || item.category;
     const stats = ratingStats[item.slug];
-    const rating = stats ? `<span class="rating-summary">★ ${Number(stats.average_rating).toFixed(1)} · ${stats.review_count} opiniones</span>` : '<span class="rating-summary">Sin opiniones todavía</span>';
+    const rating = stats
+      ? `<span class="rating-summary">★ ${Number(stats.average_rating).toFixed(1)} · ${stats.review_count} opiniones</span>`
+      : '<span class="rating-summary">Sin opiniones todavía</span>';
+
     return `<article class="listing-card" aria-label="${item.name} en ${item.place}">
       <div class="listing-cover" role="img" aria-label="${category}: ${item.name}"><span>${item.icon}</span>${item.verified ? '<span class="verified">✓ Verificado</span>' : ""}</div>
       <div class="listing-body"><span class="listing-category">${category}</span><h3>${item.name}</h3>${rating}
@@ -101,11 +153,72 @@ function renderListings() {
   listingGrid.hidden = filtered.length === 0;
 }
 
+async function loadListings() {
+  const { data, error } = await supabase
+    .from("listings")
+    .select("slug,name,category,tags,location,place,icon,phone,verified,active,owner_id")
+    .order("created_at", { ascending: false });
+
+  if (!error && data?.length) listings = data.map(hydrateListing);
+  renderCategories();
+  renderListings();
+}
+
+function renderJoinDialogState() {
+  const isLoggedIn = Boolean(currentUser);
+  joinAuthGate.hidden = isLoggedIn;
+  joinForm.hidden = !isLoggedIn;
+  formSuccess.hidden = true;
+  joinDialogTitle.textContent = isLoggedIn ? "Panel de publicación" : "Publicá tu actividad con Google";
+  joinDialogIntro.textContent = isLoggedIn
+    ? "Ya estás identificado. Cargá tu comercio, profesión o servicio; quedará asociado a tu cuenta para poder administrarlo."
+    : "Para publicar en Guía Suárez necesitás ingresar con Google. Así cuidamos la calidad de los datos y evitamos publicaciones anónimas.";
+}
+
+function continuePendingIntent() {
+  const params = new URLSearchParams(window.location.search);
+  const urlIntent = params.get("intent");
+  const pendingIntent = sessionStorage.getItem("pendingIntent") || urlIntent;
+
+  if (pendingIntent === "publish" && currentUser) {
+    sessionStorage.removeItem("pendingIntent");
+    if (urlIntent) window.history.replaceState({}, "", window.location.pathname + window.location.hash);
+    renderJoinDialogState();
+    if (!dialog.open) dialog.showModal();
+  }
+}
+
+async function signInWithGoogle() {
+  sessionStorage.setItem("pendingIntent", "publish");
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${window.location.origin}?intent=publish` }
+  });
+  if (error) showToast("No pudimos iniciar sesión. Probá nuevamente.");
+}
+
+function renderUser(user) {
+  currentUser = user;
+  userMenu.hidden = !user;
+  renderJoinDialogState();
+  if (!user) return;
+  document.querySelector("#userName").textContent = user.user_metadata?.full_name?.split(" ")[0] || "Usuario";
+  document.querySelector("#userAvatar").src = user.user_metadata?.avatar_url || "";
+}
+
+async function loadRatings() {
+  const { data, error } = await supabase.from("listing_ratings").select("slug,average_rating,review_count");
+  if (error) return;
+  ratingStats = Object.fromEntries(data.map(row => [row.slug, row]));
+  renderListings();
+}
+
 categoryGrid.addEventListener("click", event => {
   const card = event.target.closest("[data-category]");
   if (!card) return;
   activeCategory = activeCategory === card.dataset.category ? null : card.dataset.category;
-  renderCategories(); renderListings();
+  renderCategories();
+  renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 });
 
@@ -116,56 +229,134 @@ document.querySelector("#showAllCategories").addEventListener("click", event => 
 });
 
 document.querySelector("#searchForm").addEventListener("submit", event => {
-  event.preventDefault(); activeCategory = null; renderCategories(); renderListings();
+  event.preventDefault();
+  activeCategory = null;
+  renderCategories();
+  renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 });
 
 document.querySelectorAll("[data-query]").forEach(button => button.addEventListener("click", () => {
-  searchInput.value = button.dataset.query; activeCategory = null; renderCategories(); renderListings();
+  searchInput.value = button.dataset.query;
+  activeCategory = null;
+  renderCategories();
+  renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 }));
 
 locationSelect.addEventListener("change", renderListings);
 document.querySelector("#clearFilters").addEventListener("click", () => {
-  searchInput.value = ""; locationSelect.value = "todas"; activeCategory = null; renderCategories(); renderListings();
+  searchInput.value = "";
+  locationSelect.value = "todas";
+  activeCategory = null;
+  renderCategories();
+  renderListings();
 });
 
-const dialog = document.querySelector("#joinDialog");
-const joinForm = document.querySelector("#joinForm");
-const joinAuthGate = document.querySelector("#joinAuthGate");
-const joinDialogIntro = document.querySelector("#joinDialogIntro");
-const joinDialogTitle = document.querySelector("#joinDialogTitle");
-const formSuccess = document.querySelector("#formSuccess");
-
-function renderJoinDialogState() {
-  const isLoggedIn = Boolean(currentUser);
-  joinAuthGate.hidden = isLoggedIn;
-  joinForm.hidden = !isLoggedIn;
-  formSuccess.hidden = true;
-  joinDialogTitle.textContent = isLoggedIn ? "Contanos sobre tu actividad" : "Publicá tu actividad con Google";
-  joinDialogIntro.textContent = isLoggedIn
-    ? "Ya estás identificado. En esta primera versión vamos a registrar tu interés; el formulario definitivo incluirá validación de datos."
-    : "Para publicar en Mi Coronel Suárez necesitás ingresar con Google. Así cuidamos la calidad de los datos y evitamos publicaciones anónimas.";
-}
-
 document.querySelectorAll("[data-open-form]").forEach(button => button.addEventListener("click", () => {
+  sessionStorage.setItem("pendingIntent", "publish");
   renderJoinDialogState();
   dialog.showModal();
 }));
+
 document.querySelector(".dialog-close").addEventListener("click", () => dialog.close());
-joinForm.addEventListener("submit", event => {
-  event.preventDefault(); event.currentTarget.reset(); formSuccess.hidden = false;
+document.querySelector("#joinLoginButton").addEventListener("click", signInWithGoogle);
+document.querySelector("#logoutButton").addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  renderUser(null);
 });
 
-const reviewDialog = document.querySelector("#reviewDialog");
-const reviewForm = document.querySelector("#reviewForm");
-const userMenu = document.querySelector("#userMenu");
+joinForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!currentUser) {
+    showToast("Ingresá con Google para publicar tu actividad.");
+    return;
+  }
 
-function showToast(message) {
-  const toast = document.querySelector("#toast");
-  toast.textContent = message; toast.hidden = false;
-  window.setTimeout(() => { toast.hidden = true; }, 4500);
-}
+  const submitButton = event.currentTarget.querySelector("button[type='submit']");
+  const formData = new FormData(event.currentTarget);
+  const name = String(formData.get("name")).trim();
+  const category = String(formData.get("category"));
+  const location = String(formData.get("location"));
+  const phone = String(formData.get("phone")).trim();
+  const categoryInfo = categoryById(category);
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Publicando...";
+
+  const { data, error } = await supabase
+    .from("listings")
+    .insert({
+      slug: `${slugify(name)}-${Date.now().toString(36)}`,
+      name,
+      category,
+      tags: [name, categoryInfo?.name || category],
+      location,
+      place: locationLabels[location] || "Coronel Suárez",
+      icon: categoryInfo?.icon || "•",
+      phone,
+      verified: false,
+      active: true,
+      owner_id: currentUser.id
+    })
+    .select("slug,name,category,tags,location,place,icon,phone,verified,active,owner_id")
+    .single();
+
+  submitButton.disabled = false;
+  submitButton.textContent = "Publicar aviso";
+
+  if (error) {
+    showToast("No pudimos publicar el aviso. Revisá la configuración de Supabase.");
+    return;
+  }
+
+  listings.unshift(hydrateListing(data));
+  event.currentTarget.reset();
+  formSuccess.hidden = false;
+  renderCategories();
+  renderListings();
+});
+
+listingGrid.addEventListener("click", event => {
+  const button = event.target.closest("[data-review]");
+  if (!button) return;
+  if (!currentUser) {
+    showToast("Ingresá con Google para dejar una calificación.");
+    renderJoinDialogState();
+    dialog.showModal();
+    return;
+  }
+  reviewForm.reset();
+  document.querySelector("#reviewSuccess").hidden = true;
+  reviewForm.hidden = false;
+  document.querySelector("#reviewListingSlug").value = button.dataset.review;
+  document.querySelector("#reviewBusinessName").textContent = `Calificá ${button.dataset.name}`;
+  reviewDialog.showModal();
+});
+
+document.querySelector(".review-close").addEventListener("click", () => reviewDialog.close());
+reviewForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const slug = document.querySelector("#reviewListingSlug").value;
+  const { data: listing, error: listingError } = await supabase.from("listings").select("id").eq("slug", slug).single();
+  if (listingError) {
+    showToast("No pudimos encontrar esta actividad.");
+    return;
+  }
+  const rating = Number(new FormData(reviewForm).get("rating"));
+  const comment = document.querySelector("#reviewComment").value.trim() || null;
+  const { error } = await supabase.from("reviews").upsert(
+    { listing_id: listing.id, user_id: currentUser.id, rating, comment },
+    { onConflict: "listing_id,user_id" }
+  );
+  if (error) {
+    showToast("No pudimos guardar la opinión.");
+    return;
+  }
+  reviewForm.hidden = true;
+  document.querySelector("#reviewSuccess").hidden = false;
+  await loadRatings();
+});
 
 function renderCurrentDate() {
   const currentDate = document.querySelector("#currentDate");
@@ -240,68 +431,6 @@ async function loadPharmacyShift() {
   }
 }
 
-function renderUser(user) {
-  currentUser = user;
-  userMenu.hidden = !user;
-  renderJoinDialogState();
-  if (!user) return;
-  document.querySelector("#userName").textContent = user.user_metadata?.full_name?.split(" ")[0] || "Usuario";
-  document.querySelector("#userAvatar").src = user.user_metadata?.avatar_url || "";
-}
-
-async function loadRatings() {
-  const { data, error } = await supabase.from("listing_ratings").select("slug,average_rating,review_count");
-  if (error) return;
-  ratingStats = Object.fromEntries(data.map(row => [row.slug, row]));
-  renderListings();
-}
-
-async function signInWithGoogle() {
-  const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
-  if (error) showToast("No pudimos iniciar sesión. Probá nuevamente.");
-}
-
-document.querySelector("#joinLoginButton").addEventListener("click", signInWithGoogle);
-
-document.querySelector("#logoutButton").addEventListener("click", async () => {
-  await supabase.auth.signOut(); renderUser(null);
-});
-
-listingGrid.addEventListener("click", event => {
-  const button = event.target.closest("[data-review]");
-  if (!button) return;
-  if (!currentUser) {
-    showToast("Ingresá con Google para dejar una calificación.");
-    renderJoinDialogState();
-    dialog.showModal();
-    return;
-  }
-  reviewForm.reset(); document.querySelector("#reviewSuccess").hidden = true; reviewForm.hidden = false;
-  document.querySelector("#reviewListingSlug").value = button.dataset.review;
-  document.querySelector("#reviewBusinessName").textContent = `Calificá ${button.dataset.name}`;
-  reviewDialog.showModal();
-});
-
-document.querySelector(".review-close").addEventListener("click", () => reviewDialog.close());
-reviewForm.addEventListener("submit", async event => {
-  event.preventDefault();
-  const slug = document.querySelector("#reviewListingSlug").value;
-  const { data: listing, error: listingError } = await supabase.from("listings").select("id").eq("slug", slug).single();
-  if (listingError) { showToast("No pudimos encontrar esta actividad."); return; }
-  const rating = Number(new FormData(reviewForm).get("rating"));
-  const comment = document.querySelector("#reviewComment").value.trim() || null;
-  const { error } = await supabase.from("reviews").upsert({ listing_id: listing.id, user_id: currentUser.id, rating, comment }, { onConflict: "listing_id,user_id" });
-  if (error) { showToast("No pudimos guardar la opinión."); return; }
-  reviewForm.hidden = true; document.querySelector("#reviewSuccess").hidden = false; await loadRatings();
-});
-
-const { data: { session } } = await supabase.auth.getSession();
-renderUser(session?.user || null);
-supabase.auth.onAuthStateChange((_event, nextSession) => renderUser(nextSession?.user || null));
-
-const initialQuery = new URLSearchParams(window.location.search).get("q");
-if (initialQuery) searchInput.value = initialQuery;
-
 const supportFab = document.querySelector("#supportFab");
 const supportPanel = document.querySelector("#supportPanel");
 const supportClose = document.querySelector("#supportClose");
@@ -346,9 +475,19 @@ supportPanel.addEventListener("click", event => {
   supportAnswer.innerHTML = `<h3>${topic.title}</h3><p>${topic.body}</p>`;
 });
 
-renderCategories();
-renderListings();
-loadRatings();
+const { data: { session } } = await supabase.auth.getSession();
+renderUser(session?.user || null);
+continuePendingIntent();
+supabase.auth.onAuthStateChange((_event, nextSession) => {
+  renderUser(nextSession?.user || null);
+  continuePendingIntent();
+});
+
+const initialQuery = new URLSearchParams(window.location.search).get("q");
+if (initialQuery) searchInput.value = initialQuery;
+
+await loadListings();
+await loadRatings();
 renderCurrentDate();
 loadWeather();
 loadPharmacyShift();

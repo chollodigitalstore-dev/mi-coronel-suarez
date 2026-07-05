@@ -178,11 +178,36 @@
     </div>
     <form id="joinForm">
       <label>Nombre de la actividad<input required name="name" placeholder="Ej: Carpintería El Roble"></label>
-      <label>Rubro<input required name="category" placeholder="Ej: Carpintería"></label>
+      <label>Rubro
+        <select required name="category">
+          <option value="">Elegí un rubro</option>
+          <option value="hogar">Hogar y oficios</option>
+          <option value="belleza">Belleza y bienestar</option>
+          <option value="salud">Salud</option>
+          <option value="gastronomia">Gastronomía</option>
+          <option value="comercios">Comercios</option>
+          <option value="automotor">Automotor</option>
+          <option value="profesionales">Profesionales</option>
+          <option value="mascotas">Mascotas</option>
+          <option value="eventos">Eventos</option>
+          <option value="educacion">Educación</option>
+          <option value="tecnologia">Tecnología</option>
+          <option value="turismo">Turismo y ocio</option>
+        </select>
+      </label>
+      <label>Localidad
+        <select required name="location">
+          <option value="coronel-suarez">Coronel Suárez</option>
+          <option value="huanguelen">Huanguelén</option>
+          <option value="pueblo-san-jose">Pueblo San José</option>
+          <option value="pueblo-santa-maria">Pueblo Santa María</option>
+          <option value="pueblo-santa-trinidad">Pueblo Santa Trinidad</option>
+        </select>
+      </label>
       <label>WhatsApp o teléfono<input required name="phone" inputmode="tel" placeholder="2926…"></label>
-      <button class="button button-primary" type="submit">Quiero sumarme</button>
+      <button class="button button-primary" type="submit">Publicar aviso</button>
     </form>
-    <p class="form-success" id="formSuccess" hidden>¡Gracias! En la versión conectada, este registro llegará al administrador.</p>
+    <p class="form-success" id="formSuccess" hidden>¡Listo! Tu aviso quedó cargado y asociado a tu cuenta de Google.</p>
   </dialog>
 
   <dialog id="reviewDialog">
