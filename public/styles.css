@@ -60,7 +60,16 @@ h1 em { color: var(--green); font-style: normal; }
 .popular button { padding: 0; color: var(--green); border: 0; background: none; text-decoration: underline; text-underline-offset: 3px; }
 .hero-art { height: 400px; position: relative; }
 .sun { width: 330px; height: 330px; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); border-radius: 50%; background: #f2c969; opacity: .75; }
-.hero-logo { width: min(360px, 88%); aspect-ratio: 1; object-fit: cover; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-radius: 50%; mix-blend-mode: multiply; filter: saturate(.96) contrast(1.03); }
+.service-scenes { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.service-scene { width: 146px; height: 92px; position: absolute; display: grid; place-items: center; gap: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,.52); border-radius: 24px; color: white; background: linear-gradient(135deg, rgba(39,109,85,.72), rgba(242,201,105,.42)); box-shadow: 0 22px 55px rgba(12,35,28,.12); opacity: .34; transform: rotate(-6deg); animation: ambientFloat 8s ease-in-out infinite; }
+.service-scene::before { content: ""; position: absolute; inset: -40%; background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.65), transparent 34%), linear-gradient(115deg, transparent 35%, rgba(255,255,255,.28) 48%, transparent 62%); animation: sceneShimmer 5.5s ease-in-out infinite; }
+.service-scene span, .service-scene small { position: relative; z-index: 1; }
+.service-scene span { font-size: 30px; }
+.service-scene small { font-size: 11px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
+.scene-electrician { top: 18px; right: 18px; background: linear-gradient(135deg, rgba(16,67,53,.74), rgba(247,217,120,.52)); }
+.scene-cleaning { left: 18px; bottom: 52px; background: linear-gradient(135deg, rgba(39,109,85,.66), rgba(232,243,236,.6)); animation-delay: -2.2s; }
+.scene-health { right: 92px; bottom: 0; background: linear-gradient(135deg, rgba(231,124,99,.62), rgba(255,253,248,.62)); animation-delay: -4s; }
+.hero-logo { width: min(355px, 82%); max-height: 355px; object-fit: contain; position: absolute; z-index: 1; top: 0; left: 50%; transform: translateX(-50%); mix-blend-mode: multiply; filter: drop-shadow(0 24px 28px rgba(12,35,28,.14)) saturate(.98) contrast(1.04); }
 .floating-card { min-width: 190px; display: flex; align-items: center; gap: 10px; position: absolute; padding: 13px; background: white; border-radius: 14px; box-shadow: var(--shadow); }
 .floating-card b { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: white; background: var(--coral); }
 .floating-card span { display: flex; flex-direction: column; }
@@ -72,6 +81,16 @@ h1 em { color: var(--green); font-style: normal; }
 .value-card small { font-size: 13px; line-height: 1.35; }
 .card-one { top: 32px; left: -12px; }
 .card-two { right: -5px; bottom: 26px; }
+
+@keyframes ambientFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-6deg); }
+  50% { transform: translate3d(0, -10px, 0) rotate(-3deg); }
+}
+
+@keyframes sceneShimmer {
+  0%, 100% { transform: translateX(-18%); opacity: .5; }
+  50% { transform: translateX(18%); opacity: .9; }
+}
 
 .ad-section { padding: 34px max(5vw, 24px); background: #fffdf8; }
 .ad-label { display: block; margin-bottom: 10px; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; }
@@ -181,6 +200,10 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   .pharmacy-widget { position: static; transform: none; max-width: 260px; font-size: 12px; }
   .hero { grid-template-columns: 1fr; padding-top: 50px; }
   .hero-art { height: 320px; }
+  .service-scene { opacity: .22; transform: scale(.88) rotate(-6deg); }
+  .scene-electrician { right: 4px; }
+  .scene-cleaning { left: 0; bottom: 38px; }
+  .scene-health { right: 42px; }
   .category-grid { grid-template-columns: repeat(3, 1fr); }
   .trust-grid { grid-template-columns: 1fr; }
   .trust-card.featured { transform: none; }
@@ -205,7 +228,8 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   .location-select { width: auto; height: 42px; border-left: 0; border-top: 1px solid var(--line); }
   .hero-art { height: 280px; transform: scale(.9); }
   .sun { width: 250px; height: 250px; }
-  .hero-logo { width: 280px; top: -6px; }
+  .hero-logo { width: 250px; top: -2px; }
+  .service-scene { display: none; }
   .floating-card { min-width: 160px; padding: 10px; font-size: 12px; }
   .value-card { width: 230px; }
   .value-card strong { font-size: 13px; }
@@ -222,4 +246,8 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   footer { align-items: start; flex-direction: column; gap: 8px; }
   .support-fab { left: 14px; bottom: 14px; }
   .support-panel { left: 14px; right: 14px; bottom: 76px; width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-scene, .service-scene::before { animation: none; }
 }
