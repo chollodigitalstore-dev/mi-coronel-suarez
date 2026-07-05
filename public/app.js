@@ -166,22 +166,85 @@ async function loadListings() {
 
 function renderJoinDialogState() {
   const isLoggedIn = Boolean(currentUser);
+  const rememberedIntent = readRememberedIntent();
   joinAuthGate.hidden = isLoggedIn;
   joinForm.hidden = !isLoggedIn;
   formSuccess.hidden = true;
+  if (!isLoggedIn && rememberedIntent === "review") {
+    joinDialogTitle.textContent = "Ingresá para calificar";
+    joinDialogIntro.textContent = "Para dejar una reseña necesitás ingresar con Google. Así las opiniones quedan asociadas a vecinos identificados.";
+    return;
+  }
   joinDialogTitle.textContent = isLoggedIn ? "Panel de publicación" : "Publicá tu actividad con Google";
   joinDialogIntro.textContent = isLoggedIn
     ? "Ya estás identificado. Cargá tu comercio, profesión o servicio; quedará asociado a tu cuenta para poder administrarlo."
     : "Para publicar en Guía Suárez necesitás ingresar con Google. Así cuidamos la calidad de los datos y evitamos publicaciones anónimas.";
 }
 
+function rememberIntent(intent) {
+  localStorage.setItem("pendingIntent", JSON.stringify({
+    intent,
+    createdAt: Date.now()
+  }));
+}
+
+function readRememberedIntent() {
+  try {
+    const stored = JSON.parse(localStorage.getItem("pendingIntent") || "null");
+    if (!stored?.intent || Date.now() - stored.createdAt > 10 * 60 * 1000) {
+      localStorage.removeItem("pendingIntent");
+      return null;
+    }
+    return stored.intent;
+  } catch (_error) {
+    localStorage.removeItem("pendingIntent");
+    return null;
+  }
+}
+
+function clearRememberedIntent() {
+  localStorage.removeItem("pendingIntent");
+}
+
+function rememberReviewIntent(slug, name) {
+  rememberIntent("review");
+  localStorage.setItem("pendingReview", JSON.stringify({ slug, name }));
+}
+
+function readRememberedReview() {
+  try {
+    return JSON.parse(localStorage.getItem("pendingReview") || "null");
+  } catch (_error) {
+    localStorage.removeItem("pendingReview");
+    return null;
+  }
+}
+
+function openReviewDialog(slug, name) {
+  reviewForm.reset();
+  document.querySelector("#reviewSuccess").hidden = true;
+  reviewForm.hidden = false;
+  document.querySelector("#reviewListingSlug").value = slug;
+  document.querySelector("#reviewBusinessName").textContent = `Calificá ${name}`;
+  reviewDialog.showModal();
+}
+
 function continuePendingIntent() {
   const params = new URLSearchParams(window.location.search);
-  const urlIntent = params.get("intent");
-  const pendingIntent = sessionStorage.getItem("pendingIntent") || urlIntent;
+  const urlIntent = params.get("intent") || params.get("publish");
+  const pendingIntent = readRememberedIntent() || urlIntent;
+
+  if (pendingIntent === "review" && currentUser) {
+    const pendingReview = readRememberedReview();
+    clearRememberedIntent();
+    localStorage.removeItem("pendingReview");
+    if (urlIntent) window.history.replaceState({}, "", window.location.pathname + window.location.hash);
+    if (pendingReview?.slug && pendingReview?.name) openReviewDialog(pendingReview.slug, pendingReview.name);
+    return;
+  }
 
   if (pendingIntent === "publish" && currentUser) {
-    sessionStorage.removeItem("pendingIntent");
+    clearRememberedIntent();
     if (urlIntent) window.history.replaceState({}, "", window.location.pathname + window.location.hash);
     renderJoinDialogState();
     if (!dialog.open) dialog.showModal();
@@ -189,10 +252,12 @@ function continuePendingIntent() {
 }
 
 async function signInWithGoogle() {
-  sessionStorage.setItem("pendingIntent", "publish");
+  const intent = readRememberedIntent() || "publish";
+  rememberIntent(intent);
+  const params = new URLSearchParams({ intent });
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${window.location.origin}?intent=publish` }
+    options: { redirectTo: `${window.location.origin}/?${params}` }
   });
   if (error) showToast("No pudimos iniciar sesión. Probá nuevamente.");
 }
@@ -254,7 +319,7 @@ document.querySelector("#clearFilters").addEventListener("click", () => {
 });
 
 document.querySelectorAll("[data-open-form]").forEach(button => button.addEventListener("click", () => {
-  sessionStorage.setItem("pendingIntent", "publish");
+  rememberIntent("publish");
   renderJoinDialogState();
   dialog.showModal();
 }));
@@ -322,16 +387,12 @@ listingGrid.addEventListener("click", event => {
   if (!button) return;
   if (!currentUser) {
     showToast("Ingresá con Google para dejar una calificación.");
+    rememberReviewIntent(button.dataset.review, button.dataset.name);
     renderJoinDialogState();
     dialog.showModal();
     return;
   }
-  reviewForm.reset();
-  document.querySelector("#reviewSuccess").hidden = true;
-  reviewForm.hidden = false;
-  document.querySelector("#reviewListingSlug").value = button.dataset.review;
-  document.querySelector("#reviewBusinessName").textContent = `Calificá ${button.dataset.name}`;
-  reviewDialog.showModal();
+  openReviewDialog(button.dataset.review, button.dataset.name);
 });
 
 document.querySelector(".review-close").addEventListener("click", () => reviewDialog.close());
