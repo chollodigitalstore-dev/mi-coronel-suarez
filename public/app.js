@@ -27,14 +27,7 @@ const locationLabels = {
   "pueblo-santa-trinidad": "Pueblo Santa Trinidad"
 };
 
-let listings = [
-  { slug: "carpinteria-el-roble", name: "Carpintería El Roble", category: "hogar", tags: "carpintero muebles madera arreglos", location: "coronel-suarez", place: "Coronel Suárez", icon: "🪵", phone: "2926 000001", whatsapp: "542926000001", verified: true },
-  { slug: "estudio-norte", name: "Estudio Norte", category: "profesionales", tags: "arquitectura planos construcción profesional", location: "coronel-suarez", place: "Coronel Suárez", icon: "📐", phone: "2926 000002", whatsapp: "542926000002", verified: true },
-  { slug: "manos-bonitas", name: "Manos Bonitas", category: "belleza", tags: "manicura uñas belleza pedicura", location: "pueblo-san-jose", place: "Pueblo San José", icon: "💅", phone: "2926 000003", whatsapp: "542926000003", verified: true },
-  { slug: "sabores-de-casa", name: "Sabores de Casa", category: "gastronomia", tags: "comida viandas pastas caseras", location: "huanguelen", place: "Huanguelén", icon: "🥟", phone: "2926 000004", whatsapp: "542926000004", verified: false },
-  { slug: "electro-suarez", name: "Electro Suárez", category: "hogar", tags: "electricista electricidad instalaciones urgencias", location: "pueblo-santa-trinidad", place: "Pueblo Santa Trinidad", icon: "⚡", phone: "2926 000005", whatsapp: "542926000005", verified: true },
-  { slug: "veterinaria-la-comarca", name: "Veterinaria La Comarca", category: "mascotas", tags: "veterinaria mascotas alimento perros gatos", location: "coronel-suarez", place: "Coronel Suárez", icon: "🐕", phone: "2926 000006", whatsapp: "542926000006", verified: true }
-];
+let listings = [];
 
 const categoryGrid = document.querySelector("#categoryGrid");
 const listingGrid = document.querySelector("#listingGrid");
@@ -66,6 +59,7 @@ let expandedCategories = false;
 let currentUser = null;
 let ratingStats = {};
 let lastPublishedSlug = null;
+let editingListingSlug = null;
 
 function normalize(text = "") {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -204,6 +198,7 @@ function renderManageListings(items = []) {
         <span class="manage-status ${item.active ? "" : "paused"}">${status}</span>
       </header>
       <div class="manage-actions">
+        <button type="button" data-owner-edit="${item.slug}">Editar</button>
         <button type="button" data-owner-toggle="${item.slug}">${item.active ? "Pausar" : "Activar"}</button>
         <button type="button" class="danger" data-owner-delete="${item.slug}">Eliminar</button>
       </div>
@@ -215,7 +210,7 @@ async function loadOwnerListings() {
   if (!currentUser) return [];
   const { data, error } = await supabase
     .from("listings")
-    .select("slug,name,category,location,place,active")
+    .select("slug,name,category,location,place,phone,icon,active")
     .eq("owner_id", currentUser.id)
     .order("created_at", { ascending: false });
 
@@ -231,6 +226,36 @@ function updateLocalListing(slug, patch) {
   listings = listings.map(item => item.slug === slug ? { ...item, ...patch } : item);
   renderCategories();
   renderListings();
+}
+
+async function editOwnerListing(slug) {
+  let item = listings.find(listing => listing.slug === slug);
+  if (!item) {
+    const { data, error } = await supabase
+      .from("listings")
+      .select("slug,name,category,location,place,phone,icon,active,verified,owner_id,tags")
+      .eq("slug", slug)
+      .single();
+    if (error) {
+      showToast(`No pudimos abrir el aviso: ${error.message}`);
+      return;
+    }
+    item = hydrateListing(data);
+  }
+
+  editingListingSlug = slug;
+  formSuccess.hidden = true;
+  joinAuthGate.hidden = true;
+  joinForm.hidden = false;
+  joinDialogTitle.textContent = "Editar aviso";
+  joinDialogIntro.textContent = "Actualizá los datos de tu publicación. Los cambios se guardan en tu aviso.";
+  joinForm.elements.name.value = item.name || "";
+  joinForm.elements.category.value = item.category || "";
+  joinForm.elements.location.value = item.location || "coronel-suarez";
+  joinForm.elements.phone.value = item.phone || "";
+  joinForm.querySelector("button[type='submit']").textContent = "Guardar cambios";
+  manageDialog.close();
+  dialog.showModal();
 }
 
 async function toggleOwnerListing(slug) {
@@ -458,6 +483,9 @@ document.querySelector("#clearFilters").addEventListener("click", () => {
 });
 
 document.querySelectorAll("[data-open-form]").forEach(button => button.addEventListener("click", () => {
+  editingListingSlug = null;
+  joinForm.reset();
+  joinForm.querySelector("button[type='submit']").textContent = "Publicar aviso";
   rememberIntent("publish");
   renderJoinDialogState();
   dialog.showModal();
@@ -482,8 +510,10 @@ manageListingsButton?.addEventListener("click", async () => {
 });
 document.querySelector(".manage-close")?.addEventListener("click", () => manageDialog.close());
 manageListingsList?.addEventListener("click", async event => {
+  const editButton = event.target.closest("[data-owner-edit]");
   const toggleButton = event.target.closest("[data-owner-toggle]");
   const deleteButton = event.target.closest("[data-owner-delete]");
+  if (editButton) await editOwnerListing(editButton.dataset.ownerEdit);
   if (toggleButton) await toggleOwnerListing(toggleButton.dataset.ownerToggle);
   if (deleteButton) await deleteOwnerListing(deleteButton.dataset.ownerDelete);
 });
@@ -533,33 +563,59 @@ joinForm.addEventListener("submit", async event => {
   };
 
   submitButton.disabled = true;
-  submitButton.textContent = "Publicando...";
+  submitButton.textContent = editingListingSlug ? "Guardando..." : "Publicando...";
 
   try {
-    const insertPromise = supabase.from("listings").insert(newListing);
+    const savePromise = editingListingSlug
+      ? supabase
+        .from("listings")
+        .update({
+          name,
+          category,
+          tags: [name, categoryInfo?.name || category],
+          location,
+          place: newListing.place,
+          icon: newListing.icon,
+          phone
+        })
+        .eq("slug", editingListingSlug)
+      : supabase.from("listings").insert(newListing);
     const timeoutPromise = new Promise((_, reject) => {
-      window.setTimeout(() => reject(new Error("La publicación tardó demasiado. Probá nuevamente.")), 12000);
+      window.setTimeout(() => reject(new Error("La operación tardó demasiado. Probá nuevamente.")), 12000);
     });
-    const { error } = await Promise.race([insertPromise, timeoutPromise]);
+    const { error } = await Promise.race([savePromise, timeoutPromise]);
 
     if (error) {
-      console.error("Supabase listing insert error", error);
-      showToast(`No pudimos publicar el aviso: ${error.message || "revisá Supabase"}`);
+      console.error("Supabase listing save error", error);
+      showToast(`No pudimos guardar el aviso: ${error.message || "revisá Supabase"}`);
       return;
     }
 
-    listings.unshift(hydrateListing(newListing));
-    lastPublishedSlug = newListing.slug;
+    if (editingListingSlug) {
+      const previous = listings.find(item => item.slug === editingListingSlug);
+      updateLocalListing(editingListingSlug, hydrateListing({
+        ...newListing,
+        slug: editingListingSlug,
+        active: previous?.active ?? true,
+        verified: previous?.verified ?? false
+      }));
+      lastPublishedSlug = editingListingSlug;
+      editingListingSlug = null;
+    } else {
+      listings.unshift(hydrateListing(newListing));
+      lastPublishedSlug = newListing.slug;
+    }
     form.reset();
     joinForm.hidden = true;
     formSuccess.hidden = false;
+    viewPublishedListing.textContent = "Ver aviso en la guía";
     renderCategories();
     renderListings();
     if (manageDialog?.open) await loadOwnerListings();
-    showToast("Tu aviso ya está publicado en la guía.");
+    showToast("Tu aviso quedó guardado.");
   } catch (error) {
-    console.error("Supabase listing insert timeout/error", error);
-    showToast(error.message || "No pudimos publicar el aviso. Probá nuevamente.");
+    console.error("Supabase listing save timeout/error", error);
+    showToast(error.message || "No pudimos guardar el aviso. Probá nuevamente.");
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Publicar aviso";

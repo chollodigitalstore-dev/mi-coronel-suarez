@@ -114,13 +114,3 @@ create policy "Owners respond to reviews" on public.review_responses for insert 
 
 create policy "Users report reviews" on public.review_reports for insert to authenticated with check (auth.uid() = reporter_id and status = 'pending');
 create policy "Users see own reports" on public.review_reports for select to authenticated using (auth.uid() = reporter_id);
-
-insert into public.listings (slug, name, category, tags, location, place, icon, phone, verified)
-values
-  ('carpinteria-el-roble', 'Carpintería El Roble', 'hogar', array['carpintero','muebles','madera','arreglos'], 'coronel-suarez', 'Coronel Suárez', '🪵', '2926 000001', true),
-  ('estudio-norte', 'Estudio Norte', 'profesionales', array['arquitectura','planos','construcción'], 'coronel-suarez', 'Coronel Suárez', '📐', '2926 000002', true),
-  ('manos-bonitas', 'Manos Bonitas', 'belleza', array['manicura','uñas','pedicura'], 'pueblo-san-jose', 'Pueblo San José', '💅', '2926 000003', true),
-  ('sabores-de-casa', 'Sabores de Casa', 'gastronomia', array['comida','viandas','pastas'], 'huanguelen', 'Huanguelén', '🥟', '2926 000004', false),
-  ('electro-suarez', 'Electro Suárez', 'hogar', array['electricista','electricidad','instalaciones'], 'pueblo-santa-trinidad', 'Pueblo Santa Trinidad', '⚡', '2926 000005', true),
-  ('veterinaria-la-comarca', 'Veterinaria La Comarca', 'mascotas', array['veterinaria','mascotas','alimento'], 'coronel-suarez', 'Coronel Suárez', '🐕', '2926 000006', true)
-on conflict (slug) do nothing;
