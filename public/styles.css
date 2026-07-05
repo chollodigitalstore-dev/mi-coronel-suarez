@@ -47,16 +47,16 @@ nav a:hover { color: var(--green); }
 .hero { min-height: 550px; padding: 72px max(5vw, 24px); display: grid; grid-template-columns: 1.12fr .88fr; align-items: center; gap: 40px; overflow: hidden; background: var(--cream); }
 .eyebrow { display: block; color: var(--green); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
 h1, h2, h3 { font-family: "Manrope", sans-serif; line-height: 1.1; margin: 0; }
-h1 { font-size: clamp(44px, 5vw, 72px); letter-spacing: -3px; }
+h1 { max-width: 680px; font-size: clamp(34px, 4.1vw, 56px); letter-spacing: -2px; }
 h1 em { color: var(--green); font-style: normal; }
 .hero-copy > p { max-width: 600px; color: var(--muted); font-size: 18px; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
 .publish-resume { max-width: 620px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; padding: 16px; border: 1px solid rgba(39,109,85,.18); border-radius: 18px; background: rgba(232,243,236,.86); box-shadow: 0 12px 32px rgba(22,74,57,.08); }
 .publish-resume[hidden] { display: none; }
 .publish-resume div { display: grid; gap: 2px; }
 .publish-resume strong { color: var(--green-dark); }
 .publish-resume small { color: var(--muted); }
-.search-box { max-width: 780px; min-height: 68px; display: flex; align-items: center; margin-top: 32px; padding: 8px; gap: 4px; background: white; border-radius: 16px; box-shadow: var(--shadow); position: relative; z-index: 3; }
+.search-box { max-width: 780px; min-height: 68px; display: flex; align-items: center; margin-top: 22px; padding: 8px; gap: 4px; background: white; border-radius: 16px; box-shadow: var(--shadow); position: relative; z-index: 3; }
 .search-input, .location-select { display: flex; align-items: center; gap: 10px; padding: 0 14px; }
 .search-input { flex: 1; }
 .search-input span, .location-select span { color: var(--green); font-weight: 800; }
@@ -245,7 +245,7 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   .current-date { display: none; }
   .brand-mark { width: 34px; height: 34px; }
   .hero { padding-top: 44px; gap: 10px; }
-  h1 { font-size: 44px; letter-spacing: -2px; }
+  h1 { font-size: 36px; letter-spacing: -1.5px; }
   .hero-copy > p { font-size: 16px; }
   .search-box { display: grid; grid-template-columns: 1fr auto; }
   .hero-actions .button { width: 100%; text-align: center; }
