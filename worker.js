@@ -3,6 +3,21 @@ const SOURCES = {
   turnoAhora: "https://www.farmaciadeturnoahora.com.ar/de-turno/buenos-aires/coronel-suarez"
 };
 
+const CATEGORY_LABELS = {
+  hogar: "Hogar y oficios",
+  belleza: "Belleza y bienestar",
+  salud: "Salud",
+  gastronomia: "Gastronomía",
+  comercios: "Comercios",
+  automotor: "Automotor",
+  profesionales: "Profesionales",
+  mascotas: "Mascotas",
+  eventos: "Eventos",
+  educacion: "Educación",
+  tecnologia: "Tecnología",
+  turismo: "Turismo y ocio"
+};
+
 function decodeHtml(text = "") {
   return text
     .replace(/&nbsp;/gi, " ")
@@ -104,11 +119,170 @@ async function handlePharmacyTurn() {
   });
 }
 
+function escapeHtml(text = "") {
+  return String(text).replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[character]);
+}
+
+function formatField(label, value) {
+  if (!value) return "";
+  return `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`;
+}
+
+function getWebhookSecret(request) {
+  const authorization = request.headers.get("Authorization") || "";
+  if (authorization.toLowerCase().startsWith("bearer ")) return authorization.slice(7).trim();
+  return request.headers.get("x-webhook-secret") || "";
+}
+
+async function fetchListingById(env, listingId) {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY || !listingId) return null;
+  const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/listings`);
+  endpoint.searchParams.set("select", "slug,name,category,place,address,phone");
+  endpoint.searchParams.set("id", `eq.${listingId}`);
+  endpoint.searchParams.set("limit", "1");
+
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
+    }
+  });
+
+  if (!response.ok) return null;
+  const rows = await response.json();
+  return rows[0] || null;
+}
+
+async function sendNotificationEmail(env, { subject, html, text }) {
+  if (!env.RESEND_API_KEY || !env.NOTIFY_TO || !env.NOTIFY_FROM) {
+    throw new Error("Email notifications are not configured.");
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: env.NOTIFY_FROM,
+      to: [env.NOTIFY_TO],
+      subject,
+      html,
+      text
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Resend error ${response.status}: ${await response.text()}`);
+  }
+
+  return response.json();
+}
+
+function listingEmail(record = {}) {
+  const category = CATEGORY_LABELS[record.category] || record.category || "";
+  const title = record.name || "Nuevo aviso";
+  const url = record.slug ? `https://guiasuarez.ar/?q=${encodeURIComponent(record.name || record.slug)}#resultados` : "https://guiasuarez.ar";
+  const html = `
+    <h1>Nuevo aviso publicado en Guía Suárez</h1>
+    ${formatField("Actividad", title)}
+    ${formatField("Rubro", category)}
+    ${formatField("Localidad", record.place || record.location)}
+    ${formatField("Dirección", record.address)}
+    ${formatField("Teléfono/WhatsApp", record.phone)}
+    ${formatField("Descripción", record.description)}
+    <p><a href="${url}">Ver en Guía Suárez</a></p>
+  `;
+  const text = [
+    "Nuevo aviso publicado en Guía Suárez",
+    `Actividad: ${title}`,
+    category ? `Rubro: ${category}` : "",
+    record.place ? `Localidad: ${record.place}` : "",
+    record.address ? `Dirección: ${record.address}` : "",
+    record.phone ? `Teléfono/WhatsApp: ${record.phone}` : "",
+    record.description ? `Descripción: ${record.description}` : "",
+    `Ver: ${url}`
+  ].filter(Boolean).join("\n");
+
+  return {
+    subject: `Nuevo aviso en Guía Suárez: ${title}`,
+    html,
+    text
+  };
+}
+
+async function reviewEmail(env, record = {}) {
+  const listing = await fetchListingById(env, record.listing_id);
+  const listingName = listing?.name || "un aviso";
+  const url = listing?.slug ? `https://guiasuarez.ar/?q=${encodeURIComponent(listingName)}#resultados` : "https://guiasuarez.ar";
+  const html = `
+    <h1>Nueva calificación en Guía Suárez</h1>
+    ${formatField("Aviso", listingName)}
+    ${formatField("Calificación", record.rating ? `${record.rating}/5` : "")}
+    ${formatField("Comentario", record.comment)}
+    <p><a href="${url}">Ver en Guía Suárez</a></p>
+  `;
+  const text = [
+    "Nueva calificación en Guía Suárez",
+    `Aviso: ${listingName}`,
+    record.rating ? `Calificación: ${record.rating}/5` : "",
+    record.comment ? `Comentario: ${record.comment}` : "",
+    `Ver: ${url}`
+  ].filter(Boolean).join("\n");
+
+  return {
+    subject: `Nueva calificación en Guía Suárez: ${listingName}`,
+    html,
+    text
+  };
+}
+
+async function handleSupabaseNotify(request, env) {
+  if (request.method !== "POST") {
+    return Response.json({ error: "Method not allowed" }, { status: 405 });
+  }
+
+  if (!env.NOTIFY_WEBHOOK_SECRET || getWebhookSecret(request) !== env.NOTIFY_WEBHOOK_SECRET) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const payload = await request.json();
+  const table = payload.table || payload.table_name;
+  const type = (payload.type || payload.eventType || payload.event || "").toUpperCase();
+  const record = payload.record || payload.new || payload.new_record || {};
+
+  if (type && type !== "INSERT") {
+    return Response.json({ ok: true, skipped: "Only INSERT events are notified." });
+  }
+
+  let email;
+  if (table === "listings") {
+    email = listingEmail(record);
+  } else if (table === "reviews") {
+    email = await reviewEmail(env, record);
+  } else {
+    return Response.json({ ok: true, skipped: `No notification configured for ${table || "unknown table"}.` });
+  }
+
+  await sendNotificationEmail(env, email);
+  return Response.json({ ok: true });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/api/pharmacy-turn") {
       return handlePharmacyTurn();
+    }
+    if (url.pathname === "/api/supabase-notify") {
+      return handleSupabaseNotify(request, env);
     }
 
     const response = await env.ASSETS.fetch(request);
