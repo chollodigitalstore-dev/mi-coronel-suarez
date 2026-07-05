@@ -733,11 +733,11 @@ async function loadWeather() {
     const icon = weatherIcon(weather.current?.weather_code);
     if ([currentTemp, tomorrowMax, tomorrowMin].some(Number.isNaN)) throw new Error("Weather data incomplete");
     weatherIconElement.textContent = icon;
-    weatherText.textContent = `Ahora ${currentTemp}° · Mañana ${tomorrowMin}°/${tomorrowMax}°`;
-    weatherWidget.title = "Clima de Coronel Suárez · Fuente: Open-Meteo";
+    weatherText.textContent = `Clima hoy en Coronel Suárez: ${currentTemp}° · Mañana ${tomorrowMin}°/${tomorrowMax}°`;
+    weatherWidget.title = "Clima hoy en Coronel Suárez";
   } catch (_error) {
     weatherIconElement.textContent = "🌡️";
-    weatherText.textContent = "Clima no disponible";
+    weatherText.textContent = "Clima hoy en Coronel Suárez no disponible";
   }
 }
 
