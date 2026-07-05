@@ -51,7 +51,6 @@ const emptyManageListings = document.querySelector("#emptyManageListings");
 const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
 const userMenu = document.querySelector("#userMenu");
-const publishResume = document.querySelector("#publishResume");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -484,7 +483,6 @@ async function signInWithGoogle() {
 function renderUser(user) {
   currentUser = user;
   userMenu.hidden = !user;
-  if (publishResume) publishResume.hidden = !user;
   renderJoinDialogState();
   if (!user) return;
   document.querySelector("#userName").textContent = user.user_metadata?.full_name?.split(" ")[0] || "Usuario";
