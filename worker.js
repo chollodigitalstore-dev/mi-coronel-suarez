@@ -164,7 +164,20 @@ function formatField(label, value) {
 function getWebhookSecret(request) {
   const authorization = request.headers.get("Authorization") || "";
   if (authorization.toLowerCase().startsWith("bearer ")) return authorization.slice(7).trim();
-  return request.headers.get("x-webhook-secret") || "";
+  const url = new URL(request.url);
+  return request.headers.get("x-webhook-secret")
+    || request.headers.get("x-supabase-webhook-secret")
+    || url.searchParams.get("secret")
+    || "";
+}
+
+function normalizeWebhookTable(table = "") {
+  return String(table)
+    .split(".")
+    .filter(Boolean)
+    .pop()
+    ?.trim()
+    .toLowerCase() || "";
 }
 
 async function fetchListingById(env, listingId) {
@@ -286,9 +299,9 @@ async function handleSupabaseNotify(request, env) {
     }
 
     const payload = await request.json();
-    const table = payload.table || payload.table_name;
+    const table = normalizeWebhookTable(payload.table || payload.table_name || payload.relation);
     const type = (payload.type || payload.eventType || payload.event || "").toUpperCase();
-    const record = payload.record || payload.new || payload.new_record || {};
+    const record = payload.record || payload.new || payload.new_record || payload.data?.record || payload.data?.new || {};
 
     if (type && type !== "INSERT") {
       return Response.json({ ok: true, skipped: "Only INSERT events are notified." });

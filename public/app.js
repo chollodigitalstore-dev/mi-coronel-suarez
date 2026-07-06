@@ -793,13 +793,18 @@ reviewForm.addEventListener("submit", async event => {
     return;
   }
   const rating = Number(new FormData(reviewForm).get("rating"));
+  if (!rating || rating < 1 || rating > 5) {
+    showToast("Elegí una calificación de 1 a 5 estrellas.");
+    return;
+  }
   const comment = document.querySelector("#reviewComment").value.trim() || null;
   const { error } = await supabase.from("reviews").upsert(
-    { listing_id: listing.id, user_id: currentUser.id, rating, comment },
+    { listing_id: listing.id, user_id: currentUser.id, rating, comment, status: "published" },
     { onConflict: "listing_id,user_id" }
   );
   if (error) {
-    showToast("No pudimos guardar la opinión.");
+    console.error("Supabase review save error", error);
+    showToast(`No pudimos guardar la opinión: ${error.message || "revisá Supabase"}`);
     return;
   }
   reviewForm.hidden = true;
