@@ -371,10 +371,8 @@ Máximo 5 líneas. Sin markdown pesado.`;
     },
     body: JSON.stringify({
       model: env.OPENAI_MODEL || "gpt-4.1-mini",
-      input: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: message }
-      ],
+      instructions: systemPrompt,
+      input: message,
       temperature: 0.4,
       max_output_tokens: 180
     })
@@ -383,7 +381,7 @@ Máximo 5 líneas. Sin markdown pesado.`;
   if (!response.ok) {
     const errorText = await response.text();
     console.error("Isidoro OpenAI error", response.status, errorText);
-    return Response.json({ answer: isidoroFallbackAnswer(message), mode: "fallback" });
+    return Response.json({ answer: isidoroFallbackAnswer(message), mode: "fallback-openai-error", status: response.status });
   }
 
   const data = await response.json();
