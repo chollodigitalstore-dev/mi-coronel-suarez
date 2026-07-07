@@ -808,6 +808,8 @@ reviewForm.addEventListener("submit", async event => {
     return;
   }
   reviewForm.hidden = true;
+  const reviewBusinessName = document.querySelector("#reviewBusinessName");
+  reviewBusinessName.textContent = reviewBusinessName.textContent.replace(/^Calificá\s+/, "Calificaste ");
   document.querySelector("#reviewSuccess").hidden = false;
   await loadRatings();
 });
