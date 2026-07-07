@@ -327,6 +327,73 @@ async function handleSupabaseNotify(request, env) {
   }
 }
 
+function isidoroFallbackAnswer(message = "") {
+  const normalized = message.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (normalized.includes("public")) {
+    return "Para publicar, tocá “Sumá tu actividad”, ingresá con Google y completá los datos. Publicar en Guía Suárez es gratis para siempre.";
+  }
+  if (normalized.includes("calific") || normalized.includes("resena") || normalized.includes("opinion")) {
+    return "Para calificar, buscá la actividad, tocá “Calificar servicio”, ingresá con Google y dejá de 1 a 5 estrellas. Tu correo no se muestra públicamente.";
+  }
+  if (normalized.includes("edit") || normalized.includes("modific") || normalized.includes("elimin") || normalized.includes("pausar")) {
+    return "Si publicaste un aviso, ingresá con la misma cuenta de Google y usá “Mis avisos” para editar, pausar o eliminar tu publicación.";
+  }
+  return "Soy Isidoro, el asistente de Guía Suárez. Puedo ayudarte a publicar, calificar, editar avisos o encontrar cómo usar la guía. Si necesitás ayuda puntual, escribinos a guiasuarezweb@gmail.com.";
+}
+
+async function handleIsidoroChat(request, env) {
+  if (request.method !== "POST") {
+    return Response.json({ error: "Method not allowed" }, { status: 405 });
+  }
+
+  const payload = await request.json().catch(() => ({}));
+  const message = String(payload.message || "").trim().slice(0, 260);
+  if (message.length < 2) {
+    return Response.json({ error: "Escribí una consulta un poquito más completa." }, { status: 400 });
+  }
+
+  if (!env.OPENAI_API_KEY) {
+    return Response.json({ answer: isidoroFallbackAnswer(message), mode: "fallback" });
+  }
+
+  const systemPrompt = `Sos Isidoro, asistente de Guía Suárez (guiasuarez.ar), una guía local de comercios, profesionales y servicios de Coronel Suárez, Buenos Aires.
+Respondé como una persona amable, cercana y práctica. Usá español argentino simple.
+Tu tarea es ayudar con: buscar comercios, publicar gratis, ingresar con Google, editar/pausar/eliminar avisos, calificar servicios, reputación, farmacia de turno, clima del sitio y contacto.
+No inventes datos de comercios, precios, turnos ni farmacias. Si no sabés algo, derivá a guiasuarezweb@gmail.com.
+No respondas temas ajenos a Guía Suárez; redirigí con amabilidad.
+Máximo 5 líneas. Sin markdown pesado.`;
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: env.OPENAI_MODEL || "gpt-4.1-mini",
+      input: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
+      ],
+      temperature: 0.4,
+      max_output_tokens: 180
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Isidoro OpenAI error", response.status, errorText);
+    return Response.json({ answer: isidoroFallbackAnswer(message), mode: "fallback" });
+  }
+
+  const data = await response.json();
+  const answer = data.output_text
+    || data.output?.flatMap(item => item.content || []).map(item => item.text || "").join(" ").trim()
+    || isidoroFallbackAnswer(message);
+
+  return Response.json({ answer: answer.slice(0, 900), mode: "ai" });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -335,6 +402,9 @@ export default {
     }
     if (url.pathname === "/api/supabase-notify") {
       return handleSupabaseNotify(request, env);
+    }
+    if (url.pathname === "/api/isidoro-chat") {
+      return handleIsidoroChat(request, env);
     }
 
     const assetRequest = ["GET", "HEAD"].includes(request.method)

@@ -901,6 +901,9 @@ const supportFab = document.querySelector("#supportFab");
 const supportPanel = document.querySelector("#supportPanel");
 const supportClose = document.querySelector("#supportClose");
 const supportAnswer = document.querySelector("#supportAnswer");
+const supportChat = document.querySelector("#supportChat");
+const supportChatForm = document.querySelector("#supportChatForm");
+const supportChatInput = document.querySelector("#supportChatInput");
 const helpTopics = {
   auth: {
     title: "Cómo ingresar con Google",
@@ -943,6 +946,44 @@ supportPanel.addEventListener("click", event => {
   if (!topic) return;
   supportPanel.querySelectorAll("[data-help-topic]").forEach(item => item.classList.toggle("active", item === button));
   supportAnswer.innerHTML = `<h3>${topic.title}</h3><p>${topic.body}</p>`;
+});
+
+function addSupportMessage(text, type = "bot") {
+  if (!supportChat) return null;
+  const message = document.createElement("div");
+  message.className = `support-message ${type}`;
+  message.textContent = text;
+  supportChat.append(message);
+  supportChat.scrollIntoView({ block: "end", behavior: "smooth" });
+  return message;
+}
+
+supportChatForm?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const message = supportChatInput.value.trim();
+  if (!message) return;
+  supportChatInput.value = "";
+  addSupportMessage(message, "user");
+  const loadingMessage = addSupportMessage("Isidoro está pensando...", "bot");
+  const submitButton = supportChatForm.querySelector("button");
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch("/api/isidoro-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "No pude responder ahora.");
+    loadingMessage.textContent = data.answer || "No tengo una respuesta clara para eso todavía.";
+  } catch (error) {
+    loadingMessage.classList.add("error");
+    loadingMessage.textContent = `${error.message || "No pude responder ahora."} Si querés, escribinos a guiasuarezweb@gmail.com.`;
+  } finally {
+    submitButton.disabled = false;
+    supportChatInput.focus();
+  }
 });
 
 await completeOAuthRedirectIfNeeded();
