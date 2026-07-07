@@ -219,7 +219,7 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
 .star-rating input { position: absolute; opacity: 0; pointer-events: none; }
 .star-rating label { color: #cbd2cf; font-size: 34px; cursor: pointer; transition: .15s ease; }
 .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: var(--yellow); }
-.toast { position: fixed; right: 22px; bottom: 22px; z-index: 30; max-width: 360px; padding: 14px 18px; border-radius: 12px; color: white; background: var(--green-dark); box-shadow: var(--shadow); }
+.toast { position: fixed; right: 22px; bottom: 92px; z-index: 40; max-width: 360px; padding: 14px 18px; border-radius: 12px; color: white; background: var(--green-dark); box-shadow: var(--shadow); }
 .form-success { display: grid; gap: 12px; padding: 14px; color: var(--green-dark); background: var(--mint); border-radius: 14px; }
 .form-success[hidden] { display: none; }
 .form-success p { margin: 0; color: var(--green-dark); }
@@ -309,6 +309,7 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
   .growth-actions { width: 100%; flex-direction: column; }
   .growth-actions .button { text-align: center; }
   footer { align-items: start; flex-direction: column; gap: 8px; padding-bottom: 112px; }
+  .toast { left: 14px; right: 14px; bottom: 82px; max-width: none; }
   .support-fab { right: 14px; bottom: 14px; }
   .support-panel { left: 14px; right: 14px; bottom: 76px; width: auto; }
 }
