@@ -121,8 +121,11 @@ h1 em { color: var(--green); font-style: normal; }
 .medical-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 15px; color: white; background: var(--green); font-size: 28px; }
 .medical-summary strong { color: var(--green-dark); font-size: 20px; }
 .medical-summary small { color: var(--muted); }
-.medical-specialties { display: flex; align-content: start; align-items: start; flex-wrap: wrap; gap: 8px; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: white; }
-.medical-specialties span { padding: 8px 11px; border-radius: 999px; color: var(--green-dark); background: var(--cream); font-size: 12px; font-weight: 900; }
+.medical-selector { display: grid; align-content: center; gap: 10px; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: white; }
+.medical-selector span { color: var(--green-dark); font-weight: 900; }
+.medical-selector select { width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: #fffdf8; outline: 0; font-weight: 800; }
+.medical-selector select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(39,109,85,.1); }
+.medical-list-heading { margin: 18px 0 14px; color: var(--green-dark); font-weight: 900; }
 .medical-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .medical-card { min-height: 132px; display: grid; align-content: start; gap: 7px; padding: 17px; border: 1px solid var(--line); border-radius: 18px; background: white; box-shadow: 0 8px 26px rgba(22,74,57,.055); }
 .medical-card strong { color: var(--ink); line-height: 1.2; }

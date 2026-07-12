@@ -129,8 +129,14 @@
           <strong id="medicalCount">Cargando profesionales...</strong>
           <small>Información obtenida del Círculo Médico de Coronel Suárez.</small>
         </div>
-        <div class="medical-specialties" id="medicalSpecialties" aria-label="Especialidades médicas destacadas"></div>
+        <label class="medical-selector">
+          <span>Elegí una especialidad</span>
+          <select id="medicalSpecialtySelect" aria-label="Filtrar profesionales médicos por especialidad">
+            <option value="">Cargando especialidades...</option>
+          </select>
+        </label>
       </div>
+      <div class="medical-list-heading" id="medicalListHeading">Seleccioná una especialidad para ver profesionales.</div>
       <div class="medical-grid" id="medicalGrid"></div>
     </section>
 

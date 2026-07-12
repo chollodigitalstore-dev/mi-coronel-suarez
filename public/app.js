@@ -56,7 +56,8 @@ const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
 const userMenu = document.querySelector("#userMenu");
 const medicalCount = document.querySelector("#medicalCount");
-const medicalSpecialties = document.querySelector("#medicalSpecialties");
+const medicalSpecialtySelect = document.querySelector("#medicalSpecialtySelect");
+const medicalListHeading = document.querySelector("#medicalListHeading");
 const medicalGrid = document.querySelector("#medicalGrid");
 
 let activeCategory = null;
@@ -67,6 +68,7 @@ let lastPublishedSlug = null;
 let editingListingSlug = null;
 let listingDescriptionAvailable = true;
 let routeListingSlug = null;
+let medicalProfessionals = [];
 
 const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
 const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
@@ -559,30 +561,52 @@ async function loadRatings() {
 }
 
 async function loadMedicalProfessionals() {
-  if (!medicalCount || !medicalGrid || !medicalSpecialties) return;
+  if (!medicalCount || !medicalGrid || !medicalSpecialtySelect || !medicalListHeading) return;
 
   try {
     const response = await fetch("/api/medical-professionals");
     if (!response.ok) throw new Error("No pudimos cargar el padrón médico");
     const data = await response.json();
 
+    medicalProfessionals = data.professionals || [];
     medicalCount.textContent = `${data.count || 0} profesionales en el padrón`;
-    medicalSpecialties.innerHTML = (data.specialties || [])
-      .map(item => `<span>${escapeHtml(item.name)} · ${item.count}</span>`)
-      .join("");
-    medicalGrid.innerHTML = (data.professionals || [])
-      .map(item => `<article class="medical-card">
-        <strong>${escapeHtml(item.name)}</strong>
-        <small>Matrícula ${escapeHtml(item.license)}</small>
-        <span>${escapeHtml((item.specialties || []).slice(0, 2).join(" · "))}</span>
-      </article>`)
-      .join("");
+    medicalSpecialtySelect.innerHTML = `<option value="">Seleccioná una especialidad</option>${(data.specialties || [])
+      .map(item => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)} (${item.count})</option>`)
+      .join("")}`;
+    renderMedicalProfessionals("");
   } catch (error) {
     medicalCount.textContent = "Padrón médico no disponible";
-    medicalSpecialties.innerHTML = "";
+    medicalSpecialtySelect.innerHTML = `<option value="">Padrón no disponible</option>`;
+    medicalListHeading.textContent = "No pudimos cargar la información médica.";
     medicalGrid.innerHTML = `<article class="medical-card"><strong>No pudimos cargar la información médica</strong><small>Probá nuevamente más tarde o consultá el padrón completo.</small></article>`;
   }
 }
+
+function renderMedicalProfessionals(specialty) {
+  if (!medicalGrid || !medicalListHeading) return;
+  if (!specialty) {
+    medicalListHeading.textContent = "Seleccioná una especialidad para ver profesionales.";
+    medicalGrid.innerHTML = "";
+    return;
+  }
+
+  const filtered = medicalProfessionals
+    .filter(item => (item.specialties || []).includes(specialty))
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+  medicalListHeading.textContent = `${filtered.length} ${filtered.length === 1 ? "profesional" : "profesionales"} en ${specialty}`;
+  medicalGrid.innerHTML = filtered
+    .map(item => `<article class="medical-card">
+      <strong>${escapeHtml(item.name)}</strong>
+      <small>Matrícula ${escapeHtml(item.license)}</small>
+      <span>${escapeHtml((item.specialties || []).join(" · "))}</span>
+    </article>`)
+    .join("");
+}
+
+medicalSpecialtySelect?.addEventListener("change", event => {
+  renderMedicalProfessionals(event.target.value);
+});
 
 categoryGrid.addEventListener("click", event => {
   const card = event.target.closest("[data-category]");

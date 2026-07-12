@@ -202,13 +202,12 @@ async function handleMedicalProfessionals() {
   }
 
   const specialties = [...specialtyCounts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"))
-    .slice(0, 10)
+    .sort((a, b) => a[0].localeCompare(b[0], "es"))
     .map(([name, count]) => ({ name, count }));
 
   return Response.json({
     count: professionals.length,
-    professionals: professionals.slice(0, 8),
+    professionals: professionals.sort((a, b) => a.name.localeCompare(b.name, "es")),
     specialties,
     sourceName: "Círculo Médico de Coronel Suárez",
     sourceUrl: SOURCES.medicalProfessionals
