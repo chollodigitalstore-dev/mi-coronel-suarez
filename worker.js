@@ -168,34 +168,84 @@ async function handlePharmacyTurn() {
 }
 
 function parseMedicalProfessionals(html) {
-  const text = cleanText(html);
   const records = [];
-  const pattern = /([A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ.\s]{3,}?)\s+M\.:\s*([0-9]+)\s*\/\s*Especialidades:\s*(.+?)\s+Ver ficha/gu;
+  const pattern = /<tr class="row medico">([\s\S]*?)<\/tr>/g;
   let match;
 
-  while ((match = pattern.exec(text)) !== null) {
-    const rawName = match[1].replace(/^[A-ZÁÉÍÓÚÜÑ]\s+(?=[A-ZÁÉÍÓÚÜÑ])/, "");
+  while ((match = pattern.exec(html)) !== null) {
+    const row = match[1];
+    const rawName = cleanText(row.match(/<div class="nombre">\s*<span>([^<]+)<\/span>/i)?.[1] || "")
+      .replace(/^[A-ZÁÉÍÓÚÜÑ]\s+(?=[A-ZÁÉÍÓÚÜÑ])/, "");
     const name = titleCasePerson(rawName);
-    const license = match[2];
-    const specialties = match[3]
-      .split(/\s{2,}|,\s*/)
-      .map(item => formatSpecialty(item.trim()))
+    const license = cleanText(row.match(/<span class="matricula">M\.:\s*([0-9]+)<\/span>/i)?.[1] || "");
+    const specialties = [...row.matchAll(/<span class="espec-tag[^"]*">([^<]+)<\/span>/gi)]
+      .map(item => formatSpecialty(cleanText(item[1])))
       .filter(Boolean);
+    const profilePath = row.match(/href="([^"]+\/ficha)"/i)?.[1] || "";
+    const profileUrl = profilePath ? new URL(profilePath, SOURCES.medicalProfessionals).toString() : "";
 
     if (name && license && specialties.length) {
-      records.push({ name, license, specialties });
+      records.push({ name, license, specialties, profileUrl });
     }
   }
 
   return records;
 }
 
-async function handleMedicalProfessionals() {
+function parseMedicalProfile(html, profileUrl = "") {
+  const imageSrc = html.match(/<img[^>]+src="([^"]*imagen\.php[^"]+)"[^>]*class="ori-v"/i)?.[1]
+    || html.match(/<img[^>]+class="ori-v"[^>]+src="([^"]+)"/i)?.[1]
+    || "";
+  const photoUrl = imageSrc ? new URL(imageSrc.replace(/&amp;/g, "&"), profileUrl || SOURCES.medicalProfessionals).toString() : "";
+  const consultoriosBlock = html.match(/<div id="uConsultorio"[\s\S]*?<\/table>/i)?.[0] || "";
+  const offices = [];
+  const rowPattern = /<tr id="uConsultorio-[^"]+">([\s\S]*?)<\/tr>/g;
+  let rowMatch;
+
+  while ((rowMatch = rowPattern.exec(consultoriosBlock)) !== null) {
+    const cells = [...rowMatch[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)].map(cell => cleanText(cell[1]));
+    const address = cells[1] || "";
+    const place = cells[2] || "";
+    const phone = cells[3] || "";
+    if (address || phone) offices.push({ address, place, phone });
+  }
+
+  return {
+    photoUrl,
+    offices,
+    phone: offices.find(office => office.phone)?.phone || "",
+    address: offices.find(office => office.address)?.address || ""
+  };
+}
+
+async function enrichMedicalProfessionals(professionals) {
+  const enriched = [];
+  const batchSize = 8;
+
+  for (let index = 0; index < professionals.length; index += batchSize) {
+    const batch = professionals.slice(index, index + batchSize);
+    const results = await Promise.allSettled(batch.map(async professional => {
+      if (!professional.profileUrl) return professional;
+      const html = await fetchText(professional.profileUrl);
+      return { ...professional, ...parseMedicalProfile(html, professional.profileUrl) };
+    }));
+
+    results.forEach((result, resultIndex) => {
+      enriched.push(result.status === "fulfilled" ? result.value : batch[resultIndex]);
+    });
+  }
+
+  return enriched;
+}
+
+async function handleMedicalProfessionals(request) {
+  const url = new URL(request.url);
+  const selectedSpecialty = url.searchParams.get("specialty") || "";
   const html = await fetchText(SOURCES.medicalProfessionals);
-  const professionals = parseMedicalProfessionals(html);
+  const allProfessionals = parseMedicalProfessionals(html);
   const specialtyCounts = new Map();
 
-  for (const professional of professionals) {
+  for (const professional of allProfessionals) {
     for (const specialty of professional.specialties) {
       specialtyCounts.set(specialty, (specialtyCounts.get(specialty) || 0) + 1);
     }
@@ -204,9 +254,12 @@ async function handleMedicalProfessionals() {
   const specialties = [...specialtyCounts.entries()]
     .sort((a, b) => a[0].localeCompare(b[0], "es"))
     .map(([name, count]) => ({ name, count }));
+  const professionals = selectedSpecialty
+    ? await enrichMedicalProfessionals(allProfessionals.filter(professional => professional.specialties.includes(selectedSpecialty)))
+    : allProfessionals;
 
   return Response.json({
-    count: professionals.length,
+    count: allProfessionals.length,
     professionals: professionals.sort((a, b) => a.name.localeCompare(b.name, "es")),
     specialties,
     sourceName: "Círculo Médico de Coronel Suárez",
@@ -406,7 +459,7 @@ export default {
       return handlePharmacyTurn();
     }
     if (url.pathname === "/api/medical-professionals") {
-      return handleMedicalProfessionals();
+      return handleMedicalProfessionals(request);
     }
     if (url.pathname === "/api/supabase-notify") {
       return handleSupabaseNotify(request, env);

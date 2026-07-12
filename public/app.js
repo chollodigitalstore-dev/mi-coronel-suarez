@@ -69,6 +69,7 @@ let editingListingSlug = null;
 let listingDescriptionAvailable = true;
 let routeListingSlug = null;
 let medicalProfessionals = [];
+let selectedMedicalSpecialty = "";
 
 const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
 const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
@@ -573,7 +574,7 @@ async function loadMedicalProfessionals() {
     medicalSpecialtySelect.innerHTML = `<option value="">Seleccioná una especialidad</option>${(data.specialties || [])
       .map(item => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)} (${item.count})</option>`)
       .join("")}`;
-    renderMedicalProfessionals("");
+    renderMedicalProfessionalsDetailed("");
   } catch (error) {
     medicalCount.textContent = "Padrón médico no disponible";
     medicalSpecialtySelect.innerHTML = `<option value="">Padrón no disponible</option>`;
@@ -604,8 +605,49 @@ function renderMedicalProfessionals(specialty) {
     .join("");
 }
 
+async function renderMedicalProfessionalsDetailed(specialty) {
+  if (!medicalGrid || !medicalListHeading) return;
+  selectedMedicalSpecialty = specialty;
+  if (!specialty) {
+    medicalListHeading.textContent = "Seleccioná una especialidad para ver profesionales.";
+    medicalGrid.innerHTML = "";
+    return;
+  }
+
+  medicalListHeading.textContent = `Cargando profesionales en ${specialty}...`;
+  medicalGrid.innerHTML = "";
+
+  let filtered = medicalProfessionals.filter(item => (item.specialties || []).includes(specialty));
+  try {
+    const response = await fetch(`/api/medical-professionals?specialty=${encodeURIComponent(specialty)}`);
+    if (response.ok) {
+      const data = await response.json();
+      filtered = data.professionals || filtered;
+    }
+  } catch (_error) {
+    // Si falla el enriquecimiento, mostramos el listado básico ya cargado.
+  }
+
+  if (selectedMedicalSpecialty !== specialty) return;
+  filtered = filtered.sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+  medicalListHeading.textContent = `${filtered.length} ${filtered.length === 1 ? "profesional" : "profesionales"} en ${specialty}`;
+  medicalGrid.innerHTML = filtered
+    .map(item => `<article class="medical-card">
+      <div class="medical-photo">${item.photoUrl ? `<img src="${escapeHtml(item.photoUrl)}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">` : `<span>${escapeHtml(item.name.split(" ").map(part => part[0]).slice(0, 2).join(""))}</span>`}</div>
+      <div class="medical-card-body">
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>Matrícula ${escapeHtml(item.license)}</small>
+        <span>${escapeHtml((item.specialties || []).join(" · "))}</span>
+        ${item.phone ? `<a class="medical-phone" href="${phoneHref(item.phone)}">☎ ${escapeHtml(item.phone)}</a>` : ""}
+        ${item.address ? `<small>${escapeHtml(item.address)}</small>` : ""}
+      </div>
+    </article>`)
+    .join("");
+}
+
 medicalSpecialtySelect?.addEventListener("change", event => {
-  renderMedicalProfessionals(event.target.value);
+  renderMedicalProfessionalsDetailed(event.target.value);
 });
 
 categoryGrid.addEventListener("click", event => {
