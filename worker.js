@@ -36,6 +36,28 @@ const CATEGORY_PATHS = {
   turismo: "turismo-y-ocio"
 };
 
+const DENTAL_PROFESSIONALS = [
+  { license: "319", name: "Perussi Maria Cecilia", address: "Villegas 632", place: "Coronel Suárez", phone: "422484" },
+  { license: "427", name: "Herrero Hugo", address: "Las Heras 767", place: "Coronel Suárez", phone: "02926-15414469" },
+  { license: "451", name: "Martelli Gabriel", address: "Belgrano 964", place: "Coronel Suárez", phone: "422108" },
+  { license: "482", name: "Leone Guillermo", address: "Av. Alsina 438", place: "Coronel Suárez", phone: "422191" },
+  { license: "513", name: "Martelli Oscar", address: "Belgrano 964", place: "Coronel Suárez", phone: "422108" },
+  { license: "566", name: "Hipperdinger Maria C.", address: "Las Heras 770", place: "Coronel Suárez", phone: "422673" },
+  { license: "649", name: "Beltran Martin", address: "Rivadavia 696", place: "Coronel Suárez", phone: "423026" },
+  { license: "699", name: "Bender Karina", address: "Brandsen 628", place: "Coronel Suárez", phone: "432603" },
+  { license: "700", name: "Bender Leonardo", address: "Brandsen 628", place: "Coronel Suárez", phone: "432603" },
+  { license: "50263", name: "Aguirregabiria Walter", address: "Rivadavia 281", place: "Coronel Suárez", phone: "423185" },
+  { license: "701", name: "Santucci Valentina", address: "French 4358", place: "Pueblo San José", phone: "02926-15412678" },
+  { license: "544", name: "Garcia Maria Laura", address: "Diag. S. Martín 379", place: "Huanguelén", phone: "02933-432982" },
+  { license: "10734", name: "Lampon Ricardo", address: "Calle 10 Nº 637", place: "Huanguelén", phone: "02933-432723" },
+  { license: "437", name: "Mangas Sergio", address: "Calle 28 Nº 974", place: "Huanguelén", phone: "02933-432195" },
+  { license: "11803", name: "Ruiz Noemi Beatriz", address: "Avellaneda 963", place: "Coronel Suárez", phone: "02926-15451438" },
+  { license: "13402", name: "Simon Maria Florencia", address: "H. Yrigoyen 1344", place: "Coronel Suárez", phone: "431292" },
+  { license: "44289", name: "Aguirregabiria Luis", address: "Rivadavia 281", place: "Coronel Suárez", phone: "423185" },
+  { license: "898", name: "Burgardt Magalí", address: "Avellaneda 898", place: "Coronel Suárez", phone: "02926-458443" },
+  { license: "24425", name: "Grunebaum Ricardo", address: "Rivadavia 402", place: "Coronel Suárez", phone: "431622" }
+];
+
 function decodeHtml(text = "") {
   return text
     .replace(/&nbsp;/gi, " ")
@@ -267,6 +289,35 @@ async function handleMedicalProfessionals(request) {
   }, {
     headers: {
       "Cache-Control": "public, max-age=21600"
+    }
+  });
+}
+
+function handleDentalProfessionals(request) {
+  const url = new URL(request.url);
+  const selectedPlace = url.searchParams.get("place") || "";
+  const placeCounts = new Map();
+
+  for (const professional of DENTAL_PROFESSIONALS) {
+    placeCounts.set(professional.place, (placeCounts.get(professional.place) || 0) + 1);
+  }
+
+  const places = [...placeCounts.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0], "es"))
+    .map(([name, count]) => ({ name, count }));
+  const professionals = DENTAL_PROFESSIONALS
+    .filter(professional => !selectedPlace || professional.place === selectedPlace)
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+  return Response.json({
+    count: DENTAL_PROFESSIONALS.length,
+    professionals,
+    places,
+    sourceName: "Padrón de odontólogos de Coronel Suárez",
+    updatedAt: "2019-09-01"
+  }, {
+    headers: {
+      "Cache-Control": "public, max-age=86400"
     }
   });
 }
@@ -511,6 +562,9 @@ export default {
     }
     if (url.pathname === "/api/medical-professionals") {
       return handleMedicalProfessionals(request);
+    }
+    if (url.pathname === "/api/dental-professionals") {
+      return handleDentalProfessionals(request);
     }
     if (url.pathname === "/api/supabase-notify") {
       return handleSupabaseNotify(request, env);

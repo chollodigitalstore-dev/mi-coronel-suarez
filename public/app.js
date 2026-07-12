@@ -59,6 +59,10 @@ const medicalCount = document.querySelector("#medicalCount");
 const medicalSpecialtySelect = document.querySelector("#medicalSpecialtySelect");
 const medicalListHeading = document.querySelector("#medicalListHeading");
 const medicalGrid = document.querySelector("#medicalGrid");
+const dentalCount = document.querySelector("#dentalCount");
+const dentalPlaceSelect = document.querySelector("#dentalPlaceSelect");
+const dentalListHeading = document.querySelector("#dentalListHeading");
+const dentalGrid = document.querySelector("#dentalGrid");
 const visitCounter = document.querySelector("#visitCounter");
 
 let activeCategory = null;
@@ -71,6 +75,7 @@ let listingDescriptionAvailable = true;
 let routeListingSlug = null;
 let medicalProfessionals = [];
 let selectedMedicalSpecialty = "";
+let dentalProfessionals = [];
 
 const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
 const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
@@ -584,6 +589,28 @@ async function loadMedicalProfessionals() {
   }
 }
 
+async function loadDentalProfessionals() {
+  if (!dentalCount || !dentalGrid || !dentalPlaceSelect || !dentalListHeading) return;
+
+  try {
+    const response = await fetch("/api/dental-professionals");
+    if (!response.ok) throw new Error("No pudimos cargar el padrón odontológico");
+    const data = await response.json();
+
+    dentalProfessionals = data.professionals || [];
+    dentalCount.textContent = `${data.count || 0} odontólogos en el padrón`;
+    dentalPlaceSelect.innerHTML = `<option value="">Todas las localidades</option>${(data.places || [])
+      .map(item => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)} (${item.count})</option>`)
+      .join("")}`;
+    renderDentalProfessionals("");
+  } catch (error) {
+    dentalCount.textContent = "Padrón odontológico no disponible";
+    dentalPlaceSelect.innerHTML = `<option value="">Padrón no disponible</option>`;
+    dentalListHeading.textContent = "No pudimos cargar la información odontológica.";
+    dentalGrid.innerHTML = `<article class="medical-card dental-card"><strong>No pudimos cargar la información odontológica</strong><small>Probá nuevamente más tarde.</small></article>`;
+  }
+}
+
 async function loadVisitCounter() {
   if (!visitCounter) return;
   const alreadyCounted = sessionStorage.getItem("guiaSuarezVisitCounted") === "true";
@@ -666,8 +693,36 @@ async function renderMedicalProfessionalsDetailed(specialty) {
     .join("");
 }
 
+function renderDentalProfessionals(place) {
+  if (!dentalGrid || !dentalListHeading) return;
+
+  const filtered = dentalProfessionals
+    .filter(item => !place || item.place === place)
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+  dentalListHeading.textContent = place
+    ? `${filtered.length} ${filtered.length === 1 ? "odontólogo" : "odontólogos"} en ${place}`
+    : `${filtered.length} odontólogos registrados`;
+  dentalGrid.innerHTML = filtered
+    .map(item => `<article class="medical-card dental-card">
+      <div class="medical-photo dental-avatar"><span>🦷</span></div>
+      <div class="medical-card-body">
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>Matrícula ${escapeHtml(item.license)}</small>
+        <span>${escapeHtml(item.place)}</span>
+        ${item.phone ? `<a class="medical-phone" href="${phoneHref(item.phone)}">☎ ${escapeHtml(item.phone)}</a>` : ""}
+        ${item.address ? `<small>${escapeHtml(item.address)}</small>` : ""}
+      </div>
+    </article>`)
+    .join("");
+}
+
 medicalSpecialtySelect?.addEventListener("change", event => {
   renderMedicalProfessionalsDetailed(event.target.value);
+});
+
+dentalPlaceSelect?.addEventListener("change", event => {
+  renderDentalProfessionals(event.target.value);
 });
 
 categoryGrid.addEventListener("click", event => {
@@ -1079,4 +1134,5 @@ renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
 loadMedicalProfessionals();
+loadDentalProfessionals();
 loadVisitCounter();
