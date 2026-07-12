@@ -1,6 +1,7 @@
 const SOURCES = {
   radioSuarez: "https://www.lanuevaradiosuarez.com.ar/farmacias-de-turno.html",
-  turnoAhora: "https://www.farmaciadeturnoahora.com.ar/de-turno/buenos-aires/coronel-suarez"
+  turnoAhora: "https://www.farmaciadeturnoahora.com.ar/de-turno/buenos-aires/coronel-suarez",
+  medicalProfessionals: "https://www.circulomedicocoronelsuarez.com.ar/padron/"
 };
 
 const CATEGORY_LABELS = {
@@ -59,6 +60,26 @@ function titleCasePharmacy(name = "") {
   return name
     .trim()
     .replace(/\w\S*/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+}
+
+function titleCasePerson(name = "") {
+  const lowerWords = new Set(["de", "del", "la", "las", "los", "y"]);
+  return name
+    .toLocaleLowerCase("es-AR")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word => lowerWords.has(word) ? word : word.charAt(0).toLocaleUpperCase("es-AR") + word.slice(1))
+    .join(" ");
+}
+
+function formatSpecialty(text = "") {
+  return text
+    .toLocaleLowerCase("es-AR")
+    .replace(/\b\p{L}/gu, letter => letter.toLocaleUpperCase("es-AR"))
+    .replace(/\bY\b/g, "y")
+    .replace(/\bDe\b/g, "de")
+    .replace(/\bDel\b/g, "del")
+    .replace(/\bPor\b/g, "por");
 }
 
 function parseRadioSuarez(html) {
@@ -142,6 +163,58 @@ async function handlePharmacyTurn() {
   }, {
     headers: {
       "Cache-Control": "public, max-age=600"
+    }
+  });
+}
+
+function parseMedicalProfessionals(html) {
+  const text = cleanText(html);
+  const records = [];
+  const pattern = /([A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ.\s]{3,}?)\s+M\.:\s*([0-9]+)\s*\/\s*Especialidades:\s*(.+?)\s+Ver ficha/gu;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    const rawName = match[1].replace(/^[A-ZÁÉÍÓÚÜÑ]\s+(?=[A-ZÁÉÍÓÚÜÑ])/, "");
+    const name = titleCasePerson(rawName);
+    const license = match[2];
+    const specialties = match[3]
+      .split(/\s{2,}|,\s*/)
+      .map(item => formatSpecialty(item.trim()))
+      .filter(Boolean);
+
+    if (name && license && specialties.length) {
+      records.push({ name, license, specialties });
+    }
+  }
+
+  return records;
+}
+
+async function handleMedicalProfessionals() {
+  const html = await fetchText(SOURCES.medicalProfessionals);
+  const professionals = parseMedicalProfessionals(html);
+  const specialtyCounts = new Map();
+
+  for (const professional of professionals) {
+    for (const specialty of professional.specialties) {
+      specialtyCounts.set(specialty, (specialtyCounts.get(specialty) || 0) + 1);
+    }
+  }
+
+  const specialties = [...specialtyCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"))
+    .slice(0, 10)
+    .map(([name, count]) => ({ name, count }));
+
+  return Response.json({
+    count: professionals.length,
+    professionals: professionals.slice(0, 8),
+    specialties,
+    sourceName: "Círculo Médico de Coronel Suárez",
+    sourceUrl: SOURCES.medicalProfessionals
+  }, {
+    headers: {
+      "Cache-Control": "public, max-age=21600"
     }
   });
 }
@@ -332,6 +405,9 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/api/pharmacy-turn") {
       return handlePharmacyTurn();
+    }
+    if (url.pathname === "/api/medical-professionals") {
+      return handleMedicalProfessionals();
     }
     if (url.pathname === "/api/supabase-notify") {
       return handleSupabaseNotify(request, env);

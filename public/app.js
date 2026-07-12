@@ -55,6 +55,9 @@ const emptyManageListings = document.querySelector("#emptyManageListings");
 const reviewDialog = document.querySelector("#reviewDialog");
 const reviewForm = document.querySelector("#reviewForm");
 const userMenu = document.querySelector("#userMenu");
+const medicalCount = document.querySelector("#medicalCount");
+const medicalSpecialties = document.querySelector("#medicalSpecialties");
+const medicalGrid = document.querySelector("#medicalGrid");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -555,6 +558,32 @@ async function loadRatings() {
   renderListings();
 }
 
+async function loadMedicalProfessionals() {
+  if (!medicalCount || !medicalGrid || !medicalSpecialties) return;
+
+  try {
+    const response = await fetch("/api/medical-professionals");
+    if (!response.ok) throw new Error("No pudimos cargar el padrón médico");
+    const data = await response.json();
+
+    medicalCount.textContent = `${data.count || 0} profesionales en el padrón`;
+    medicalSpecialties.innerHTML = (data.specialties || [])
+      .map(item => `<span>${escapeHtml(item.name)} · ${item.count}</span>`)
+      .join("");
+    medicalGrid.innerHTML = (data.professionals || [])
+      .map(item => `<article class="medical-card">
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>Matrícula ${escapeHtml(item.license)}</small>
+        <span>${escapeHtml((item.specialties || []).slice(0, 2).join(" · "))}</span>
+      </article>`)
+      .join("");
+  } catch (error) {
+    medicalCount.textContent = "Padrón médico no disponible";
+    medicalSpecialties.innerHTML = "";
+    medicalGrid.innerHTML = `<article class="medical-card"><strong>No pudimos cargar la información médica</strong><small>Probá nuevamente más tarde o consultá el padrón completo.</small></article>`;
+  }
+}
+
 categoryGrid.addEventListener("click", event => {
   const card = event.target.closest("[data-category]");
   if (!card) return;
@@ -963,3 +992,4 @@ await loadRatings();
 renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
+loadMedicalProfessionals();
