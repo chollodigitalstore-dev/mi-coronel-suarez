@@ -36,6 +36,16 @@ const CATEGORY_PATHS = {
   turismo: "turismo-y-ocio"
 };
 
+const SITE_URL = "https://guiasuarez.ar";
+const CATEGORY_BY_PATH = Object.fromEntries(Object.entries(CATEGORY_PATHS).map(([id, path]) => [path, id]));
+const LOCATION_LABELS = {
+  "coronel-suarez": "Coronel Suárez",
+  "huanguelen": "Huanguelén",
+  "pueblo-san-jose": "Pueblo San José",
+  "pueblo-santa-maria": "Pueblo Santa María",
+  "pueblo-santa-trinidad": "Pueblo Santa Trinidad"
+};
+
 const DENTAL_PROFESSIONALS = [
   { license: "319", name: "Perussi Maria Cecilia", address: "Villegas 632", place: "Coronel Suárez", phone: "422484" },
   { license: "427", name: "Herrero Hugo", address: "Las Heras 767", place: "Coronel Suárez", phone: "02926-15414469" },
@@ -332,6 +342,325 @@ function escapeHtml(text = "") {
   })[character]);
 }
 
+function normalizeListing(row = {}) {
+  return {
+    ...row,
+    categoryLabel: CATEGORY_LABELS[row.category] || row.category || "Actividad local",
+    categoryPath: CATEGORY_PATHS[row.category] || slugify(row.category || "rubro"),
+    publicSlug: slugify(row.name || row.slug || "aviso"),
+    place: row.place || LOCATION_LABELS[row.location] || "Coronel Suárez",
+    description: row.description || `Información de contacto de ${row.name || "esta actividad"} en Guía Suárez.`,
+    phone: row.phone || "",
+    address: row.address || ""
+  };
+}
+
+function listingUrl(row = {}) {
+  const listing = normalizeListing(row);
+  return `${SITE_URL}/${listing.categoryPath}/${listing.publicSlug}`;
+}
+
+function categoryUrl(categoryId) {
+  const path = CATEGORY_PATHS[categoryId] || slugify(categoryId);
+  return `${SITE_URL}/rubro/${path}/`;
+}
+
+async function fetchPublicListings(env) {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return [];
+  const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/listings`);
+  endpoint.searchParams.set("select", "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,created_at,updated_at");
+  endpoint.searchParams.set("active", "eq.true");
+  endpoint.searchParams.set("order", "name.asc");
+
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
+    }
+  });
+
+  if (!response.ok) {
+    console.error("SEO listings fetch failed", response.status, await response.text());
+    return [];
+  }
+
+  const rows = await response.json();
+  return rows.map(normalizeListing);
+}
+
+function findListingByRoute(listings, categoryPath, publicSlug) {
+  const categoryId = CATEGORY_BY_PATH[categoryPath];
+  if (!categoryId) return null;
+  return listings.find(listing =>
+    listing.category === categoryId
+    && (listing.publicSlug === publicSlug || listing.slug === publicSlug)
+  ) || null;
+}
+
+function xmlEscape(text = "") {
+  return String(text).replace(/[<>&'"]/g, character => ({
+    "<": "&lt;",
+    ">": "&gt;",
+    "&": "&amp;",
+    "'": "&apos;",
+    "\"": "&quot;"
+  })[character]);
+}
+
+function jsonLd(data) {
+  return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`;
+}
+
+function seoLayout({ title, description, canonical, h1, intro, body, schema = [] }) {
+  const schemas = schema.map(jsonLd).join("\n");
+  return `<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <title>${escapeHtml(title)}</title>
+  <meta name="description" content="${escapeHtml(description)}">
+  <link rel="canonical" href="${escapeHtml(canonical)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:url" content="${escapeHtml(canonical)}">
+  <meta property="og:site_name" content="Guía Suárez">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/styles.css">
+  ${schemas}
+  <style>
+    .seo-page { max-width: 1120px; margin: 0 auto; padding: 34px max(5vw,24px) 90px; }
+    .seo-hero { display: grid; gap: 14px; padding: 36px; border: 1px solid rgba(39,109,85,.16); border-radius: 28px; background: linear-gradient(135deg,#fffdf8,#f1f8f4); }
+    .seo-hero h1 { max-width: 900px; font-size: clamp(34px, 6vw, 68px); line-height: .98; letter-spacing: -2px; }
+    .seo-hero p { max-width: 760px; color: #63756f; font-size: 18px; line-height: 1.65; }
+    .seo-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+    .seo-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 14px; margin-top: 28px; }
+    .seo-card { display: grid; gap: 9px; padding: 20px; border: 1px solid #dbe8df; border-radius: 20px; background: white; box-shadow: 0 8px 26px rgba(22,74,57,.055); }
+    .seo-card h2, .seo-card h3 { margin: 0; color: #143c31; }
+    .seo-card p { margin: 0; color: #63756f; line-height: 1.55; }
+    .seo-meta { color: #276d55; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .seo-contact { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .seo-contact a { padding: 10px 12px; border: 1px solid #dbe8df; border-radius: 999px; color: #276d55; font-weight: 900; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Guía Suárez, inicio"><span class="brand-mark">CS</span><span>Mi <strong>Coronel Suárez</strong></span></a>
+    <nav aria-label="Navegación principal"><a class="button button-outline" href="/#resultados">Visitar guía</a></nav>
+  </header>
+  <main class="seo-page">
+    <section class="seo-hero">
+      <span class="eyebrow">Guía Suárez</span>
+      <h1>${escapeHtml(h1)}</h1>
+      <p>${escapeHtml(intro)}</p>
+      <div class="seo-actions">
+        <a class="button button-primary" href="/">Buscar en la guía</a>
+        <a class="button button-outline" href="/#joinDialog">Sumá tu actividad</a>
+      </div>
+    </section>
+    ${body}
+  </main>
+  <footer>
+    <a class="brand" href="/"><span class="brand-mark">CS</span><span>Mi <strong>Coronel Suárez</strong></span></a>
+    <p>Una guía hecha por y para nuestra comunidad.</p>
+    <small><a href="/privacidad.html">Privacidad</a> · <a href="/terminos.html">Términos</a> · <a href="mailto:guiasuarezweb@gmail.com">Contacto</a> · Powered by Blu Software</small>
+  </footer>
+</body>
+</html>`;
+}
+
+function localBusinessSchema(listing) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: listing.name,
+    url: listingUrl(listing),
+    telephone: listing.phone || undefined,
+    description: listing.description,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: listing.address || undefined,
+      addressLocality: listing.place || "Coronel Suárez",
+      addressRegion: "Buenos Aires",
+      addressCountry: "AR"
+    },
+    areaServed: "Coronel Suárez",
+    category: listing.categoryLabel
+  };
+  return JSON.parse(JSON.stringify(schema));
+}
+
+function breadcrumbSchema(items) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url
+    }))
+  };
+}
+
+function itemListSchema(items) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: listingUrl(item)
+    }))
+  };
+}
+
+function renderListingSeoPage(listing) {
+  const canonical = listingUrl(listing);
+  const title = `${listing.name} en ${listing.place} | Guía Suárez`;
+  const description = `${listing.name}: ${listing.categoryLabel} en ${listing.place}. Teléfono, WhatsApp, dirección y ficha en Guía Suárez.`;
+  const contact = [
+    listing.phone ? `<a href="tel:${escapeHtml(listing.phone.replace(/[^\d+]/g, ""))}">Llamar</a>` : "",
+    listing.phone ? `<a href="https://wa.me/54${escapeHtml(listing.phone.replace(/[^\d]/g, ""))}" rel="noopener">WhatsApp</a>` : "",
+    listing.address ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${listing.address} ${listing.place} Buenos Aires Argentina`)}" rel="noopener">Mapa</a>` : ""
+  ].filter(Boolean).join("");
+  const body = `<article class="seo-card" style="margin-top:28px">
+    <span class="seo-meta">${escapeHtml(listing.categoryLabel)} · ${escapeHtml(listing.place)}</span>
+    <h2>${escapeHtml(listing.name)}</h2>
+    <p>${escapeHtml(listing.description)}</p>
+    ${listing.address ? `<p><strong>Dirección:</strong> ${escapeHtml(listing.address)}</p>` : ""}
+    ${listing.phone ? `<p><strong>Teléfono:</strong> ${escapeHtml(listing.phone)}</p>` : ""}
+    <div class="seo-contact">${contact}</div>
+  </article>
+  <section class="seo-grid" aria-label="Más opciones">
+    <article class="seo-card"><h3>Visitá la guía completa</h3><p>Encontrá otros comercios, profesionales y servicios de Coronel Suárez.</p><a class="text-link" href="/">Ir a Guía Suárez →</a></article>
+    <article class="seo-card"><h3>Publicá gratis</h3><p>Sumá tu comercio, profesión o servicio y administralo con tu cuenta de Google.</p><a class="text-link" href="/#inicio">Sumar actividad →</a></article>
+  </section>`;
+  return seoLayout({
+    title,
+    description,
+    canonical,
+    h1: listing.name,
+    intro: `${listing.name} está publicado en Guía Suárez, la guía local de comercios, profesionales y servicios de Coronel Suárez.`,
+    body,
+    schema: [
+      localBusinessSchema(listing),
+      breadcrumbSchema([
+        { name: "Guía Suárez", url: SITE_URL },
+        { name: listing.categoryLabel, url: categoryUrl(listing.category) },
+        { name: listing.name, url: canonical }
+      ])
+    ]
+  });
+}
+
+function renderCategorySeoPage(categoryId, listings) {
+  const label = CATEGORY_LABELS[categoryId] || "Comercios";
+  const canonical = categoryUrl(categoryId);
+  const categoryListings = listings.filter(listing => listing.category === categoryId);
+  const body = `<section class="seo-grid" aria-label="${escapeHtml(label)} en Coronel Suárez">
+    ${categoryListings.length ? categoryListings.map(listing => `<article class="seo-card">
+      <span class="seo-meta">${escapeHtml(listing.place)}</span>
+      <h2><a href="${escapeHtml(listingUrl(listing))}">${escapeHtml(listing.name)}</a></h2>
+      <p>${escapeHtml(listing.description)}</p>
+      ${listing.phone ? `<p><strong>Teléfono:</strong> ${escapeHtml(listing.phone)}</p>` : ""}
+    </article>`).join("") : `<article class="seo-card"><h2>Próximamente</h2><p>Todavía no hay avisos activos en este rubro. Podés sumar tu actividad gratis.</p></article>`}
+  </section>`;
+  return seoLayout({
+    title: `${label} en Coronel Suárez | Guía Suárez`,
+    description: `Listado de ${label.toLowerCase()} en Coronel Suárez. Encontrá teléfonos, direcciones, WhatsApp y servicios locales en Guía Suárez.`,
+    canonical,
+    h1: `${label} en Coronel Suárez`,
+    intro: `Buscá ${label.toLowerCase()} publicados en Guía Suárez, con datos de contacto y fichas para compartir.`,
+    body,
+    schema: [
+      itemListSchema(categoryListings),
+      breadcrumbSchema([
+        { name: "Guía Suárez", url: SITE_URL },
+        { name: label, url: canonical }
+      ])
+    ]
+  });
+}
+
+async function handleSitemap(env) {
+  const listings = await fetchPublicListings(env);
+  const urls = [
+    { loc: `${SITE_URL}/`, priority: "1.0", changefreq: "daily" },
+    ...Object.keys(CATEGORY_PATHS).map(categoryId => ({ loc: categoryUrl(categoryId), priority: "0.8", changefreq: "weekly" })),
+    ...listings.map(listing => ({ loc: listingUrl(listing), priority: "0.7", changefreq: "weekly", lastmod: listing.updated_at || listing.created_at }))
+  ];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(item => `  <url>
+    <loc>${xmlEscape(item.loc)}</loc>
+    ${item.lastmod ? `<lastmod>${xmlEscape(String(item.lastmod).slice(0, 10))}</lastmod>` : ""}
+    <changefreq>${item.changefreq}</changefreq>
+    <priority>${item.priority}</priority>
+  </url>`).join("\n")}
+</urlset>`;
+  return new Response(xml, { headers: { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=900" } });
+}
+
+function handleRobots() {
+  return new Response(`User-agent: *
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
+`, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" } });
+}
+
+function handleLlms() {
+  return new Response(`# Guía Suárez
+
+Guía Suárez es una guía comercial gratuita y comunitaria de Coronel Suárez, Buenos Aires, Argentina.
+
+Ayuda a vecinos y visitantes a encontrar comercios, profesionales, servicios, farmacias de turno, profesionales médicos y odontólogos locales.
+
+URL principal: ${SITE_URL}
+
+Secciones principales:
+- Comercios por rubro
+- Profesionales y servicios
+- Profesionales médicos por especialidad
+- Odontólogos
+- Farmacia de turno
+- Publicación gratuita de actividades locales
+
+Guía Suárez permite buscar, comparar calificaciones y contactar por teléfono o WhatsApp.
+`, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" } });
+}
+
+async function handleSeoRoute(request, env) {
+  if (!["GET", "HEAD"].includes(request.method)) return null;
+  const url = new URL(request.url);
+  const parts = url.pathname.split("/").filter(Boolean);
+  if (!parts.length || url.pathname.includes(".")) return null;
+
+  if (parts[0] === "rubro" && parts[1]) {
+    const categoryId = CATEGORY_BY_PATH[parts[1]];
+    if (!categoryId) return null;
+    const listings = await fetchPublicListings(env);
+    return new Response(renderCategorySeoPage(categoryId, listings), {
+      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=300" }
+    });
+  }
+
+  if (parts.length === 2 && CATEGORY_BY_PATH[parts[0]]) {
+    const listings = await fetchPublicListings(env);
+    const listing = findListingByRoute(listings, parts[0], parts[1]);
+    if (!listing) return null;
+    return new Response(renderListingSeoPage(listing), {
+      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=300" }
+    });
+  }
+
+  return null;
+}
+
 function formatField(label, value) {
   if (!value) return "";
   return `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`;
@@ -557,6 +886,15 @@ async function handleVisitCount(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/robots.txt") {
+      return handleRobots();
+    }
+    if (url.pathname === "/llms.txt") {
+      return handleLlms();
+    }
+    if (url.pathname === "/sitemap.xml") {
+      return handleSitemap(env);
+    }
     if (url.pathname === "/api/pharmacy-turn") {
       return handlePharmacyTurn();
     }
@@ -572,6 +910,8 @@ export default {
     if (url.pathname === "/api/visit-count") {
       return handleVisitCount(request, env);
     }
+    const seoResponse = await handleSeoRoute(request, env);
+    if (seoResponse) return seoResponse;
     const assetRequest = ["GET", "HEAD"].includes(request.method)
       && !url.pathname.includes(".")
       && url.pathname !== "/"
