@@ -457,7 +457,7 @@ async function handleVisitCount(request, env) {
     return Response.json({ error: "Method not allowed" }, { status: 405 });
   }
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-    return Response.json({ available: false }, { status: 503 });
+    return Response.json({ available: false, step: "missing_supabase_env" }, { status: 503 });
   }
 
   if (request.method === "POST") {
@@ -473,8 +473,9 @@ async function handleVisitCount(request, env) {
     });
 
     if (!response.ok) {
-      console.error("Visit counter increment failed", response.status, await response.text());
-      return Response.json({ available: false }, { status: 503 });
+      const detail = await response.text();
+      console.error("Visit counter increment failed", response.status, detail);
+      return Response.json({ available: false, step: "increment_failed", status: response.status, detail: detail.slice(0, 240) }, { status: 503 });
     }
 
     const count = await response.json();
@@ -493,7 +494,9 @@ async function handleVisitCount(request, env) {
   });
 
   if (!response.ok) {
-    return Response.json({ available: false }, { status: 503 });
+    const detail = await response.text();
+    console.error("Visit counter read failed", response.status, detail);
+    return Response.json({ available: false, step: "read_failed", status: response.status, detail: detail.slice(0, 240) }, { status: 503 });
   }
 
   const rows = await response.json();
