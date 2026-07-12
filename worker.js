@@ -37,6 +37,8 @@ const CATEGORY_PATHS = {
 };
 
 const SITE_URL = "https://guiasuarez.ar";
+const SUPABASE_PUBLIC_URL = "https://sblrytmfvqhjqclaozvr.supabase.co";
+const SUPABASE_PUBLIC_KEY = "sb_publishable_4I_BsyxzfQHwjbhhrZBiCg_6k_1YSTi";
 const CATEGORY_BY_PATH = Object.fromEntries(Object.entries(CATEGORY_PATHS).map(([id, path]) => [path, id]));
 const LOCATION_LABELS = {
   "coronel-suarez": "Coronel Suárez",
@@ -366,18 +368,29 @@ function categoryUrl(categoryId) {
 }
 
 async function fetchPublicListings(env) {
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return [];
-  const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/listings`);
+  const supabaseUrl = env.SUPABASE_URL || SUPABASE_PUBLIC_URL;
+  const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_PUBLIC_KEY;
+  if (!supabaseUrl || !supabaseKey) return [];
+  const endpoint = new URL(`${supabaseUrl}/rest/v1/listings`);
   endpoint.searchParams.set("select", "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,created_at");
   endpoint.searchParams.set("active", "eq.true");
   endpoint.searchParams.set("order", "name.asc");
 
-  const response = await fetch(endpoint, {
+  let response = await fetch(endpoint, {
     headers: {
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`
     }
   });
+
+  if (!response.ok && supabaseKey !== SUPABASE_PUBLIC_KEY) {
+    response = await fetch(endpoint, {
+      headers: {
+        apikey: SUPABASE_PUBLIC_KEY,
+        Authorization: `Bearer ${SUPABASE_PUBLIC_KEY}`
+      }
+    });
+  }
 
   if (!response.ok) {
     console.error("SEO listings fetch failed", response.status, await response.text());
