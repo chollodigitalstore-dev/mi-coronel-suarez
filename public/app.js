@@ -188,7 +188,16 @@ function readListingRoute() {
 }
 
 function phoneHref(phone = "") {
-  return `tel:${phone.replace(/[^\d+]/g, "")}`;
+  const raw = String(phone).trim();
+  if (!raw) return "tel:";
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return "tel:";
+  if (raw.trim().startsWith("+")) return `tel:+${digits}`;
+  if (digits.startsWith("54")) return `tel:+${digits}`;
+  if (digits.startsWith("0")) return `tel:${digits}`;
+  if (digits.length === 6) return `tel:02926${digits}`;
+  if (digits.length === 10 && /^29(26|33)/.test(digits)) return `tel:0${digits}`;
+  return `tel:${digits}`;
 }
 
 function whatsappHref(item) {

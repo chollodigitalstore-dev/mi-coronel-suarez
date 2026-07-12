@@ -362,6 +362,19 @@ function listingUrl(row = {}) {
   return `${SITE_URL}/${listing.categoryPath}/${listing.publicSlug}`;
 }
 
+function phoneHref(phone = "") {
+  const raw = String(phone).trim();
+  if (!raw) return "tel:";
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return "tel:";
+  if (raw.startsWith("+")) return `tel:+${digits}`;
+  if (digits.startsWith("54")) return `tel:+${digits}`;
+  if (digits.startsWith("0")) return `tel:${digits}`;
+  if (digits.length === 6) return `tel:02926${digits}`;
+  if (digits.length === 10 && /^29(26|33)/.test(digits)) return `tel:0${digits}`;
+  return `tel:${digits}`;
+}
+
 function categoryUrl(categoryId) {
   const path = CATEGORY_PATHS[categoryId] || slugify(categoryId);
   return `${SITE_URL}/rubro/${path}/`;
@@ -537,7 +550,7 @@ function renderListingSeoPage(listing) {
   const title = `${listing.name} en ${listing.place} | Guía Suárez`;
   const description = `${listing.name}: ${listing.categoryLabel} en ${listing.place}. Teléfono, WhatsApp, dirección y ficha en Guía Suárez.`;
   const contact = [
-    listing.phone ? `<a href="tel:${escapeHtml(listing.phone.replace(/[^\d+]/g, ""))}">Llamar</a>` : "",
+    listing.phone ? `<a href="${escapeHtml(phoneHref(listing.phone))}">Llamar</a>` : "",
     listing.phone ? `<a href="https://wa.me/54${escapeHtml(listing.phone.replace(/[^\d]/g, ""))}" rel="noopener">WhatsApp</a>` : "",
     listing.address ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${listing.address} ${listing.place} Buenos Aires Argentina`)}" rel="noopener">Mapa</a>` : ""
   ].filter(Boolean).join("");
