@@ -135,8 +135,6 @@ h1 em { color: var(--green); font-style: normal; }
 .medical-card small { color: var(--muted); font-size: 12px; }
 .medical-card span { color: var(--green); font-size: 12px; font-weight: 900; }
 .medical-phone { width: max-content; max-width: 100%; padding: 7px 10px; border-radius: 999px; color: white; background: var(--green); font-size: 12px; font-weight: 900; }
-.dental-section { background: linear-gradient(180deg, #fffdf8, #f7fbf6); }
-.dental-summary { background: #f7fbf6; }
 .dental-icon, .dental-avatar { background: linear-gradient(135deg, #276d55, #7bbf9f); }
 .dental-card { min-height: 150px; }
 .trust-section { background: #fffdf8; }

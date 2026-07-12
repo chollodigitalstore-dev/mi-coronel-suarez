@@ -59,10 +59,6 @@ const medicalCount = document.querySelector("#medicalCount");
 const medicalSpecialtySelect = document.querySelector("#medicalSpecialtySelect");
 const medicalListHeading = document.querySelector("#medicalListHeading");
 const medicalGrid = document.querySelector("#medicalGrid");
-const dentalCount = document.querySelector("#dentalCount");
-const dentalPlaceSelect = document.querySelector("#dentalPlaceSelect");
-const dentalListHeading = document.querySelector("#dentalListHeading");
-const dentalGrid = document.querySelector("#dentalGrid");
 const visitCounter = document.querySelector("#visitCounter");
 
 let activeCategory = null;
@@ -76,6 +72,7 @@ let routeListingSlug = null;
 let medicalProfessionals = [];
 let selectedMedicalSpecialty = "";
 let dentalProfessionals = [];
+const DENTAL_SPECIALTY_VALUE = "__odontologia";
 
 const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
 const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
@@ -571,14 +568,25 @@ async function loadMedicalProfessionals() {
   if (!medicalCount || !medicalGrid || !medicalSpecialtySelect || !medicalListHeading) return;
 
   try {
-    const response = await fetch("/api/medical-professionals");
+    const [response, dentalResponse] = await Promise.all([
+      fetch("/api/medical-professionals"),
+      fetch("/api/dental-professionals")
+    ]);
     if (!response.ok) throw new Error("No pudimos cargar el padrón médico");
     const data = await response.json();
+    const dentalData = dentalResponse.ok ? await dentalResponse.json() : { professionals: [], count: 0 };
 
     medicalProfessionals = data.professionals || [];
-    medicalCount.textContent = `${data.count || 0} profesionales en el padrón`;
-    medicalSpecialtySelect.innerHTML = `<option value="">Seleccioná una especialidad</option>${(data.specialties || [])
-      .map(item => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)} (${item.count})</option>`)
+    dentalProfessionals = dentalData.professionals || [];
+    const totalHealthProfessionals = (data.count || medicalProfessionals.length) + (dentalData.count || dentalProfessionals.length);
+    const specialties = [
+      ...(data.specialties || []),
+      ...(dentalProfessionals.length ? [{ name: "Odontología", count: dentalProfessionals.length, value: DENTAL_SPECIALTY_VALUE }] : [])
+    ].sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+    medicalCount.textContent = `${totalHealthProfessionals || 0} profesionales de salud en el padrón`;
+    medicalSpecialtySelect.innerHTML = `<option value="">Seleccioná una especialidad</option>${specialties
+      .map(item => `<option value="${escapeHtml(item.value || item.name)}">${escapeHtml(item.name)} (${item.count})</option>`)
       .join("")}`;
     renderMedicalProfessionalsDetailed("");
   } catch (error) {
@@ -586,28 +594,6 @@ async function loadMedicalProfessionals() {
     medicalSpecialtySelect.innerHTML = `<option value="">Padrón no disponible</option>`;
     medicalListHeading.textContent = "No pudimos cargar la información médica.";
     medicalGrid.innerHTML = `<article class="medical-card"><strong>No pudimos cargar la información médica</strong><small>Probá nuevamente más tarde o consultá el padrón completo.</small></article>`;
-  }
-}
-
-async function loadDentalProfessionals() {
-  if (!dentalCount || !dentalGrid || !dentalPlaceSelect || !dentalListHeading) return;
-
-  try {
-    const response = await fetch("/api/dental-professionals");
-    if (!response.ok) throw new Error("No pudimos cargar el padrón odontológico");
-    const data = await response.json();
-
-    dentalProfessionals = data.professionals || [];
-    dentalCount.textContent = `${data.count || 0} odontólogos en el padrón`;
-    dentalPlaceSelect.innerHTML = `<option value="">Todas las localidades</option>${(data.places || [])
-      .map(item => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)} (${item.count})</option>`)
-      .join("")}`;
-    renderDentalProfessionals("");
-  } catch (error) {
-    dentalCount.textContent = "Padrón odontológico no disponible";
-    dentalPlaceSelect.innerHTML = `<option value="">Padrón no disponible</option>`;
-    dentalListHeading.textContent = "No pudimos cargar la información odontológica.";
-    dentalGrid.innerHTML = `<article class="medical-card dental-card"><strong>No pudimos cargar la información odontológica</strong><small>Probá nuevamente más tarde.</small></article>`;
   }
 }
 
@@ -660,6 +646,10 @@ async function renderMedicalProfessionalsDetailed(specialty) {
     medicalGrid.innerHTML = "";
     return;
   }
+  if (specialty === DENTAL_SPECIALTY_VALUE) {
+    renderDentalProfessionalsAsSpecialty();
+    return;
+  }
 
   medicalListHeading.textContent = `Cargando profesionales en ${specialty}...`;
   medicalGrid.innerHTML = "";
@@ -693,17 +683,13 @@ async function renderMedicalProfessionalsDetailed(specialty) {
     .join("");
 }
 
-function renderDentalProfessionals(place) {
-  if (!dentalGrid || !dentalListHeading) return;
-
+function renderDentalProfessionalsAsSpecialty() {
+  if (!medicalGrid || !medicalListHeading) return;
   const filtered = dentalProfessionals
-    .filter(item => !place || item.place === place)
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
 
-  dentalListHeading.textContent = place
-    ? `${filtered.length} ${filtered.length === 1 ? "odontólogo" : "odontólogos"} en ${place}`
-    : `${filtered.length} odontólogos registrados`;
-  dentalGrid.innerHTML = filtered
+  medicalListHeading.textContent = `${filtered.length} ${filtered.length === 1 ? "profesional" : "profesionales"} en Odontología`;
+  medicalGrid.innerHTML = filtered
     .map(item => `<article class="medical-card dental-card">
       <div class="medical-photo dental-avatar"><span>🦷</span></div>
       <div class="medical-card-body">
@@ -719,10 +705,6 @@ function renderDentalProfessionals(place) {
 
 medicalSpecialtySelect?.addEventListener("change", event => {
   renderMedicalProfessionalsDetailed(event.target.value);
-});
-
-dentalPlaceSelect?.addEventListener("change", event => {
-  renderDentalProfessionals(event.target.value);
 });
 
 categoryGrid.addEventListener("click", event => {
@@ -1134,5 +1116,4 @@ renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
 loadMedicalProfessionals();
-loadDentalProfessionals();
 loadVisitCounter();
