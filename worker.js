@@ -850,17 +850,19 @@ async function handleVisitCount(request, env) {
   if (!["GET", "POST"].includes(request.method)) {
     return Response.json({ error: "Method not allowed" }, { status: 405 });
   }
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+  const supabaseUrl = env.SUPABASE_URL || SUPABASE_PUBLIC_URL;
+  const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_PUBLIC_KEY;
+  if (!supabaseUrl || !supabaseKey) {
     return Response.json({ available: false, step: "missing_supabase_env" }, { status: 503 });
   }
 
   if (request.method === "POST") {
-    const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/rpc/increment_site_visit`);
+    const endpoint = new URL(`${supabaseUrl}/rest/v1/rpc/increment_site_visit`);
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
-        apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ stat_key: "visits" })
@@ -876,14 +878,14 @@ async function handleVisitCount(request, env) {
     return Response.json({ count: Number(count) || 0 }, { headers: { "Cache-Control": "no-store" } });
   }
 
-  const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/site_stats`);
+  const endpoint = new URL(`${supabaseUrl}/rest/v1/site_stats`);
   endpoint.searchParams.set("select", "count");
   endpoint.searchParams.set("key", "eq.visits");
   endpoint.searchParams.set("limit", "1");
   const response = await fetch(endpoint, {
     headers: {
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`
     }
   });
 

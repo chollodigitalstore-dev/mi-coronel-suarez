@@ -35,3 +35,12 @@ $$;
 
 grant execute on function public.increment_site_visit(text) to anon, authenticated, service_role;
 grant select on public.site_stats to anon, authenticated, service_role;
+
+alter table public.site_stats enable row level security;
+
+drop policy if exists "Public site stats are readable" on public.site_stats;
+create policy "Public site stats are readable"
+on public.site_stats
+for select
+to anon, authenticated
+using (true);
