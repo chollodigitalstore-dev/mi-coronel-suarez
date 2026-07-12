@@ -110,6 +110,10 @@ function medicalSpecialtyAliases(option) {
     aliases.push("clinico", "clinica", "medico clinico", "medica clinica");
   }
 
+  if (normalizedName.includes("pediatr")) {
+    aliases.push("pediatra", "pediatras", "pediatria", "pediatrico", "pediatrica", "medico pediatra", "medica pediatra");
+  }
+
   return aliases;
 }
 
