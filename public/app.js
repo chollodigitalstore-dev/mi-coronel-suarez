@@ -72,6 +72,7 @@ let routeListingSlug = null;
 let medicalProfessionals = [];
 let selectedMedicalSpecialty = "";
 let dentalProfessionals = [];
+let medicalSpecialtyOptions = [];
 const DENTAL_SPECIALTY_VALUE = "__odontologia";
 
 const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
@@ -90,6 +91,52 @@ function slugify(text) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 70) || `aviso-${Date.now()}`;
+}
+
+function medicalSpecialtyAliases(option) {
+  const normalizedName = normalize(option.name);
+  const aliases = [normalizedName];
+
+  if (option.value === DENTAL_SPECIALTY_VALUE) {
+    aliases.push("odontologo", "odontologa", "odontologos", "odontologas", "dentista", "dentistas");
+  }
+
+  if (normalizedName.endsWith("ia")) {
+    const root = normalizedName.slice(0, -2);
+    aliases.push(root, `${root}o`, `${root}a`, `${root}os`, `${root}as`);
+  }
+
+  if (normalizedName.includes("clinica") && normalizedName.includes("medica")) {
+    aliases.push("clinico", "clinica", "medico clinico", "medica clinica");
+  }
+
+  return aliases;
+}
+
+function findMedicalSpecialtyBySearch(queryText = "") {
+  const query = normalize(queryText.trim());
+  if (query.length < 4 || !medicalSpecialtyOptions.length) return null;
+
+  return medicalSpecialtyOptions.find(option =>
+    medicalSpecialtyAliases(option).some(term =>
+      term === query
+      || term.includes(query)
+      || query.includes(term)
+      || (term.length >= 6 && query.startsWith(term))
+    )
+  ) || null;
+}
+
+function routeSearchToMedicalSpecialty() {
+  const specialty = findMedicalSpecialtyBySearch(searchInput.value);
+  if (!specialty || !medicalSpecialtySelect) return false;
+
+  activeCategory = null;
+  renderCategories();
+  medicalSpecialtySelect.value = specialty.value || specialty.name;
+  renderMedicalProfessionalsDetailed(medicalSpecialtySelect.value);
+  document.querySelector("#profesionales-medicos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
 }
 
 function escapeHtml(text = "") {
@@ -583,6 +630,7 @@ async function loadMedicalProfessionals() {
       ...(data.specialties || []),
       ...(dentalProfessionals.length ? [{ name: "Odontología", count: dentalProfessionals.length, value: DENTAL_SPECIALTY_VALUE }] : [])
     ].sort((a, b) => a.name.localeCompare(b.name, "es"));
+    medicalSpecialtyOptions = specialties;
 
     medicalCount.textContent = `${totalHealthProfessionals || 0} profesionales de salud en el padrón`;
     medicalSpecialtySelect.innerHTML = `<option value="">Seleccioná una especialidad</option>${specialties
@@ -728,6 +776,7 @@ document.querySelector("#searchForm").addEventListener("submit", event => {
   exitListingRoute("/#resultados");
   activeCategory = null;
   renderCategories();
+  if (routeSearchToMedicalSpecialty()) return;
   renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 });
@@ -737,6 +786,7 @@ document.querySelectorAll("[data-query]").forEach(button => button.addEventListe
   exitListingRoute("/#resultados");
   activeCategory = null;
   renderCategories();
+  if (routeSearchToMedicalSpecialty()) return;
   renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 }));
@@ -751,6 +801,10 @@ document.querySelector("#clearFilters").addEventListener("click", () => {
   activeCategory = null;
   exitListingRoute("/#resultados");
   renderCategories();
+  if (medicalSpecialtySelect) {
+    medicalSpecialtySelect.value = "";
+    renderMedicalProfessionalsDetailed("");
+  }
   renderListings();
 });
 
@@ -1115,5 +1169,6 @@ await loadRatings();
 renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
-loadMedicalProfessionals();
+await loadMedicalProfessionals();
+if (initialQuery) routeSearchToMedicalSpecialty();
 loadVisitCounter();
