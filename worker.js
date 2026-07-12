@@ -368,7 +368,7 @@ function categoryUrl(categoryId) {
 async function fetchPublicListings(env) {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return [];
   const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/listings`);
-  endpoint.searchParams.set("select", "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,created_at,updated_at");
+  endpoint.searchParams.set("select", "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,created_at");
   endpoint.searchParams.set("active", "eq.true");
   endpoint.searchParams.set("order", "name.asc");
 
@@ -591,7 +591,7 @@ async function handleSitemap(env) {
   const urls = [
     { loc: `${SITE_URL}/`, priority: "1.0", changefreq: "daily" },
     ...Object.keys(CATEGORY_PATHS).map(categoryId => ({ loc: categoryUrl(categoryId), priority: "0.8", changefreq: "weekly" })),
-    ...listings.map(listing => ({ loc: listingUrl(listing), priority: "0.7", changefreq: "weekly", lastmod: listing.updated_at || listing.created_at }))
+    ...listings.map(listing => ({ loc: listingUrl(listing), priority: "0.7", changefreq: "weekly", lastmod: listing.created_at }))
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
