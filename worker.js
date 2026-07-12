@@ -452,6 +452,54 @@ async function handleSupabaseNotify(request, env) {
   }
 }
 
+async function handleVisitCount(request, env) {
+  if (!["GET", "POST"].includes(request.method)) {
+    return Response.json({ error: "Method not allowed" }, { status: 405 });
+  }
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+    return Response.json({ available: false }, { status: 503 });
+  }
+
+  if (request.method === "POST") {
+    const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/rpc/increment_site_visit`);
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ stat_key: "visits" })
+    });
+
+    if (!response.ok) {
+      console.error("Visit counter increment failed", response.status, await response.text());
+      return Response.json({ available: false }, { status: 503 });
+    }
+
+    const count = await response.json();
+    return Response.json({ count: Number(count) || 0 }, { headers: { "Cache-Control": "no-store" } });
+  }
+
+  const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/site_stats`);
+  endpoint.searchParams.set("select", "count");
+  endpoint.searchParams.set("key", "eq.visits");
+  endpoint.searchParams.set("limit", "1");
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
+    }
+  });
+
+  if (!response.ok) {
+    return Response.json({ available: false }, { status: 503 });
+  }
+
+  const rows = await response.json();
+  return Response.json({ count: Number(rows[0]?.count || 0) }, { headers: { "Cache-Control": "public, max-age=60" } });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -463,6 +511,9 @@ export default {
     }
     if (url.pathname === "/api/supabase-notify") {
       return handleSupabaseNotify(request, env);
+    }
+    if (url.pathname === "/api/visit-count") {
+      return handleVisitCount(request, env);
     }
     const assetRequest = ["GET", "HEAD"].includes(request.method)
       && !url.pathname.includes(".")

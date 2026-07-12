@@ -59,6 +59,7 @@ const medicalCount = document.querySelector("#medicalCount");
 const medicalSpecialtySelect = document.querySelector("#medicalSpecialtySelect");
 const medicalListHeading = document.querySelector("#medicalListHeading");
 const medicalGrid = document.querySelector("#medicalGrid");
+const visitCounter = document.querySelector("#visitCounter");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -583,6 +584,25 @@ async function loadMedicalProfessionals() {
   }
 }
 
+async function loadVisitCounter() {
+  if (!visitCounter) return;
+  const alreadyCounted = sessionStorage.getItem("guiaSuarezVisitCounted") === "true";
+
+  try {
+    const response = await fetch("/api/visit-count", {
+      method: alreadyCounted ? "GET" : "POST"
+    });
+    if (!response.ok) throw new Error("Visit counter unavailable");
+    const data = await response.json();
+    if (!alreadyCounted) sessionStorage.setItem("guiaSuarezVisitCounted", "true");
+    if (typeof data.count === "number") {
+      visitCounter.textContent = `Visitas: ${data.count.toLocaleString("es-AR")}`;
+    }
+  } catch (_error) {
+    visitCounter.textContent = "Visitas: —";
+  }
+}
+
 function renderMedicalProfessionals(specialty) {
   if (!medicalGrid || !medicalListHeading) return;
   if (!specialty) {
@@ -1059,3 +1079,4 @@ renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
 loadMedicalProfessionals();
+loadVisitCounter();
