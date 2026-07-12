@@ -117,28 +117,41 @@ function medicalSpecialtyAliases(option) {
   return aliases;
 }
 
-function findMedicalSpecialtyBySearch(queryText = "") {
-  const query = normalize(queryText.trim());
-  if (query.length < 4 || !medicalSpecialtyOptions.length) return null;
-
-  return medicalSpecialtyOptions.find(option =>
-    medicalSpecialtyAliases(option).some(term =>
-      term === query
-      || term.includes(query)
-      || query.includes(term)
-      || (term.length >= 6 && query.startsWith(term))
-    )
-  ) || null;
+function medicalSpecialtyMatchesQuery(option, query) {
+  return medicalSpecialtyAliases(option).some(term =>
+    term === query
+    || term.includes(query)
+    || query.includes(term)
+    || (term.length >= 6 && query.startsWith(term))
+  );
 }
 
-function routeSearchToMedicalSpecialty() {
-  const specialty = findMedicalSpecialtyBySearch(searchInput.value);
-  if (!specialty || !medicalSpecialtySelect) return false;
+function findMedicalSpecialtiesBySearch(queryText = "") {
+  const query = normalize(queryText.trim());
+  if (query.length < 4 || !medicalSpecialtyOptions.length) return [];
+
+  let matches = medicalSpecialtyOptions.filter(option => medicalSpecialtyMatchesQuery(option, query));
+
+  if (query.includes("pediatr")) {
+    const pediatricMatches = medicalSpecialtyOptions.filter(option => normalize(option.name).includes("pediatr"));
+    matches = [...matches, ...pediatricMatches];
+  }
+
+  return [...new Map(matches.map(option => [option.value || option.name, option])).values()];
+}
+
+async function routeSearchToMedicalSpecialty() {
+  const specialties = findMedicalSpecialtiesBySearch(searchInput.value);
+  if (!specialties.length || !medicalSpecialtySelect) return false;
 
   activeCategory = null;
   renderCategories();
-  medicalSpecialtySelect.value = specialty.value || specialty.name;
-  renderMedicalProfessionalsDetailed(medicalSpecialtySelect.value);
+  medicalSpecialtySelect.value = specialties.length === 1 ? (specialties[0].value || specialties[0].name) : "";
+  if (specialties.length === 1) {
+    await renderMedicalProfessionalsDetailed(medicalSpecialtySelect.value);
+  } else {
+    await renderMedicalProfessionalsGroup(specialties, searchInput.value.trim());
+  }
   document.querySelector("#profesionales-medicos")?.scrollIntoView({ behavior: "smooth", block: "start" });
   return true;
 }
@@ -735,6 +748,54 @@ async function renderMedicalProfessionalsDetailed(specialty) {
     .join("");
 }
 
+async function renderMedicalProfessionalsGroup(specialties, queryLabel = "") {
+  if (!medicalGrid || !medicalListHeading) return;
+  selectedMedicalSpecialty = "";
+  const specialtyNames = specialties.map(item => item.name);
+  const specialtySet = new Set(specialtyNames);
+  const uniqueProfessionals = new Map();
+
+  medicalListHeading.textContent = `Cargando profesionales relacionados con "${queryLabel}"...`;
+  medicalGrid.innerHTML = "";
+
+  for (const professional of medicalProfessionals) {
+    const hasRelatedSpecialty = (professional.specialties || []).some(specialty => specialtySet.has(specialty));
+    if (hasRelatedSpecialty) {
+      uniqueProfessionals.set(professional.license || professional.name, professional);
+    }
+  }
+
+  const enrichedResults = await Promise.allSettled(specialtyNames.map(async specialty => {
+    const response = await fetch(`/api/medical-professionals?specialty=${encodeURIComponent(specialty)}`);
+    if (!response.ok) throw new Error(`No pudimos cargar ${specialty}`);
+    const data = await response.json();
+    return data.professionals || [];
+  }));
+
+  for (const result of enrichedResults) {
+    if (result.status !== "fulfilled") continue;
+    for (const professional of result.value) {
+      uniqueProfessionals.set(professional.license || professional.name, professional);
+    }
+  }
+
+  const filtered = [...uniqueProfessionals.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
+  const label = queryLabel ? `relacionados con "${escapeHtml(queryLabel)}"` : "relacionados";
+  medicalListHeading.textContent = `${filtered.length} ${filtered.length === 1 ? "profesional" : "profesionales"} ${label}`;
+  medicalGrid.innerHTML = filtered
+    .map(item => `<article class="medical-card">
+      <div class="medical-photo">${item.photoUrl ? `<img src="${escapeHtml(item.photoUrl)}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">` : `<span>${escapeHtml(item.name.split(" ").map(part => part[0]).slice(0, 2).join(""))}</span>`}</div>
+      <div class="medical-card-body">
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>Matrícula ${escapeHtml(item.license)}</small>
+        <span>${escapeHtml((item.specialties || []).filter(specialty => specialtySet.has(specialty)).join(" · "))}</span>
+        ${item.phone ? `<a class="medical-phone" href="${phoneHref(item.phone)}">☎ ${escapeHtml(item.phone)}</a>` : ""}
+        ${item.address ? `<small>${escapeHtml(item.address)}</small>` : ""}
+      </div>
+    </article>`)
+    .join("");
+}
+
 function renderDentalProfessionalsAsSpecialty() {
   if (!medicalGrid || !medicalListHeading) return;
   const filtered = dentalProfessionals
@@ -775,22 +836,22 @@ document.querySelector("#showAllCategories").addEventListener("click", event => 
   renderCategories();
 });
 
-document.querySelector("#searchForm").addEventListener("submit", event => {
+document.querySelector("#searchForm").addEventListener("submit", async event => {
   event.preventDefault();
   exitListingRoute("/#resultados");
   activeCategory = null;
   renderCategories();
-  if (routeSearchToMedicalSpecialty()) return;
+  if (await routeSearchToMedicalSpecialty()) return;
   renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 });
 
-document.querySelectorAll("[data-query]").forEach(button => button.addEventListener("click", () => {
+document.querySelectorAll("[data-query]").forEach(button => button.addEventListener("click", async () => {
   searchInput.value = button.dataset.query;
   exitListingRoute("/#resultados");
   activeCategory = null;
   renderCategories();
-  if (routeSearchToMedicalSpecialty()) return;
+  if (await routeSearchToMedicalSpecialty()) return;
   renderListings();
   document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
 }));
@@ -1174,5 +1235,5 @@ renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
 await loadMedicalProfessionals();
-if (initialQuery) routeSearchToMedicalSpecialty();
+if (initialQuery) await routeSearchToMedicalSpecialty();
 loadVisitCounter();
