@@ -432,6 +432,7 @@ function seoLayout({ title, description, canonical, h1, intro, body, schema = []
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow">
+  <meta name="google-site-verification" content="ltwi8K7voJKEUJvIW8slyHDwxgYmyhe_NrNjAJIFLBc">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}">
   <link rel="canonical" href="${escapeHtml(canonical)}">
