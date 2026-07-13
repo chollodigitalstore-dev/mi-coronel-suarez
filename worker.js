@@ -1,7 +1,8 @@
 const SOURCES = {
   radioSuarez: "https://www.lanuevaradiosuarez.com.ar/farmacias-de-turno.html",
   turnoAhora: "https://www.farmaciadeturnoahora.com.ar/de-turno/buenos-aires/coronel-suarez",
-  medicalProfessionals: "https://www.circulomedicocoronelsuarez.com.ar/padron/"
+  medicalProfessionals: "https://www.circulomedicocoronelsuarez.com.ar/padron/",
+  psychologyProfessionals: "https://www.mundopsicologos.com.ar/centros/coronel-suarez"
 };
 
 const CATEGORY_LABELS = {
@@ -68,6 +69,17 @@ const DENTAL_PROFESSIONALS = [
   { license: "44289", name: "Aguirregabiria Luis", address: "Rivadavia 281", place: "Coronel Suárez", phone: "423185" },
   { license: "898", name: "Burgardt Magalí", address: "Avellaneda 898", place: "Coronel Suárez", phone: "02926-458443" },
   { license: "24425", name: "Grunebaum Ricardo", address: "Rivadavia 402", place: "Coronel Suárez", phone: "431622" }
+];
+
+const PSYCHOLOGY_PROFESSIONALS = [
+  { name: "Daniel Goñi", place: "Coronel Suárez" },
+  { name: "Marcos Andrés Weiman", place: "Coronel Suárez" },
+  { name: "Lic. Gerardo Quiess", place: "Coronel Suárez" },
+  { name: "Oriana Gigena", place: "Coronel Suárez" },
+  { name: "Lic. Antonela Gros Aldecoa", place: "Coronel Suárez" },
+  { name: "Josefina Fernández Allen", place: "Coronel Suárez" },
+  { name: "Lic. María Laura Acebal", place: "Coronel Suárez" },
+  { name: "Lic. M. Sofía Malgeri", place: "Coronel Suárez" }
 ];
 
 function decodeHtml(text = "") {
@@ -327,6 +339,26 @@ function handleDentalProfessionals(request) {
     places,
     sourceName: "Padrón de odontólogos de Coronel Suárez",
     updatedAt: "2019-09-01"
+  }, {
+    headers: {
+      "Cache-Control": "public, max-age=86400"
+    }
+  });
+}
+
+function handlePsychologyProfessionals() {
+  const professionals = PSYCHOLOGY_PROFESSIONALS
+    .map(professional => ({
+      ...professional,
+      specialty: "Psicología"
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+  return Response.json({
+    count: professionals.length,
+    professionals,
+    sourceName: "MundoPsicólogos",
+    sourceUrl: SOURCES.psychologyProfessionals
   }, {
     headers: {
       "Cache-Control": "public, max-age=86400"
@@ -932,6 +964,9 @@ export default {
     }
     if (url.pathname === "/api/dental-professionals") {
       return handleDentalProfessionals(request);
+    }
+    if (url.pathname === "/api/psychology-professionals") {
+      return handlePsychologyProfessionals();
     }
     if (url.pathname === "/api/supabase-notify") {
       return handleSupabaseNotify(request, env);

@@ -72,8 +72,10 @@ let routeListingSlug = null;
 let medicalProfessionals = [];
 let selectedMedicalSpecialty = "";
 let dentalProfessionals = [];
+let psychologyProfessionals = [];
 let medicalSpecialtyOptions = [];
 const DENTAL_SPECIALTY_VALUE = "__odontologia";
+const PSYCHOLOGY_SPECIALTY_VALUE = "__psicologia";
 
 const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
 const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
@@ -99,6 +101,10 @@ function medicalSpecialtyAliases(option) {
 
   if (option.value === DENTAL_SPECIALTY_VALUE) {
     aliases.push("odontologo", "odontologa", "odontologos", "odontologas", "dentista", "dentistas");
+  }
+
+  if (option.value === PSYCHOLOGY_SPECIALTY_VALUE) {
+    aliases.push("psicologo", "psicologa", "psicologos", "psicologas", "psicologia", "psicoterapia", "terapia", "terapeuta");
   }
 
   if (normalizedName.endsWith("ia")) {
@@ -641,21 +647,30 @@ async function loadMedicalProfessionals() {
   if (!medicalCount || !medicalGrid || !medicalSpecialtySelect || !medicalListHeading) return;
 
   try {
-    const [response, dentalResponse] = await Promise.all([
+    const [response, dentalResponse, psychologyResponse] = await Promise.all([
       fetch("/api/medical-professionals"),
-      fetch("/api/dental-professionals")
+      fetch("/api/dental-professionals"),
+      fetch("/api/psychology-professionals")
     ]);
     if (!response.ok) throw new Error("No pudimos cargar el padrón médico");
     const data = await response.json();
     const dentalData = dentalResponse.ok ? await dentalResponse.json() : { professionals: [], count: 0 };
+    const psychologyData = psychologyResponse.ok ? await psychologyResponse.json() : { professionals: [], count: 0 };
 
     medicalProfessionals = data.professionals || [];
     dentalProfessionals = dentalData.professionals || [];
-    const totalHealthProfessionals = (data.count || medicalProfessionals.length) + (dentalData.count || dentalProfessionals.length);
+    psychologyProfessionals = psychologyData.professionals || [];
+    const totalHealthProfessionals = (data.count || medicalProfessionals.length)
+      + (dentalData.count || dentalProfessionals.length)
+      + (psychologyData.count || psychologyProfessionals.length);
     const specialties = [
       ...(data.specialties || []),
       ...(dentalProfessionals.length ? [{ name: "Odontología", count: dentalProfessionals.length, value: DENTAL_SPECIALTY_VALUE }] : [])
-    ].sort((a, b) => a.name.localeCompare(b.name, "es"));
+    ];
+    if (psychologyProfessionals.length) {
+      specialties.push({ name: "Psicología", count: psychologyProfessionals.length, value: PSYCHOLOGY_SPECIALTY_VALUE });
+    }
+    specialties.sort((a, b) => a.name.localeCompare(b.name, "es"));
     medicalSpecialtyOptions = specialties;
 
     medicalCount.textContent = `${totalHealthProfessionals || 0} profesionales de salud en el padrón`;
@@ -722,6 +737,10 @@ async function renderMedicalProfessionalsDetailed(specialty) {
   }
   if (specialty === DENTAL_SPECIALTY_VALUE) {
     renderDentalProfessionalsAsSpecialty();
+    return;
+  }
+  if (specialty === PSYCHOLOGY_SPECIALTY_VALUE) {
+    renderPsychologyProfessionalsAsSpecialty();
     return;
   }
 
@@ -818,6 +837,26 @@ function renderDentalProfessionalsAsSpecialty() {
         <strong>${escapeHtml(item.name)}</strong>
         <small>Matrícula ${escapeHtml(item.license)}</small>
         <span>${escapeHtml(item.place)}</span>
+        ${item.phone ? `<a class="medical-phone" href="${phoneHref(item.phone)}">☎ ${escapeHtml(item.phone)}</a>` : ""}
+        ${item.address ? `<small>${escapeHtml(item.address)}</small>` : ""}
+      </div>
+    </article>`)
+    .join("");
+}
+
+function renderPsychologyProfessionalsAsSpecialty() {
+  if (!medicalGrid || !medicalListHeading) return;
+  const filtered = psychologyProfessionals
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+  medicalListHeading.textContent = `${filtered.length} ${filtered.length === 1 ? "profesional" : "profesionales"} en Psicología`;
+  medicalGrid.innerHTML = filtered
+    .map(item => `<article class="medical-card psychology-card">
+      <div class="medical-photo psychology-avatar"><span>Ψ</span></div>
+      <div class="medical-card-body">
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>Psicología</small>
+        <span>${escapeHtml(item.place || "Coronel Suárez")}</span>
         ${item.phone ? `<a class="medical-phone" href="${phoneHref(item.phone)}">☎ ${escapeHtml(item.phone)}</a>` : ""}
         ${item.address ? `<small>${escapeHtml(item.address)}</small>` : ""}
       </div>
