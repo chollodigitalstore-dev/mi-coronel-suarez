@@ -141,13 +141,27 @@ function parseRadioSuarez(html) {
 }
 
 function parseTurnoAhora(html) {
+  const nameFromCard = cleanText(html.match(/<h3[^>]*class="[^"]*titulo-farmacia-de-turno[^"]*"[^>]*>([\s\S]*?)<\/h3>/i)?.[1] || "");
+  const addressFromCard = cleanText(html.match(/<span[^>]*class="[^"]*direccion-farmacia-de-turno[^"]*"[^>]*>([\s\S]*?)<\/span>/i)?.[1] || "");
+  const phoneFromCard = (html.match(/href="tel:([^"]+)"/i)?.[1] || "").trim();
+
+  if (nameFromCard && addressFromCard) {
+    const fullName = /^farmacia\b/i.test(nameFromCard) ? nameFromCard : `Farmacia ${nameFromCard}`;
+    return {
+      name: titleCasePharmacy(fullName),
+      address: addressFromCard,
+      phone: phoneFromCard.replace(/^02926-?/, "02926-") || "",
+      confidence: 0.9
+    };
+  }
+
   const text = cleanText(html);
   const match = text.match(/Coronel Suarez\s+(.+?)\s+(.+?)\s+Tel:\s*([0-9()\-\s]+)/i);
   if (!match) return null;
   const name = titleCasePharmacy(match[1]);
   const address = match[2].trim();
   const phone = match[3].trim();
-  return name ? { name, address, phone, confidence: 0.85 } : null;
+  return isValidPharmacyResult({ name, address, phone }) ? { name, address, phone, confidence: 0.85 } : null;
 }
 
 function normalizeForCompare(text = "") {
@@ -165,7 +179,7 @@ function slugify(text = "") {
 }
 
 function choosePharmacy(results) {
-  const valid = results.filter(Boolean);
+  const valid = results.filter(isValidPharmacyResult);
   if (!valid.length) return null;
   if (valid.length === 1) return valid[0];
 
@@ -175,6 +189,13 @@ function choosePharmacy(results) {
   }
 
   return valid.sort((a, b) => b.confidence - a.confidence)[0];
+}
+
+function isValidPharmacyResult(result) {
+  if (!result?.name || !result?.address) return false;
+  if (normalizeForCompare(result.name) === "farmacia") return false;
+  if (result.address.length > 120) return false;
+  return true;
 }
 
 async function fetchText(url) {
