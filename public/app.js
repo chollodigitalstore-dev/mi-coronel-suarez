@@ -668,7 +668,7 @@ async function loadMedicalProfessionals() {
       ...(dentalProfessionals.length ? [{ name: "Odontología", count: dentalProfessionals.length, value: DENTAL_SPECIALTY_VALUE }] : [])
     ];
     if (psychologyProfessionals.length) {
-      specialties.push({ name: "Psicología", count: psychologyProfessionals.length, value: PSYCHOLOGY_SPECIALTY_VALUE });
+      specialties.push({ name: "Psicolog\u00eda", count: psychologyProfessionals.length, value: PSYCHOLOGY_SPECIALTY_VALUE });
     }
     specialties.sort((a, b) => a.name.localeCompare(b.name, "es"));
     medicalSpecialtyOptions = specialties;
@@ -849,14 +849,14 @@ function renderPsychologyProfessionalsAsSpecialty() {
   const filtered = psychologyProfessionals
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
 
-  medicalListHeading.textContent = `${filtered.length} ${filtered.length === 1 ? "profesional" : "profesionales"} en Psicología`;
+  medicalListHeading.textContent = `${filtered.length} ${filtered.length === 1 ? "profesional" : "profesionales"} en Psicolog\u00eda`;
   medicalGrid.innerHTML = filtered
     .map(item => `<article class="medical-card psychology-card">
-      <div class="medical-photo psychology-avatar"><span>Ψ</span></div>
+      <div class="medical-photo psychology-avatar"><span>\u03a8</span></div>
       <div class="medical-card-body">
         <strong>${escapeHtml(item.name)}</strong>
-        <small>Psicología</small>
-        <span>${escapeHtml(item.place || "Coronel Suárez")}</span>
+        <small>Psicolog\u00eda</small>
+        <span>${escapeHtml(item.place || "Coronel Su\u00e1rez")}</span>
         ${item.phone ? `<a class="medical-phone" href="${phoneHref(item.phone)}">☎ ${escapeHtml(item.phone)}</a>` : ""}
         ${item.address ? `<small>${escapeHtml(item.address)}</small>` : ""}
       </div>

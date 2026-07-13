@@ -72,14 +72,14 @@ const DENTAL_PROFESSIONALS = [
 ];
 
 const PSYCHOLOGY_PROFESSIONALS = [
-  { name: "Daniel Goñi", place: "Coronel Suárez" },
-  { name: "Marcos Andrés Weiman", place: "Coronel Suárez" },
-  { name: "Lic. Gerardo Quiess", place: "Coronel Suárez" },
-  { name: "Oriana Gigena", place: "Coronel Suárez" },
-  { name: "Lic. Antonela Gros Aldecoa", place: "Coronel Suárez" },
-  { name: "Josefina Fernández Allen", place: "Coronel Suárez" },
-  { name: "Lic. María Laura Acebal", place: "Coronel Suárez" },
-  { name: "Lic. M. Sofía Malgeri", place: "Coronel Suárez" }
+  { name: "Daniel Go\u00f1i", place: "Coronel Su\u00e1rez" },
+  { name: "Marcos Andr\u00e9s Weiman", place: "Coronel Su\u00e1rez" },
+  { name: "Lic. Gerardo Quiess", place: "Coronel Su\u00e1rez" },
+  { name: "Oriana Gigena", place: "Coronel Su\u00e1rez" },
+  { name: "Lic. Antonela Gros Aldecoa", place: "Coronel Su\u00e1rez" },
+  { name: "Josefina Fern\u00e1ndez Allen", place: "Coronel Su\u00e1rez" },
+  { name: "Lic. Mar\u00eda Laura Acebal", place: "Coronel Su\u00e1rez" },
+  { name: "Lic. M. Sof\u00eda Malgeri", place: "Coronel Su\u00e1rez" }
 ];
 
 function decodeHtml(text = "") {
@@ -350,14 +350,14 @@ function handlePsychologyProfessionals() {
   const professionals = PSYCHOLOGY_PROFESSIONALS
     .map(professional => ({
       ...professional,
-      specialty: "Psicología"
+      specialty: "Psicolog\u00eda"
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
 
   return Response.json({
     count: professionals.length,
     professionals,
-    sourceName: "MundoPsicólogos",
+    sourceName: "MundoPsic\u00f3logos",
     sourceUrl: SOURCES.psychologyProfessionals
   }, {
     headers: {
