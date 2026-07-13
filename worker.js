@@ -492,7 +492,7 @@ function seoLayout({ title, description, canonical, h1, intro, body, schema = []
   <footer>
     <a class="brand" href="/"><span class="brand-mark">CS</span><span>Mi <strong>Coronel Suárez</strong></span></a>
     <p>Una guía hecha por y para nuestra comunidad.</p>
-    <small><a href="/privacidad.html">Privacidad</a> · <a href="/terminos.html">Términos</a> · <a href="mailto:guiasuarezweb@gmail.com">Contacto</a> · Powered by Blu Software</small>
+    <small><a href="/privacidad.html">Privacidad</a> · <a href="/terminos.html">Términos</a> · <a href="mailto:contacto@guiasuarez.ar">Contacto</a> · Powered by Blu Software</small>
   </footer>
 </body>
 </html>`;

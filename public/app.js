@@ -1204,7 +1204,7 @@ const helpTopics = {
   },
   contact: {
     title: "Contactar al equipo",
-    body: "Podés escribirnos a <a href=\"mailto:guiasuarezweb@gmail.com\">guiasuarezweb@gmail.com</a> para consultas, sugerencias o correcciones sobre la guía."
+    body: "Podés escribirnos a <a href=\"mailto:contacto@guiasuarez.ar\">contacto@guiasuarez.ar</a> para consultas, sugerencias o correcciones sobre la guía."
   }
 };
 
