@@ -508,6 +508,7 @@ function seoLayout({ title, description, canonical, h1, intro, body, schema = []
   <meta property="og:url" content="${escapeHtml(canonical)}">
   <meta property="og:site_name" content="Guía Suárez">
   <meta name="twitter:card" content="summary">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   ${schemas}
   <style>
