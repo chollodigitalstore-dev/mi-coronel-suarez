@@ -1243,7 +1243,7 @@ const helpTopics = {
   },
   contact: {
     title: "Contactar al equipo",
-    body: "Podés escribirnos a <a href=\"mailto:contacto@guiasuarez.ar\">contacto@guiasuarez.ar</a> para consultas, sugerencias o correcciones sobre la guía."
+    body: "Podés escribirnos a <a href=\"mailto:contacto@guiasuarez.ar\">contacto@guiasuarez.ar</a> o por WhatsApp al <a href=\"https://wa.me/542926418969?text=Hola%2C%20quiero%20consultar%20por%20Gu%C3%ADa%20Su%C3%A1rez\" target=\"_blank\" rel=\"noopener\">2926-418969</a> para consultas, sugerencias o correcciones sobre la guía."
   }
 };
 
