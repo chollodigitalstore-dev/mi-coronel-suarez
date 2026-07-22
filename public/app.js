@@ -78,8 +78,8 @@ let medicalSpecialtyOptions = [];
 const DENTAL_SPECIALTY_VALUE = "__odontologia";
 const PSYCHOLOGY_SPECIALTY_VALUE = "__psicologia";
 
-const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id";
-const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id";
+const LISTING_SELECT_FIELDS = "slug,name,category,tags,location,place,address,description,icon,phone,verified,active,owner_id,created_at";
+const LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,tags,location,place,address,icon,phone,verified,active,owner_id,created_at";
 const OWNER_LISTING_SELECT_FIELDS = "slug,name,category,location,place,address,description,phone,icon,active";
 const OWNER_LISTING_SELECT_FIELDS_LEGACY = "slug,name,category,location,place,address,phone,icon,active";
 const EDIT_LISTING_SELECT_FIELDS = "slug,name,category,location,place,address,description,phone,icon,active,verified,owner_id,tags";
@@ -301,9 +301,31 @@ function renderCategories() {
   }).join("");
 }
 
+function pickFeaturedListings(items) {
+  const activeItems = items.filter(item => item.active !== false);
+  const rated = activeItems
+    .filter(item => ratingStats[item.slug])
+    .sort((a, b) => {
+      const ratingA = ratingStats[a.slug];
+      const ratingB = ratingStats[b.slug];
+      const averageDiff = Number(ratingB.average_rating || 0) - Number(ratingA.average_rating || 0);
+      if (averageDiff) return averageDiff;
+      const countDiff = Number(ratingB.review_count || 0) - Number(ratingA.review_count || 0);
+      if (countDiff) return countDiff;
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+    });
+  const ratedSlugs = new Set(rated.map(item => item.slug));
+  const recent = activeItems
+    .filter(item => !ratedSlugs.has(item.slug))
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+  return [...rated, ...recent].slice(0, 3);
+}
+
 function renderListings() {
   const query = normalize(searchInput.value.trim());
   const location = locationSelect.value;
+  const hasFilter = query || activeCategory || location !== "todas" || routeListingSlug;
   const filtered = listings.filter(item => {
     const categoryName = categoryById(item.category)?.name || item.category;
     const haystack = normalize(`${item.name} ${item.tags} ${categoryName} ${item.description}`);
@@ -313,8 +335,9 @@ function renderListings() {
       && (!activeCategory || item.category === activeCategory)
       && (location === "todas" || item.location === location);
   });
+  const visibleListings = hasFilter ? filtered : pickFeaturedListings(filtered);
 
-  listingGrid.innerHTML = filtered.map(item => {
+  listingGrid.innerHTML = visibleListings.map(item => {
     const category = categoryById(item.category)?.name || item.category;
     const stats = ratingStats[item.slug];
     const rating = stats
@@ -347,11 +370,12 @@ function renderListings() {
     </article>`;
   }).join("");
 
-  const hasFilter = query || activeCategory || location !== "todas" || routeListingSlug;
-  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Comercios y servicios destacados en Coronel Suárez");
-  resultCount.textContent = routeListingSlug ? "" : `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
-  emptyState.hidden = filtered.length > 0;
-  listingGrid.hidden = filtered.length === 0;
+  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Mejor calificados en Guía Suárez");
+  resultCount.textContent = routeListingSlug ? "" : (hasFilter
+    ? `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`
+    : `${visibleListings.length} destacados`);
+  emptyState.hidden = visibleListings.length > 0;
+  listingGrid.hidden = visibleListings.length === 0;
 }
 
 async function loadListings() {
