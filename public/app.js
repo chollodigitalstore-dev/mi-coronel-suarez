@@ -65,6 +65,7 @@ let activeCategory = null;
 let expandedCategories = false;
 let currentUser = null;
 let ratingStats = {};
+let listingReviews = {};
 let lastPublishedSlug = null;
 let editingListingSlug = null;
 let listingDescriptionAvailable = true;
@@ -218,6 +219,27 @@ function whatsappIcon() {
   </svg>`;
 }
 
+function renderReviewPreview(slug) {
+  const reviews = listingReviews[slug] || [];
+  if (!reviews.length) return "";
+
+  return `<div class="review-preview" aria-label="Opiniones recientes">
+    <strong>Opiniones recientes</strong>
+    ${reviews.slice(0, 2).map(review => {
+      const name = "Vecino/a";
+      const avatar = `<span>★</span>`;
+      const comment = review.comment?.trim() || "Calificación sin comentario.";
+      return `<article class="review-preview-item">
+        <div class="review-avatar">${avatar}</div>
+        <div>
+          <div class="review-preview-head"><b>${escapeHtml(name)}</b><span>${"★".repeat(Number(review.rating || 0))}</span></div>
+          <p>${escapeHtml(comment)}</p>
+        </div>
+      </article>`;
+    }).join("")}
+  </div>`;
+}
+
 function mapsHref(item) {
   const query = encodeURIComponent(`${item.address} ${item.place} Buenos Aires Argentina`);
   return `https://www.google.com/maps/search/?api=1&query=${query}`;
@@ -299,6 +321,7 @@ function renderListings() {
       ? `<span class="rating-summary">★ ${Number(stats.average_rating).toFixed(1)} · ${stats.review_count} opiniones</span>`
       : '<span class="rating-summary">Sin opiniones todavía</span>';
     const description = item.description ? `<p class="listing-description">${escapeHtml(item.description)}</p>` : "";
+    const reviews = renderReviewPreview(item.slug);
     const shareUrl = listingUrl(item);
 
     const mapAction = item.address
@@ -309,6 +332,7 @@ function renderListings() {
       <div class="listing-cover" role="img" aria-label="${category}: ${item.name}"><span>${item.icon}</span>${item.verified ? '<span class="verified">✓ Verificado</span>' : ""}</div>
       <div class="listing-body"><span class="listing-category">${category}</span><h3>${item.name}</h3>${rating}
       ${description}
+      ${reviews}
       <div class="listing-meta"><span>⌖ ${item.address || item.place}</span></div>
       <div class="listing-actions actions-${actionCount}" aria-label="Acciones rápidas">
         <a href="${phoneHref(item.phone)}" aria-label="Llamar a ${item.name}"><span>☎</span>Llamar</a>
@@ -640,6 +664,29 @@ async function loadRatings() {
   const { data, error } = await supabase.from("listing_ratings").select("slug,average_rating,review_count");
   if (error) return;
   ratingStats = Object.fromEntries(data.map(row => [row.slug, row]));
+  renderListings();
+}
+
+async function loadReviews() {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("id,rating,comment,created_at,listings(slug)")
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(80);
+
+  if (error) {
+    console.warn("No pudimos cargar opiniones", error);
+    return;
+  }
+
+  listingReviews = {};
+  for (const review of data || []) {
+    const slug = review.listings?.slug;
+    if (!slug) continue;
+    listingReviews[slug] = listingReviews[slug] || [];
+    listingReviews[slug].push(review);
+  }
   renderListings();
 }
 
@@ -1131,6 +1178,7 @@ reviewForm.addEventListener("submit", async event => {
   reviewBusinessName.textContent = reviewBusinessName.textContent.replace(/^Calificá\s+/, "Calificaste ");
   document.querySelector("#reviewSuccess").hidden = false;
   await loadRatings();
+  await loadReviews();
 });
 
 function renderCurrentDate() {
@@ -1279,6 +1327,7 @@ if (initialQuery) searchInput.value = initialQuery;
 
 await loadListings();
 await loadRatings();
+await loadReviews();
 renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
