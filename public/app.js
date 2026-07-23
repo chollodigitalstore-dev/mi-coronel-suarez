@@ -60,6 +60,7 @@ const medicalSpecialtySelect = document.querySelector("#medicalSpecialtySelect")
 const medicalListHeading = document.querySelector("#medicalListHeading");
 const medicalGrid = document.querySelector("#medicalGrid");
 const visitCounter = document.querySelector("#visitCounter");
+const activityCounter = document.querySelector("#activityCounter");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -292,6 +293,7 @@ function hydrateListing(item) {
 }
 
 function renderCategories() {
+  renderActivityCounter();
   const visible = expandedCategories ? categories : categories.slice(0, 6);
   categoryGrid.innerHTML = visible.map(category => {
     const count = listings.filter(item => item.category === category.id && item.active !== false).length;
@@ -299,6 +301,12 @@ function renderCategories() {
       <span class="category-icon">${category.icon}</span><strong>${category.name}</strong><small>${count || "Próximamente"}</small>
     </button>`;
   }).join("");
+}
+
+function renderActivityCounter() {
+  if (!activityCounter) return;
+  const count = listings.filter(item => item.active !== false).length;
+  activityCounter.textContent = `${count.toLocaleString("es-AR")} ${count === 1 ? "actividad" : "actividades"}`;
 }
 
 function pickFeaturedListings(items) {

@@ -217,7 +217,8 @@ body.listing-route-page .listing-secondary-actions a { display: none; }
 .growth-actions { display: flex; flex-wrap: wrap; gap: 12px; position: relative; z-index: 1; }
 footer { padding: 40px max(5vw, 24px) 96px; display: flex; align-items: center; gap: 30px; border-top: 1px solid var(--line); }
 footer p { flex: 1; color: var(--muted); }
-.visit-counter { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--green-dark); background: var(--mint); font-size: 13px; font-weight: 900; white-space: nowrap; }
+.visit-counter,
+.site-counter { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--green-dark); background: var(--mint); font-size: 13px; font-weight: 900; white-space: nowrap; }
 footer small { color: var(--muted); }
 footer small a { color: var(--green); font-weight: 800; }
 .footer-whatsapp { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
