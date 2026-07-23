@@ -499,6 +499,11 @@ function seoLayout({ title, description, canonical, h1, intro, body, schema = []
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow">
   <meta name="google-site-verification" content="ltwi8K7voJKEUJvIW8slyHDwxgYmyhe_NrNjAJIFLBc">
+  <meta name="theme-color" content="#276d55">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Guía Suárez">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}">
   <link rel="canonical" href="${escapeHtml(canonical)}">
@@ -509,6 +514,8 @@ function seoLayout({ title, description, canonical, h1, intro, body, schema = []
   <meta property="og:site_name" content="Guía Suárez">
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
   <link rel="stylesheet" href="/styles.css">
   ${schemas}
   <style>

@@ -1,0 +1,55 @@
+{
+  "name": "Guía Suárez",
+  "short_name": "Guía Suárez",
+  "description": "Guía local de comercios, profesionales y servicios de Coronel Suárez.",
+  "lang": "es-AR",
+  "dir": "ltr",
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fffaf0",
+  "theme_color": "#276d55",
+  "categories": ["business", "local", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buscar en la guía",
+      "short_name": "Buscar",
+      "description": "Encontrar comercios, profesionales y servicios.",
+      "url": "/#guia"
+    },
+    {
+      "name": "Sumar mi actividad",
+      "short_name": "Publicar",
+      "description": "Publicar una actividad gratis.",
+      "url": "/?intent=publish"
+    }
+  ]
+}
