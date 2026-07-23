@@ -38,6 +38,7 @@ nav a:hover { color: var(--green); }
 .button-primary { background: var(--green); color: white; box-shadow: 0 8px 20px rgba(39,109,85,.2); }
 .button-primary:hover { background: var(--green-dark); }
 .button-outline { color: var(--green); background: transparent; border: 1px solid var(--green); }
+.button-install { color: var(--green-dark); background: var(--mint); border: 1px solid rgba(39,109,85,.18); padding: 10px 16px; }
 .button-light { color: var(--green-dark); background: white; padding: 15px 24px; }
 .button-share { color: white; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.34); padding: 15px 24px; }
 .button-share:hover { background: rgba(255,255,255,.22); }

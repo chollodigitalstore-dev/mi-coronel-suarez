@@ -61,6 +61,7 @@ const medicalListHeading = document.querySelector("#medicalListHeading");
 const medicalGrid = document.querySelector("#medicalGrid");
 const visitCounter = document.querySelector("#visitCounter");
 const activityCounter = document.querySelector("#activityCounter");
+const installAppButton = document.querySelector("#installAppButton");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -73,6 +74,7 @@ let listingDescriptionAvailable = true;
 let routeListingSlug = null;
 let medicalProfessionals = [];
 let selectedMedicalSpecialty = "";
+let deferredInstallPrompt = null;
 let dentalProfessionals = [];
 let psychologyProfessionals = [];
 let medicalSpecialtyOptions = [];
@@ -1344,11 +1346,55 @@ supportPanel.addEventListener("click", event => {
   supportAnswer.innerHTML = `<h3>${topic.title}</h3><p>${topic.body}</p>`;
 });
 
+function isStandaloneApp() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function isMobileBrowser() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function updateInstallButton() {
+  if (!installAppButton) return;
+  installAppButton.hidden = isStandaloneApp() || !(deferredInstallPrompt || isMobileBrowser());
+}
+
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  updateInstallButton();
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  updateInstallButton();
+  showToast("Guía Suárez quedó instalada.");
+});
+
+installAppButton?.addEventListener("click", async () => {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    updateInstallButton();
+    return;
+  }
+
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    showToast("En iPhone: abrí Safari, tocá Compartir y elegí Agregar a pantalla de inicio.");
+  } else if (/Android/i.test(navigator.userAgent)) {
+    showToast("En Android: abrí Chrome, tocá ⋮ y elegí Agregar a pantalla principal. Si no aparece, recargá la página.");
+  } else {
+    showToast("En Chrome o Edge, usá el ícono de instalación de la barra de direcciones o el menú del navegador.");
+  }
+});
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch(error => {
       console.warn("No pudimos registrar la app instalable", error);
     });
+    updateInstallButton();
   });
 }
 
