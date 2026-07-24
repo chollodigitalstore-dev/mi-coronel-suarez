@@ -1356,13 +1356,17 @@ function isMobileBrowser() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
+function isWindowsBrowser() {
+  return /Windows/i.test(navigator.userAgent);
+}
+
 function isIosBrowser() {
   return /iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 function updateInstallButton() {
   if (!installAppButton) return;
-  installAppButton.hidden = isStandaloneApp() || !(deferredInstallPrompt || isMobileBrowser());
+  installAppButton.hidden = isWindowsBrowser() || isStandaloneApp() || !(deferredInstallPrompt || isMobileBrowser());
 }
 
 window.addEventListener("beforeinstallprompt", event => {
