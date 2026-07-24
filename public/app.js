@@ -62,6 +62,8 @@ const medicalGrid = document.querySelector("#medicalGrid");
 const visitCounter = document.querySelector("#visitCounter");
 const activityCounter = document.querySelector("#activityCounter");
 const installAppButton = document.querySelector("#installAppButton");
+const iosInstallDialog = document.querySelector("#iosInstallDialog");
+const closeIosInstallDialog = document.querySelector("#closeIosInstallDialog");
 
 let activeCategory = null;
 let expandedCategories = false;
@@ -1354,6 +1356,10 @@ function isMobileBrowser() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
+function isIosBrowser() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 function updateInstallButton() {
   if (!installAppButton) return;
   installAppButton.hidden = isStandaloneApp() || !(deferredInstallPrompt || isMobileBrowser());
@@ -1380,14 +1386,17 @@ installAppButton?.addEventListener("click", async () => {
     return;
   }
 
-  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    showToast("En iPhone: abrí Safari, tocá Compartir y elegí Agregar a pantalla de inicio.");
+  if (isIosBrowser()) {
+    if (iosInstallDialog && !iosInstallDialog.open) iosInstallDialog.showModal();
   } else if (/Android/i.test(navigator.userAgent)) {
     showToast("En Android: abrí Chrome, tocá ⋮ y elegí Agregar a pantalla principal. Si no aparece, recargá la página.");
   } else {
     showToast("En Chrome o Edge, usá el ícono de instalación de la barra de direcciones o el menú del navegador.");
   }
 });
+
+document.querySelector(".install-close")?.addEventListener("click", () => iosInstallDialog?.close());
+closeIosInstallDialog?.addEventListener("click", () => iosInstallDialog?.close());
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
