@@ -989,14 +989,15 @@ function getAdminEmails(env) {
 }
 
 async function getAuthenticatedAdmin(request, env) {
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-    return { error: "Falta configurar Supabase para el panel admin.", status: 503 };
+  const supabaseUrl = env.SUPABASE_URL || SUPABASE_PUBLIC_URL;
+  if (!supabaseUrl || !env.SUPABASE_SERVICE_ROLE_KEY) {
+    return { error: "Falta configurar SUPABASE_SERVICE_ROLE_KEY para el panel admin.", status: 503 };
   }
 
   const token = getBearerToken(request);
   if (!token) return { error: "Tenés que ingresar con Google.", status: 401 };
 
-  const response = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+  const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
     headers: {
       apikey: env.SUPABASE_SERVICE_ROLE_KEY,
       Authorization: `Bearer ${token}`
@@ -1014,7 +1015,7 @@ async function getAuthenticatedAdmin(request, env) {
 }
 
 async function supabaseAdminFetch(env, table, params = {}, options = {}) {
-  const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/${table}`);
+  const endpoint = new URL(`${env.SUPABASE_URL || SUPABASE_PUBLIC_URL}/rest/v1/${table}`);
   for (const [key, value] of Object.entries(params)) {
     endpoint.searchParams.set(key, value);
   }
@@ -1038,7 +1039,7 @@ async function supabaseAdminFetch(env, table, params = {}, options = {}) {
 }
 
 async function fetchAuthUsers(env) {
-  const response = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users?page=1&per_page=1000`, {
+  const response = await fetch(`${env.SUPABASE_URL || SUPABASE_PUBLIC_URL}/auth/v1/admin/users?page=1&per_page=1000`, {
     headers: {
       apikey: env.SUPABASE_SERVICE_ROLE_KEY,
       Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
