@@ -620,12 +620,53 @@ function readRememberedReview() {
   }
 }
 
-function openReviewDialog(slug, name) {
+async function getReviewEligibility(slug) {
+  if (!currentUser) return { ok: false, message: "Ingresá con Google para dejar una calificación." };
+
+  const { data: listing, error: listingError } = await supabase
+    .from("listings")
+    .select("id,name,owner_id")
+    .eq("slug", slug)
+    .single();
+
+  if (listingError || !listing) {
+    return { ok: false, message: "No pudimos encontrar esta actividad." };
+  }
+
+  if (listing.owner_id === currentUser.id) {
+    return { ok: false, message: "No podés calificar tu propia actividad. Así cuidamos la confianza de la guía." };
+  }
+
+  const { data: existingReview, error: reviewError } = await supabase
+    .from("reviews")
+    .select("id")
+    .eq("listing_id", listing.id)
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+
+  if (reviewError) {
+    return { ok: false, message: "No pudimos verificar si ya calificaste esta actividad." };
+  }
+
+  if (existingReview) {
+    return { ok: false, message: "Ya calificaste esta actividad. Para que la reputación sea justa, cada usuario puede calificar una sola vez." };
+  }
+
+  return { ok: true, listing };
+}
+
+async function openReviewDialog(slug, name) {
+  const eligibility = await getReviewEligibility(slug);
+  if (!eligibility.ok) {
+    showToast(eligibility.message);
+    return;
+  }
+
   reviewForm.reset();
   document.querySelector("#reviewSuccess").hidden = true;
   reviewForm.hidden = false;
   document.querySelector("#reviewListingSlug").value = slug;
-  document.querySelector("#reviewBusinessName").textContent = `Calificá ${name}`;
+  document.querySelector("#reviewBusinessName").textContent = `Calificá ${name || eligibility.listing.name}`;
   reviewDialog.showModal();
 }
 
@@ -1189,23 +1230,31 @@ document.querySelector(".review-close").addEventListener("click", () => reviewDi
 reviewForm.addEventListener("submit", async event => {
   event.preventDefault();
   const slug = document.querySelector("#reviewListingSlug").value;
-  const { data: listing, error: listingError } = await supabase.from("listings").select("id").eq("slug", slug).single();
-  if (listingError) {
-    showToast("No pudimos encontrar esta actividad.");
+  const eligibility = await getReviewEligibility(slug);
+  if (!eligibility.ok) {
+    showToast(eligibility.message);
     return;
   }
+  const listing = eligibility.listing;
   const rating = Number(new FormData(reviewForm).get("rating"));
   if (!rating || rating < 1 || rating > 5) {
     showToast("Elegí una calificación de 1 a 5 estrellas.");
     return;
   }
   const comment = document.querySelector("#reviewComment").value.trim() || null;
-  const { error } = await supabase.from("reviews").upsert(
-    { listing_id: listing.id, user_id: currentUser.id, rating, comment, status: "published" },
-    { onConflict: "listing_id,user_id" }
-  );
+  const { error } = await supabase.from("reviews").insert({
+    listing_id: listing.id,
+    user_id: currentUser.id,
+    rating,
+    comment,
+    status: "published"
+  });
   if (error) {
     console.error("Supabase review save error", error);
+    if (error.code === "23505") {
+      showToast("Ya calificaste esta actividad. Cada usuario puede calificar una sola vez.");
+      return;
+    }
     showToast(`No pudimos guardar la opinión: ${error.message || "revisá Supabase"}`);
     return;
   }
@@ -1315,7 +1364,7 @@ const helpTopics = {
   },
   review: {
     title: "Cómo calificar un servicio",
-    body: "Buscá la actividad, tocá “Calificar”, ingresá con Google si todavía no lo hiciste y dejá de 1 a 5 estrellas. Podés sumar un comentario respetuoso para ayudar a otros vecinos."
+    body: "Buscá la actividad, tocá “Calificar”, ingresá con Google si todavía no lo hiciste y dejá de 1 a 5 estrellas. Como buena práctica de la comunidad, no se puede calificar una actividad propia ni calificar la misma actividad más de una vez."
   },
   manage: {
     title: "Cómo modificar o pausar mi aviso",
@@ -1323,7 +1372,7 @@ const helpTopics = {
   },
   reputation: {
     title: "Cómo funciona la reputación",
-    body: "La reputación se construye con calificaciones de usuarios identificados. La publicidad puede dar visibilidad, pero no mejora el puntaje: las opiniones y la confianza de la ficha son independientes."
+    body: "La reputación se construye con calificaciones de usuarios identificados. Para cuidar la confianza, cada usuario puede calificar una actividad una sola vez y no puede calificar una actividad que publicó. La publicidad puede dar visibilidad, pero no mejora el puntaje."
   },
   contact: {
     title: "Contactar al equipo",
