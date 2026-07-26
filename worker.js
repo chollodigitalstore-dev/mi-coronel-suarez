@@ -40,6 +40,7 @@ const CATEGORY_PATHS = {
 const SITE_URL = "https://guiasuarez.ar";
 const SUPABASE_PUBLIC_URL = "https://sblrytmfvqhjqclaozvr.supabase.co";
 const SUPABASE_PUBLIC_KEY = "sb_publishable_4I_BsyxzfQHwjbhhrZBiCg_6k_1YSTi";
+const DEFAULT_ADMIN_EMAILS = ["guiasuarezweb@gmail.com", "chollodigital.store@gmail.com"];
 const CATEGORY_BY_PATH = Object.fromEntries(Object.entries(CATEGORY_PATHS).map(([id, path]) => [path, id]));
 const LOCATION_LABELS = {
   "coronel-suarez": "Coronel Suárez",
@@ -973,9 +974,219 @@ async function handleVisitCount(request, env) {
   return Response.json({ count: Number(rows[0]?.count || 0) }, { headers: { "Cache-Control": "public, max-age=60" } });
 }
 
+function getBearerToken(request) {
+  const authorization = request.headers.get("Authorization") || "";
+  return authorization.toLowerCase().startsWith("bearer ") ? authorization.slice(7).trim() : "";
+}
+
+function getAdminEmails(env) {
+  return String(env.ADMIN_EMAILS || "")
+    .split(",")
+    .map(email => email.trim().toLowerCase())
+    .filter(Boolean)
+    .concat(DEFAULT_ADMIN_EMAILS)
+    .filter((email, index, all) => all.indexOf(email) === index);
+}
+
+async function getAuthenticatedAdmin(request, env) {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+    return { error: "Falta configurar Supabase para el panel admin.", status: 503 };
+  }
+
+  const token = getBearerToken(request);
+  if (!token) return { error: "Tenés que ingresar con Google.", status: 401 };
+
+  const response = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) return { error: "Sesión inválida o vencida.", status: 401 };
+  const user = await response.json();
+  const email = String(user.email || "").toLowerCase();
+  if (!getAdminEmails(env).includes(email)) {
+    return { error: "Tu cuenta no está autorizada para ver este panel.", status: 403 };
+  }
+
+  return { user: { id: user.id, email, name: user.user_metadata?.full_name || user.email } };
+}
+
+async function supabaseAdminFetch(env, table, params = {}, options = {}) {
+  const endpoint = new URL(`${env.SUPABASE_URL}/rest/v1/${table}`);
+  for (const [key, value] of Object.entries(params)) {
+    endpoint.searchParams.set(key, value);
+  }
+  const response = await fetch(endpoint, {
+    ...options,
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: options.prefer || "return=representation",
+      ...(options.headers || {})
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Supabase ${table} error ${response.status}: ${(await response.text()).slice(0, 240)}`);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+async function fetchAuthUsers(env) {
+  const response = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users?page=1&per_page=1000`, {
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
+    }
+  });
+  if (!response.ok) return new Map();
+  const payload = await response.json();
+  const users = payload.users || [];
+  return new Map(users.map(user => [user.id, {
+    id: user.id,
+    email: user.email || "",
+    name: user.user_metadata?.full_name || user.raw_user_meta_data?.full_name || user.email || ""
+  }]));
+}
+
+function listingPublicUrl(listing = {}) {
+  const categoryPath = CATEGORY_PATHS[listing.category] || listing.category || "actividad";
+  return `${SITE_URL}/${categoryPath}/${slugify(listing.name || listing.slug || "")}`;
+}
+
+function flagReview(review) {
+  const flags = [];
+  const listing = review.listings || {};
+  if (review.user_id && listing.owner_id && review.user_id === listing.owner_id) {
+    flags.push("Autocalificación");
+  }
+  if (Number(review.rating) === 5 && !String(review.comment || "").trim()) {
+    flags.push("5★ sin comentario");
+  }
+  if (review.created_at && listing.created_at) {
+    const minutes = (new Date(review.created_at) - new Date(listing.created_at)) / 60000;
+    if (minutes >= 0 && minutes <= 60) flags.push("Muy rápida");
+  }
+  return flags;
+}
+
+async function handleAdminDashboard(request, env) {
+  if (request.method !== "GET") return Response.json({ error: "Method not allowed" }, { status: 405 });
+  const admin = await getAuthenticatedAdmin(request, env);
+  if (admin.error) return Response.json({ error: admin.error }, { status: admin.status });
+
+  try {
+    const [listings, reviews, users] = await Promise.all([
+      supabaseAdminFetch(env, "listings", {
+        select: "id,slug,name,category,place,address,phone,description,active,owner_id,created_at",
+        order: "created_at.desc",
+        limit: "100"
+      }),
+      supabaseAdminFetch(env, "reviews", {
+        select: "id,listing_id,user_id,rating,comment,status,created_at,listings(id,slug,name,category,owner_id,created_at)",
+        order: "created_at.desc",
+        limit: "120"
+      }),
+      fetchAuthUsers(env)
+    ]);
+
+    const now = Date.now();
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    const activeListings = listings.filter(item => item.active !== false);
+    const publishedReviews = reviews.filter(item => item.status === "published");
+    const reviewerCounts = publishedReviews.reduce((acc, review) => {
+      acc[review.user_id] = (acc[review.user_id] || 0) + 1;
+      return acc;
+    }, {});
+    const decoratedReviews = publishedReviews.map(review => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.comment,
+      created_at: review.created_at,
+      reviewer: users.get(review.user_id) || { id: review.user_id, email: "", name: "" },
+      listing: review.listings ? {
+        id: review.listings.id,
+        name: review.listings.name,
+        slug: review.listings.slug,
+        category: review.listings.category
+      } : null,
+      flags: flagReview(review)
+    }));
+
+    const summary = {
+      activeListings: activeListings.length,
+      reviews: publishedReviews.length,
+      averageRating: publishedReviews.length
+        ? (publishedReviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / publishedReviews.length).toFixed(1)
+        : null,
+      newListings7d: listings.filter(item => now - new Date(item.created_at).getTime() <= sevenDaysMs).length,
+      newReviews7d: publishedReviews.filter(item => now - new Date(item.created_at).getTime() <= sevenDaysMs).length
+    };
+
+    const audit = {
+      selfReviews: publishedReviews.filter(review => review.user_id === review.listings?.owner_id).length,
+      quickReviews: publishedReviews.filter(review => flagReview(review).includes("Muy rápida")).length,
+      heavyReviewers: Object.values(reviewerCounts).filter(count => count >= 3).length,
+      emptyFiveStars: publishedReviews.filter(review => Number(review.rating) === 5 && !String(review.comment || "").trim()).length
+    };
+
+    return Response.json({
+      admin: admin.user,
+      summary,
+      audit,
+      listings: listings.slice(0, 30).map(item => ({
+        id: item.id,
+        name: item.name,
+        slug: item.slug,
+        category: item.category,
+        place: item.place,
+        address: item.address,
+        phone: item.phone,
+        active: item.active,
+        created_at: item.created_at,
+        url: listingPublicUrl(item),
+        owner: users.get(item.owner_id) || { id: item.owner_id, email: "", name: "" }
+      })),
+      reviews: decoratedReviews.slice(0, 50)
+    }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("Admin dashboard failed", error);
+    return Response.json({ error: error.message || "No pudimos cargar el panel admin." }, { status: 500 });
+  }
+}
+
+async function handleAdminReviewDelete(request, env, reviewId) {
+  if (request.method !== "DELETE") return Response.json({ error: "Method not allowed" }, { status: 405 });
+  const admin = await getAuthenticatedAdmin(request, env);
+  if (admin.error) return Response.json({ error: admin.error }, { status: admin.status });
+  if (!reviewId) return Response.json({ error: "Falta el id de la calificación." }, { status: 400 });
+
+  try {
+    await supabaseAdminFetch(env, "reviews", { id: `eq.${reviewId}` }, {
+      method: "DELETE",
+      prefer: "return=minimal"
+    });
+    return Response.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("Admin review delete failed", error);
+    return Response.json({ error: error.message || "No pudimos borrar la calificación." }, { status: 500 });
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/admin") {
+      const response = await env.ASSETS.fetch(new Request(new URL("/admin.html", url.origin), request));
+      const headers = new Headers(response.headers);
+      headers.set("X-Robots-Tag", "noindex, nofollow");
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+    }
     if (url.pathname === "/robots.txt") {
       return handleRobots();
     }
@@ -1002,6 +1213,13 @@ export default {
     }
     if (url.pathname === "/api/visit-count") {
       return handleVisitCount(request, env);
+    }
+    if (url.pathname === "/api/admin/dashboard") {
+      return handleAdminDashboard(request, env);
+    }
+    const adminReviewMatch = url.pathname.match(/^\/api\/admin\/reviews\/([^/]+)$/);
+    if (adminReviewMatch) {
+      return handleAdminReviewDelete(request, env, adminReviewMatch[1]);
     }
     const seoResponse = await handleSeoRoute(request, env);
     if (seoResponse) return seoResponse;

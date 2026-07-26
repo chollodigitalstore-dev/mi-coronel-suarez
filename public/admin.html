@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#276d55">
+  <title>Panel admin — Guía Suárez</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/admin.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <header class="admin-hero">
+      <a class="brand" href="/"><span class="brand-mark">CS</span><span>Guía <strong>Suárez</strong></span></a>
+      <div>
+        <span class="eyebrow">Panel privado</span>
+        <h1>Administración de la guía</h1>
+        <p>Revisá avisos, calificaciones y señales de reputación sin entrar a la base de datos.</p>
+      </div>
+      <div class="admin-actions">
+        <button class="button google-login-button" id="adminLoginButton" type="button">Ingresar con Google</button>
+        <button class="button button-outline" id="adminLogoutButton" type="button" hidden>Salir</button>
+      </div>
+    </header>
+
+    <section class="admin-card" id="adminGate">
+      <h2>Acceso requerido</h2>
+      <p>Ingresá con una cuenta autorizada para ver el panel.</p>
+    </section>
+
+    <section class="admin-dashboard" id="adminDashboard" hidden>
+      <div class="admin-status">
+        <span id="adminUserLabel"></span>
+        <button class="button button-primary" id="refreshAdminButton" type="button">Actualizar</button>
+      </div>
+
+      <div class="admin-metrics" id="adminMetrics"></div>
+
+      <section class="admin-card">
+        <div class="admin-section-head">
+          <div>
+            <span class="eyebrow">Reputación</span>
+            <h2>Alertas para revisar</h2>
+          </div>
+          <small id="auditSummary">—</small>
+        </div>
+        <div class="admin-alerts" id="adminAlerts"></div>
+      </section>
+
+      <section class="admin-grid-two">
+        <div class="admin-card">
+          <div class="admin-section-head">
+            <div>
+              <span class="eyebrow">Avisos</span>
+              <h2>Últimos registrados</h2>
+            </div>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Actividad</th><th>Dueño</th><th>Contacto</th><th>Estado</th><th>Fecha</th></tr></thead>
+              <tbody id="adminListingsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-section-head">
+            <div>
+              <span class="eyebrow">Opiniones</span>
+              <h2>Últimas calificaciones</h2>
+            </div>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Aviso</th><th>Calificación</th><th>Quién calificó</th><th>Alerta</th><th></th></tr></thead>
+              <tbody id="adminReviewsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script type="module" src="/admin.js"></script>
+</body>
+</html>
