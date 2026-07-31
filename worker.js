@@ -188,6 +188,24 @@ async function fetchWeatherTickerItem() {
   const codes = weather.hourly?.weather_code || [];
   const rainChances = weather.hourly?.precipitation_probability || [];
 
+  function weatherIcon(code = 0, date = new Date()) {
+    const hour = Number(new Intl.DateTimeFormat("es-AR", {
+      hour: "numeric",
+      hour12: false,
+      timeZone: "America/Argentina/Buenos_Aires"
+    }).format(date));
+    const isDay = hour >= 7 && hour < 19;
+
+    if (code >= 95) return "⛈️";
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return isDay ? "🌦️" : "🌧️";
+    if (code >= 71 && code <= 77) return "❄️";
+    if ([45, 48].includes(code)) return "🌫️";
+    if (code === 3) return "☁️";
+    if ([1, 2].includes(code)) return isDay ? "🌤️" : "☁️";
+    if (code === 0) return isDay ? "☀️" : "🌙";
+    return isDay ? "🌡️" : "🌙";
+  }
+
   function describeWeatherCode(code = 0) {
     if (code === 0) return "despejado";
     if ([1, 2].includes(code)) return "algo nublado";
@@ -214,9 +232,12 @@ async function fetchWeatherTickerItem() {
     if (bestIndex < 0) return null;
     const temp = Math.round(temperatures[bestIndex]);
     const rain = Math.round(rainChances[bestIndex]);
-    const description = describeWeatherCode(Number(codes[bestIndex]));
+    const code = Number(codes[bestIndex]);
+    const date = new Date(times[bestIndex]);
+    const icon = weatherIcon(code, date);
+    const description = describeWeatherCode(code);
     if ([temp, rain].some(Number.isNaN)) return null;
-    return `${temp}\u00b0, ${description}, lluvia ${rain}%`;
+    return `${icon} ${temp}\u00b0, ${description}, lluvia ${rain}%`;
   }
 
   const forecast24 = forecastAt(24);

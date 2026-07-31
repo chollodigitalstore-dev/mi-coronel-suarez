@@ -1279,15 +1279,22 @@ function renderCurrentDate() {
   currentDate.textContent = formatted.replace(".", "");
 }
 
-function weatherIcon(code = 0) {
-  if (code === 0) return "☀️";
-  if ([1, 2].includes(code)) return "🌤️";
-  if (code === 3) return "☁️";
-  if ([45, 48].includes(code)) return "🌫️";
-  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "🌧️";
-  if (code >= 71 && code <= 77) return "❄️";
+function weatherIcon(code = 0, date = new Date()) {
+  const hour = Number(new Intl.DateTimeFormat("es-AR", {
+    hour: "numeric",
+    hour12: false,
+    timeZone: "America/Argentina/Buenos_Aires"
+  }).format(date));
+  const isDay = hour >= 7 && hour < 19;
+
   if (code >= 95) return "⛈️";
-  return "🌡️";
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return isDay ? "🌦️" : "🌧️";
+  if (code >= 71 && code <= 77) return "❄️";
+  if ([45, 48].includes(code)) return "🌫️";
+  if (code === 3) return isDay ? "☁️" : "☁️";
+  if ([1, 2].includes(code)) return isDay ? "🌤️" : "☁️";
+  if (code === 0) return isDay ? "☀️" : "🌙";
+  return isDay ? "🌡️" : "🌙";
 }
 
 async function loadWeather() {
@@ -1356,7 +1363,7 @@ async function loadNewsTicker() {
   if (window.matchMedia("(max-width: 900px)").matches) return;
 
   try {
-    const response = await fetch("/api/news-ticker?v=forecast-24-48-1");
+    const response = await fetch("/api/news-ticker?v=forecast-icons-1");
     if (!response.ok) throw new Error("No news ticker available");
     const data = await response.json();
     const items = Array.isArray(data.items) ? data.items.slice(0, 8) : [];
