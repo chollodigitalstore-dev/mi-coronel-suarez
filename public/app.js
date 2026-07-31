@@ -1356,7 +1356,7 @@ async function loadNewsTicker() {
   if (window.matchMedia("(max-width: 900px)").matches) return;
 
   try {
-    const response = await fetch("/api/news-ticker?v=weather-multi-source-1");
+    const response = await fetch("/api/news-ticker?v=forecast-24-48-1");
     if (!response.ok) throw new Error("No news ticker available");
     const data = await response.json();
     const items = Array.isArray(data.items) ? data.items.slice(0, 8) : [];

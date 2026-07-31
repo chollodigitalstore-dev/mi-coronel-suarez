@@ -170,9 +170,8 @@ async function fetchWeatherTickerItem() {
   const params = new URLSearchParams({
     latitude: "-37.4547",
     longitude: "-61.9334",
-    current: "temperature_2m,weather_code",
-    daily: "temperature_2m_max,temperature_2m_min",
-    forecast_days: "2",
+    hourly: "temperature_2m,weather_code,precipitation_probability",
+    forecast_days: "3",
     timezone: "America/Argentina/Buenos_Aires"
   });
 
@@ -184,13 +183,48 @@ async function fetchWeatherTickerItem() {
   if (!response.ok) throw new Error("Weather ticker request failed");
 
   const weather = await response.json();
-  const currentTemp = Math.round(weather.current?.temperature_2m);
-  const tomorrowMax = Math.round(weather.daily?.temperature_2m_max?.[1]);
-  const tomorrowMin = Math.round(weather.daily?.temperature_2m_min?.[1]);
-  if ([currentTemp, tomorrowMax, tomorrowMin].some(Number.isNaN)) throw new Error("Weather ticker data incomplete");
+  const times = weather.hourly?.time || [];
+  const temperatures = weather.hourly?.temperature_2m || [];
+  const codes = weather.hourly?.weather_code || [];
+  const rainChances = weather.hourly?.precipitation_probability || [];
+
+  function describeWeatherCode(code = 0) {
+    if (code === 0) return "despejado";
+    if ([1, 2].includes(code)) return "algo nublado";
+    if (code === 3) return "nublado";
+    if ([45, 48].includes(code)) return "con niebla";
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "con lluvias";
+    if (code >= 71 && code <= 77) return "con posibles nevadas";
+    if (code >= 95) return "con tormentas";
+    return "variable";
+  }
+
+  function forecastAt(hoursAhead) {
+    const targetTime = Date.now() + hoursAhead * 60 * 60 * 1000;
+    let bestIndex = -1;
+    let bestDiff = Infinity;
+    times.forEach((time, index) => {
+      const diff = Math.abs(new Date(time).getTime() - targetTime);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        bestIndex = index;
+      }
+    });
+
+    if (bestIndex < 0) return null;
+    const temp = Math.round(temperatures[bestIndex]);
+    const rain = Math.round(rainChances[bestIndex]);
+    const description = describeWeatherCode(Number(codes[bestIndex]));
+    if ([temp, rain].some(Number.isNaN)) return null;
+    return `${temp}\u00b0, ${description}, lluvia ${rain}%`;
+  }
+
+  const forecast24 = forecastAt(24);
+  const forecast48 = forecastAt(48);
+  if (!forecast24 || !forecast48) throw new Error("Weather ticker data incomplete");
 
   return {
-    title: `Clima en Coronel Su\u00e1rez: ahora ${currentTemp}\u00b0, ma\u00f1ana ${tomorrowMin}\u00b0/${tomorrowMax}\u00b0`,
+    title: `Pron\u00f3stico Coronel Su\u00e1rez: pr\u00f3x. 24 hs ${forecast24} \u00b7 pr\u00f3x. 48 hs ${forecast48}`,
     url: "https://www.smn.gob.ar/pronostico/?loc=4350",
     source: "Pron\u00f3stico"
   };
