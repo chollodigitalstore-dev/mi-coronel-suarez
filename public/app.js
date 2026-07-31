@@ -61,6 +61,8 @@ const medicalListHeading = document.querySelector("#medicalListHeading");
 const medicalGrid = document.querySelector("#medicalGrid");
 const visitCounter = document.querySelector("#visitCounter");
 const activityCounter = document.querySelector("#activityCounter");
+const newsTicker = document.querySelector("#newsTicker");
+const newsTickerTrack = document.querySelector("#newsTickerTrack");
 const installAppButton = document.querySelector("#installAppButton");
 const iosInstallDialog = document.querySelector("#iosInstallDialog");
 const closeIosInstallDialog = document.querySelector("#closeIosInstallDialog");
@@ -1349,6 +1351,31 @@ async function loadPharmacyShift() {
   }
 }
 
+async function loadNewsTicker() {
+  if (!newsTicker || !newsTickerTrack) return;
+  if (window.matchMedia("(max-width: 900px)").matches) return;
+
+  try {
+    const response = await fetch("/api/news-ticker");
+    if (!response.ok) throw new Error("No news ticker available");
+    const data = await response.json();
+    const items = Array.isArray(data.items) ? data.items.slice(0, 8) : [];
+    if (!items.length) return;
+
+    const links = items.map(item => {
+      const title = escapeHtml(item.title || "");
+      const url = escapeHtml(item.url || "#");
+      const source = escapeHtml(item.source || "Noticias locales");
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" title="${source}">${title}</a>`;
+    }).join("");
+
+    newsTickerTrack.innerHTML = `${links}${links}`;
+    newsTicker.hidden = false;
+  } catch (error) {
+    console.warn("No pudimos cargar las noticias locales", error);
+  }
+}
+
 const supportFab = document.querySelector("#supportFab");
 const supportPanel = document.querySelector("#supportPanel");
 const supportClose = document.querySelector("#supportClose");
@@ -1479,6 +1506,7 @@ await loadReviews();
 renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
+loadNewsTicker();
 await loadMedicalProfessionals();
 if (initialQuery) await routeSearchToMedicalSpecialty();
 loadVisitCounter();

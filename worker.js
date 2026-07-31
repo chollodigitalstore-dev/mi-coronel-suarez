@@ -2,7 +2,9 @@ const SOURCES = {
   radioSuarez: "https://www.lanuevaradiosuarez.com.ar/farmacias-de-turno.html",
   turnoAhora: "https://www.farmaciadeturnoahora.com.ar/de-turno/buenos-aires/coronel-suarez",
   medicalProfessionals: "https://www.circulomedicocoronelsuarez.com.ar/padron/",
-  psychologyProfessionals: "https://www.mundopsicologos.com.ar/centros/coronel-suarez"
+  psychologyProfessionals: "https://www.mundopsicologos.com.ar/centros/coronel-suarez",
+  municipalNews: "https://www.coronelsuarez.gob.ar/feed/",
+  googleLocalNews: "https://news.google.com/rss/search?q=Coronel%20Su%C3%A1rez&hl=es-419&gl=AR&ceid=AR:es-419"
 };
 
 const CATEGORY_LABELS = {
@@ -101,6 +103,69 @@ function cleanText(text = "") {
   return decodeHtml(text.replace(/<[^>]*>/g, " "))
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function decodeXmlText(text = "") {
+  return decodeHtml(text)
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function parseRssNews(xml = "", sourceName = "Noticias") {
+  const items = [];
+  const itemPattern = /<item\b[\s\S]*?<\/item>|<entry\b[\s\S]*?<\/entry>/gi;
+  let match;
+
+  while ((match = itemPattern.exec(xml)) !== null && items.length < 8) {
+    const item = match[0];
+    const title = decodeXmlText(item.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "");
+    const rssLink = decodeXmlText(item.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1] || "");
+    const atomLink = decodeXmlText(item.match(/<link[^>]*href="([^"]+)"/i)?.[1] || "");
+    const link = rssLink || atomLink;
+
+    if (!title || !link) continue;
+    items.push({ title: cleanText(title).slice(0, 140), url: link, source: sourceName });
+  }
+
+  return items;
+}
+
+async function handleNewsTicker() {
+  const sources = [
+    { url: SOURCES.municipalNews, name: "Municipalidad de Coronel SuÃ¡rez" },
+    { url: SOURCES.googleLocalNews, name: "Google Noticias" }
+  ];
+
+  for (const source of sources) {
+    try {
+      const xml = await fetchText(source.url);
+      const items = parseRssNews(xml, source.name);
+      if (items.length) {
+        return Response.json({
+          available: true,
+          source: source.name,
+          items
+        }, {
+          headers: { "Cache-Control": "public, max-age=1800" }
+        });
+      }
+    } catch (error) {
+      console.warn("News ticker source failed", source.name, error?.message || error);
+    }
+  }
+
+  return Response.json({
+    available: false,
+    items: []
+  }, {
+    status: 503,
+    headers: { "Cache-Control": "public, max-age=300" }
+  });
 }
 
 function titleCasePharmacy(name = "") {
@@ -1199,6 +1264,9 @@ export default {
     }
     if (url.pathname === "/api/pharmacy-turn") {
       return handlePharmacyTurn();
+    }
+    if (url.pathname === "/api/news-ticker") {
+      return handleNewsTicker();
     }
     if (url.pathname === "/api/medical-professionals") {
       return handleMedicalProfessionals(request);

@@ -51,6 +51,21 @@ nav a:hover { color: var(--green); }
 .user-menu button { padding: 3px; border: 0; color: var(--muted); background: none; font-size: 12px; }
 .user-menu #manageListingsButton { color: var(--green); font-weight: 900; }
 
+.news-ticker { height: 38px; display: flex; align-items: center; gap: 14px; padding: 0 max(5vw, 24px); border-bottom: 1px solid rgba(21,52,45,.08); color: var(--green-dark); background: linear-gradient(90deg, rgba(232,243,236,.96), rgba(248,244,233,.94)); overflow: hidden; }
+.news-ticker[hidden] { display: none; }
+.news-ticker-label { flex: 0 0 auto; padding: 4px 9px; border-radius: 999px; color: white; background: var(--green); font-size: 11px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; }
+.news-ticker-window { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.news-ticker-track { display: inline-flex; align-items: center; gap: 28px; min-width: max-content; animation: newsTickerScroll 46s linear infinite; will-change: transform; }
+.news-ticker:hover .news-ticker-track { animation-play-state: paused; }
+.news-ticker a { color: var(--green-dark); font-size: 13px; font-weight: 800; }
+.news-ticker a::before { content: "•"; margin-right: 28px; color: var(--yellow); }
+.news-ticker a:hover { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+
+@keyframes newsTickerScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 .hero { min-height: 550px; padding: 72px max(5vw, 24px); display: grid; grid-template-columns: 1.12fr .88fr; align-items: center; gap: 40px; overflow: hidden; background: var(--cream); }
 .eyebrow { display: block; color: var(--green); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
 h1, h2, h3 { font-family: "Manrope", sans-serif; line-height: 1.1; margin: 0; }
@@ -299,6 +314,7 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
 
 @media (max-width: 900px) {
   nav a { display: none; }
+  .news-ticker { display: none; }
   .weather-widget { position: static; transform: none; max-width: 230px; margin-inline: auto 8px; font-size: 12px; }
   .pharmacy-widget { position: static; transform: none; max-width: 260px; font-size: 12px; }
   body.listing-route-page main { grid-template-columns: 1fr; padding-top: 28px; }
@@ -363,5 +379,5 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .service-scene, .service-scene::before { animation: none; }
+  .service-scene, .service-scene::before, .news-ticker-track { animation: none; }
 }
