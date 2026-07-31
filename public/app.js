@@ -1301,6 +1301,7 @@ async function loadWeather() {
   const weatherWidget = document.querySelector("#weatherWidget");
   const weatherText = document.querySelector("#weatherText");
   const weatherIconElement = document.querySelector("#weatherIcon");
+  const brandWeatherIcons = document.querySelectorAll(".brand-weather-mark");
   if (!weatherWidget || !weatherText || !weatherIconElement) return;
 
   try {
@@ -1321,10 +1322,12 @@ async function loadWeather() {
     const icon = weatherIcon(weather.current?.weather_code);
     if ([currentTemp, tomorrowMax, tomorrowMin].some(Number.isNaN)) throw new Error("Weather data incomplete");
     weatherIconElement.textContent = icon;
+    brandWeatherIcons.forEach(element => { element.textContent = icon; });
     weatherText.textContent = `Hoy ${currentTemp}° · Mañana ${tomorrowMin}°/${tomorrowMax}°`;
     weatherWidget.title = `Clima hoy en Coronel Suárez: ${currentTemp}° · Mañana ${tomorrowMin}°/${tomorrowMax}°`;
   } catch (_error) {
     weatherIconElement.textContent = "🌡️";
+    brandWeatherIcons.forEach(element => { element.textContent = "🌡️"; });
     weatherText.textContent = "Clima no disponible";
     weatherWidget.title = "Clima hoy en Coronel Suárez no disponible";
   }
