@@ -3,6 +3,8 @@ const SOURCES = {
   turnoAhora: "https://www.farmaciadeturnoahora.com.ar/de-turno/buenos-aires/coronel-suarez",
   medicalProfessionals: "https://www.circulomedicocoronelsuarez.com.ar/padron/",
   psychologyProfessionals: "https://www.mundopsicologos.com.ar/centros/coronel-suarez",
+  laNuevaRadioSuarez: "https://www.lanuevaradiosuarez.com.ar/",
+  suarezAlDia: "https://www.suarezaldia.com.ar/",
   municipalNews: "https://www.coronelsuarez.gob.ar/feed/",
   googleLocalNews: "https://news.google.com/rss/search?q=Coronel%20Su%C3%A1rez&hl=es-419&gl=AR&ceid=AR:es-419"
 };
@@ -135,16 +137,48 @@ function parseRssNews(xml = "", sourceName = "Noticias") {
   return items;
 }
 
+function parseLocalHomepageNews(html = "", sourceName = "Noticias locales", sourceUrl = "") {
+  const items = [];
+  const seen = new Set();
+  const articlePattern = /<a\b[^>]*href="([^"]+)"[^>]*>\s*<div\b[^>]*class="[^"]*\btitulo\b[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
+  let match;
+
+  while ((match = articlePattern.exec(html)) !== null && items.length < 10) {
+    const rawHref = decodeXmlText(match[1] || "");
+    const title = cleanText(decodeXmlText(match[2] || "")).slice(0, 140);
+    if (!rawHref || !title || title.length < 18) continue;
+    if (/lkp\.html|farmacias|falleci|publicidad|contacto|youtube|facebook|instagram/i.test(rawHref)) continue;
+
+    let url = "";
+    try {
+      url = new URL(rawHref, sourceUrl).toString();
+    } catch (_error) {
+      continue;
+    }
+
+    const dedupeKey = normalizeForCompare(title);
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    items.push({ title, url, source: sourceName });
+  }
+
+  return items;
+}
+
 async function handleNewsTicker() {
   const sources = [
-    { url: SOURCES.municipalNews, name: "Municipalidad de Coronel SuÃ¡rez" },
-    { url: SOURCES.googleLocalNews, name: "Google Noticias" }
+    { url: SOURCES.laNuevaRadioSuarez, name: "La Nueva Radio SuÃ¡rez", parser: "html" },
+    { url: SOURCES.suarezAlDia, name: "SuÃ¡rez al DÃ­a", parser: "html" },
+    { url: SOURCES.googleLocalNews, name: "Google Noticias", parser: "rss" },
+    { url: SOURCES.municipalNews, name: "Municipalidad de Coronel SuÃ¡rez", parser: "rss" }
   ];
 
   for (const source of sources) {
     try {
-      const xml = await fetchText(source.url);
-      const items = parseRssNews(xml, source.name);
+      const content = await fetchText(source.url);
+      const items = source.parser === "html"
+        ? parseLocalHomepageNews(content, source.name, source.url)
+        : parseRssNews(content, source.name);
       if (items.length) {
         return Response.json({
           available: true,
