@@ -5,6 +5,7 @@ const SOURCES = {
   psychologyProfessionals: "https://www.mundopsicologos.com.ar/centros/coronel-suarez",
   laNuevaRadioSuarez: "https://www.lanuevaradiosuarez.com.ar/",
   suarezAlDia: "https://www.suarezaldia.com.ar/",
+  laBrujulaCoronelSuarez: "https://www.labrujula24.com/notas/tag/coronel-suarez-2/feed/",
   municipalNews: "https://www.coronelsuarez.gob.ar/feed/",
   googleLocalNews: "https://news.google.com/rss/search?q=Coronel%20Su%C3%A1rez&hl=es-419&gl=AR&ceid=AR:es-419"
 };
@@ -166,31 +167,81 @@ function parseLocalHomepageNews(html = "", sourceName = "Noticias locales", sour
 }
 
 async function handleNewsTicker() {
-  const sources = [
+  const localMediaSources = [
     { url: SOURCES.laNuevaRadioSuarez, name: "La Nueva Radio Su\u00e1rez", parser: "html" },
     { url: SOURCES.suarezAlDia, name: "Su\u00e1rez al D\u00eda", parser: "html" },
+    { url: SOURCES.laBrujulaCoronelSuarez, name: "La Br\u00fajula 24", parser: "rss" }
+  ];
+  const fallbackSources = [
     { url: SOURCES.googleLocalNews, name: "Google Noticias", parser: "rss" },
     { url: SOURCES.municipalNews, name: "Municipalidad de Coronel Su\u00e1rez", parser: "rss" }
   ];
 
-  for (const source of sources) {
-    try {
-      const content = await fetchText(source.url);
-      const items = source.parser === "html"
-        ? parseLocalHomepageNews(content, source.name, source.url)
-        : parseRssNews(content, source.name);
-      if (items.length) {
-        return Response.json({
-          available: true,
-          source: source.name,
-          items
-        }, {
-          headers: { "Cache-Control": "public, max-age=1800" }
-        });
+  async function loadSource(source) {
+    const content = await fetchText(source.url);
+    const items = source.parser === "html"
+      ? parseLocalHomepageNews(content, source.name, source.url)
+      : parseRssNews(content, source.name);
+    return { source: source.name, items };
+  }
+
+  function mergeSources(results) {
+    const validSources = results
+      .filter(result => result.status === "fulfilled" && result.value.items.length)
+      .map(result => result.value);
+    const seen = new Set();
+    const merged = [];
+
+    for (let index = 0; merged.length < 8; index += 1) {
+      let addedInRound = false;
+      for (const source of validSources) {
+        const item = source.items[index];
+        if (!item) continue;
+        const dedupeKey = normalizeForCompare(item.title);
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+        merged.push(item);
+        addedInRound = true;
+        if (merged.length >= 8) break;
       }
-    } catch (error) {
-      console.warn("News ticker source failed", source.name, error?.message || error);
+      if (!addedInRound) break;
     }
+
+    return { items: merged, sources: validSources.map(item => item.source) };
+  }
+
+  const localResults = await Promise.allSettled(localMediaSources.map(loadSource));
+  localResults
+    .filter(result => result.status === "rejected")
+    .forEach(result => console.warn("News ticker source failed", result.reason?.message || result.reason));
+
+  const localNews = mergeSources(localResults);
+  if (localNews.items.length) {
+    return Response.json({
+      available: true,
+      source: "Medios locales",
+      sources: localNews.sources,
+      items: localNews.items
+    }, {
+      headers: { "Cache-Control": "public, max-age=1800" }
+    });
+  }
+
+  const fallbackResults = await Promise.allSettled(fallbackSources.map(loadSource));
+  fallbackResults
+    .filter(result => result.status === "rejected")
+    .forEach(result => console.warn("News ticker fallback failed", result.reason?.message || result.reason));
+
+  const fallbackNews = mergeSources(fallbackResults);
+  if (fallbackNews.items.length) {
+    return Response.json({
+      available: true,
+      source: "Noticias locales",
+      sources: fallbackNews.sources,
+      items: fallbackNews.items
+    }, {
+      headers: { "Cache-Control": "public, max-age=1800" }
+    });
   }
 
   return Response.json({
