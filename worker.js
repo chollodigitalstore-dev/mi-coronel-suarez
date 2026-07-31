@@ -167,10 +167,10 @@ function parseLocalHomepageNews(html = "", sourceName = "Noticias locales", sour
 
 async function handleNewsTicker() {
   const sources = [
-    { url: SOURCES.laNuevaRadioSuarez, name: "La Nueva Radio SuÃ¡rez", parser: "html" },
-    { url: SOURCES.suarezAlDia, name: "SuÃ¡rez al DÃ­a", parser: "html" },
+    { url: SOURCES.laNuevaRadioSuarez, name: "La Nueva Radio Su\u00e1rez", parser: "html" },
+    { url: SOURCES.suarezAlDia, name: "Su\u00e1rez al D\u00eda", parser: "html" },
     { url: SOURCES.googleLocalNews, name: "Google Noticias", parser: "rss" },
-    { url: SOURCES.municipalNews, name: "Municipalidad de Coronel SuÃ¡rez", parser: "rss" }
+    { url: SOURCES.municipalNews, name: "Municipalidad de Coronel Su\u00e1rez", parser: "rss" }
   ];
 
   for (const source of sources) {
