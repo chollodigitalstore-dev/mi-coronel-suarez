@@ -166,6 +166,36 @@ function parseLocalHomepageNews(html = "", sourceName = "Noticias locales", sour
   return items;
 }
 
+async function fetchWeatherTickerItem() {
+  const params = new URLSearchParams({
+    latitude: "-37.4547",
+    longitude: "-61.9334",
+    current: "temperature_2m,weather_code",
+    daily: "temperature_2m_max,temperature_2m_min",
+    forecast_days: "2",
+    timezone: "America/Argentina/Buenos_Aires"
+  });
+
+  const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, {
+    headers: {
+      "User-Agent": "GuiaSuarezBot/1.0 (+https://guiasuarez.ar)"
+    }
+  });
+  if (!response.ok) throw new Error("Weather ticker request failed");
+
+  const weather = await response.json();
+  const currentTemp = Math.round(weather.current?.temperature_2m);
+  const tomorrowMax = Math.round(weather.daily?.temperature_2m_max?.[1]);
+  const tomorrowMin = Math.round(weather.daily?.temperature_2m_min?.[1]);
+  if ([currentTemp, tomorrowMax, tomorrowMin].some(Number.isNaN)) throw new Error("Weather ticker data incomplete");
+
+  return {
+    title: `Clima en Coronel Su\u00e1rez: ahora ${currentTemp}\u00b0, ma\u00f1ana ${tomorrowMin}\u00b0/${tomorrowMax}\u00b0`,
+    url: "https://www.smn.gob.ar/pronostico/?loc=4350",
+    source: "Pron\u00f3stico"
+  };
+}
+
 async function handleNewsTicker() {
   const localMediaSources = [
     { url: SOURCES.laNuevaRadioSuarez, name: "La Nueva Radio Su\u00e1rez", parser: "html" },
@@ -210,18 +240,25 @@ async function handleNewsTicker() {
     return { items: merged, sources: validSources.map(item => item.source) };
   }
 
-  const localResults = await Promise.allSettled(localMediaSources.map(loadSource));
+  const [weatherResult, localResults] = await Promise.all([
+    fetchWeatherTickerItem().then(item => ({ status: "fulfilled", value: item })).catch(reason => ({ status: "rejected", reason })),
+    Promise.allSettled(localMediaSources.map(loadSource))
+  ]);
+  const weatherItem = weatherResult.status === "fulfilled" ? weatherResult.value : null;
+  if (!weatherItem) console.warn("News ticker weather failed", weatherResult.reason?.message || weatherResult.reason);
+
   localResults
     .filter(result => result.status === "rejected")
     .forEach(result => console.warn("News ticker source failed", result.reason?.message || result.reason));
 
   const localNews = mergeSources(localResults);
-  if (localNews.items.length) {
+  const localItems = weatherItem ? [weatherItem, ...localNews.items].slice(0, 8) : localNews.items;
+  if (localItems.length) {
     return Response.json({
       available: true,
       source: "Medios locales",
-      sources: localNews.sources,
-      items: localNews.items
+      sources: weatherItem ? ["Pron\u00f3stico", ...localNews.sources] : localNews.sources,
+      items: localItems
     }, {
       headers: { "Cache-Control": "public, max-age=1800" }
     });
@@ -233,12 +270,13 @@ async function handleNewsTicker() {
     .forEach(result => console.warn("News ticker fallback failed", result.reason?.message || result.reason));
 
   const fallbackNews = mergeSources(fallbackResults);
-  if (fallbackNews.items.length) {
+  const fallbackItems = weatherItem ? [weatherItem, ...fallbackNews.items].slice(0, 8) : fallbackNews.items;
+  if (fallbackItems.length) {
     return Response.json({
       available: true,
       source: "Noticias locales",
-      sources: fallbackNews.sources,
-      items: fallbackNews.items
+      sources: weatherItem ? ["Pron\u00f3stico", ...fallbackNews.sources] : fallbackNews.sources,
+      items: fallbackItems
     }, {
       headers: { "Cache-Control": "public, max-age=1800" }
     });
