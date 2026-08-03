@@ -316,24 +316,10 @@ function renderActivityCounter() {
 }
 
 function pickFeaturedListings(items) {
-  const activeItems = items.filter(item => item.active !== false);
-  const rated = activeItems
-    .filter(item => ratingStats[item.slug])
-    .sort((a, b) => {
-      const ratingA = ratingStats[a.slug];
-      const ratingB = ratingStats[b.slug];
-      const averageDiff = Number(ratingB.average_rating || 0) - Number(ratingA.average_rating || 0);
-      if (averageDiff) return averageDiff;
-      const countDiff = Number(ratingB.review_count || 0) - Number(ratingA.review_count || 0);
-      if (countDiff) return countDiff;
-      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-    });
-  const ratedSlugs = new Set(rated.map(item => item.slug));
-  const recent = activeItems
-    .filter(item => !ratedSlugs.has(item.slug))
-    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-  return [...rated, ...recent].slice(0, 3);
+  return items
+    .filter(item => item.active !== false)
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+    .slice(0, 3);
 }
 
 function renderListings() {
@@ -384,10 +370,10 @@ function renderListings() {
     </article>`;
   }).join("");
 
-  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Mejor calificados en Guía Suárez");
+  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Últimas actividades registradas en Guía Suárez");
   resultCount.textContent = routeListingSlug ? "" : (hasFilter
     ? `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`
-    : `${visibleListings.length} destacados`);
+    : `${visibleListings.length} últimas`);
   emptyState.hidden = visibleListings.length > 0;
   listingGrid.hidden = visibleListings.length === 0;
 }
