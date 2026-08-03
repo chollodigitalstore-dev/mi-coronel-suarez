@@ -88,6 +88,82 @@ const PSYCHOLOGY_PROFESSIONALS = [
   { name: "Lic. M. Sof\u00eda Malgeri", place: "Coronel Su\u00e1rez" }
 ];
 
+const MEDICAL_PROFESSIONALS_SNAPSHOT = [
+  { name: "Caccavo Alberto", license: "1119", specialties: ["CARDIOLOGIA"] },
+  { name: "Caccavo Luis Eduardo", license: "1304", specialties: ["CLINICA MEDICA", "CLINICA QUIRURGICA", "DIAG. POR IMAGEN Y RADIODIAGNOSTICO"] },
+  { name: "Capria Martin", license: "1709", specialties: ["GINECOLOGIA", "CLINICA OBSTETRICA Y GINECOLOGIA"] },
+  { name: "Cardillo Luis Matias", license: "232263", specialties: ["ANESTESIOLOGIA"] },
+  { name: "Carrea Georgina Vanesa", license: "227603", specialties: ["OBSTETRICIA", "GINECOLOGIA"] },
+  { name: "Castelluccio Marina", license: "3087", specialties: ["CLINICA MEDICA"] },
+  { name: "Coria Juan Carlos", license: "1684", specialties: ["CLINICA MEDICA", "MEDICINA GENERAL"] },
+  { name: "Cortalezzi Fransisco", license: "446312", specialties: ["CLINICA MEDICA"] },
+  { name: "Crosato Ma. Fernanda", license: "1441", specialties: ["GINECOLOGIA", "CLINICA OBSTETRICA Y GINECOLOGIA"] },
+  { name: "De Lucas Jorge Alberto", license: "15108", specialties: ["ORTOPEDIA Y TRAUMATOLOGIA"] },
+  { name: "Denaro Ricardo", license: "14793", specialties: ["ENDOCRINOLOGIA"] },
+  { name: "Diaz Silvana Teresa", license: "331008", specialties: ["ECOGRAFIA GENERAL", "ECOGRAFIA MAMARIA", "ECOGRAFIA TOCOGINECOLOGICA"] },
+  { name: "Dieguez Oscar Alberto", license: "14315", specialties: ["GINECOLOGIA", "OBSTETRICIA"] },
+  { name: "Dos Santos Edgardo Daniel", license: "16767", specialties: ["ORTOPEDIA Y TRAUMATOLOGIA"] },
+  { name: "Ehrich Bruno Juan", license: "458445", specialties: ["DIAG. POR IMAGEN Y RADIODIAGNOSTICO"] },
+  { name: "Elicetche Mariel", license: "2717", specialties: ["MEDICINA GENERAL"] },
+  { name: "Erdocia Agustin", license: "3757", specialties: ["CLINICA MEDICA"] },
+  { name: "Erroitzzarena Ma. Agustina", license: "457618", specialties: ["CLINICA PEDIATRICA"] },
+  { name: "Ferrari Adriana E.", license: "110745", specialties: ["NEUMONOLOGIA"] },
+  { name: "Firpo A. Soledad", license: "115287", specialties: ["CLINICA MEDICA"] },
+  { name: "Flaherty Nicolas Ricardo", license: "2267", specialties: ["DIAG. POR IMAGEN Y RADIODIAGNOSTICO"] },
+  { name: "Fuhr Adriana Isabel", license: "113062", specialties: ["CLINICA OBSTETRICA Y GINECOLOGIA"] },
+  { name: "Galizzi Decima Carolina", license: "2404", specialties: ["CLINICA PEDIATRICA"] },
+  { name: "Gasteneguy Rodrigo Martin", license: "115606", specialties: ["NEUMONOLOGIA"] },
+  { name: "Gimenez Nestor", license: "11957", specialties: ["GASTROENTEROLOGIA"] },
+  { name: "Ginestet Paul", license: "2033", specialties: ["ONCOLOGIA"] },
+  { name: "Goya Cristian Damian", license: "1815", specialties: ["GINECOLOGIA", "CLINICA OBSTETRICA Y GINECOLOGIA"] },
+  { name: "Hall Marta Fabiana", license: "446333", specialties: ["OTORRINOLARINGOLOGIA"] },
+  { name: "Hurtado Ester", license: "116584", specialties: ["GASTROENTEROLOGIA"] },
+  { name: "Killian Jaquelina Elizabet", license: "2394", specialties: ["CLINICA MEDICA"] },
+  { name: "Landera Eduardo", license: "847", specialties: ["OTORRINOLARINGOLOGIA"] },
+  { name: "Larragueta Omar", license: "442238", specialties: ["NEONATOLOGIA", "CLINICA PEDIATRICA"] },
+  { name: "Lavaut Suarez Yusimit", license: "2500", specialties: ["ANESTESIOLOGIA"] },
+  { name: "Lefevre Mauro Adrian", license: "113361", specialties: ["OTORRINOLARINGOLOGIA"] },
+  { name: "Lettieri Javier Alberto", license: "54757", specialties: ["OFTALMOLOGIA"] },
+  { name: "Leyendecker Vanina", license: "3258", specialties: ["CARDIOLOGIA"] },
+  { name: "Lopez Laxague Guadalupe", license: "3754", specialties: ["CLINICA MEDICA"] },
+  { name: "Mainini Sergio Ricardo", license: "111163", specialties: ["MEDICINA GENERAL"] },
+  { name: "Maldonado Omar Aurelio", license: "118229", specialties: ["ORTOPEDIA Y TRAUMATOLOGIA"] },
+  { name: "Maldonado Osvaldo Oscar", license: "2427", specialties: ["CLINICA QUIRURGICA"] },
+  { name: "Mantovano Anabella", license: "117939", specialties: ["GINECOLOGIA", "OBSTETRICIA"] },
+  { name: "Maurin Claudia", license: "113405", specialties: ["OBSTETRICIA"] },
+  { name: "Migliavaca Fernando", license: "2204", specialties: ["MEDICINA GENERAL"] },
+  { name: "Miguez Elsa Edith", license: "81300", specialties: ["MEDICINA GENERAL"] },
+  { name: "Miriuca Claudio Fernando", license: "113773", specialties: ["NEUROLOGIA"] },
+  { name: "Monticelli Ma. Fernanda", license: "3635", specialties: ["CLINICA PEDIATRICA"] },
+  { name: "Munoz Mezzavoce Corina", license: "2381", specialties: ["NEONATOLOGIA"] },
+  { name: "Muschong Daniel Antonio", license: "48762", specialties: ["MEDICINA GENERAL", "CLINICA QUIRURGICA"] },
+  { name: "Navarro Maria Fernnda", license: "94079", specialties: ["NEONATOLOGIA", "CLINICA PEDIATRICA"] },
+  { name: "Opel Juliana", license: "119623", specialties: ["NEUMONOLOGIA"] },
+  { name: "Paladino Lorena Elizabet", license: "115479", specialties: ["CLINICA QUIRURGICA"] },
+  { name: "Pellegini Carlos", license: "1525", specialties: ["CLINICA PEDIATRICA"] },
+  { name: "Peralta Diana Nora Natalia", license: "2401", specialties: ["MEDICINA LEGAL", "MEDICINA DE TRABAJO"] },
+  { name: "Rodriguez Barbara", license: "11912", specialties: ["CLINICA PEDIATRICA"] },
+  { name: "Romano Silvio", license: "111029", specialties: ["GASTROENTEROLOGIA"] },
+  { name: "Romeo Carlos Raul", license: "1161", specialties: ["UROLOGIA"] },
+  { name: "Ruiz Maria Emilia", license: "117192", specialties: ["CLINICA MEDICA"] },
+  { name: "Saccomanno Andrea Paola", license: "2329", specialties: ["CLINICA PEDIATRICA"] },
+  { name: "Saccomanno Guillermo", license: "2153", specialties: ["UROLOGIA"] },
+  { name: "Salina Sergio", license: "17274", specialties: ["CLINICA MEDICA"] },
+  { name: "Salvi Roberto Mario", license: "1198", specialties: ["CIRUGIA CARDIOVASCULAR"] },
+  { name: "Santini Julian", license: "115318", specialties: ["CLINICA QUIRURGICA"] },
+  { name: "Saucedo Oscar Aurelio", license: "54321", specialties: ["ANESTESIOLOGIA"] },
+  { name: "Scandalitta Walter Damian", license: "112652", specialties: ["ORTOPEDIA Y TRAUMATOLOGIA"] },
+  { name: "Schweitzer Fernando", license: "444023", specialties: ["OFTALMOLOGIA"] },
+  { name: "Sein Mariano Daniel", license: "115153", specialties: ["CARDIOLOGIA", "ECOCARDIOGRAFIA", "CARDIOLOGIA PEDIATRICA"] },
+  { name: "Soler Matias", license: "116969", specialties: ["CARDIOLOGIA"] },
+  { name: "Traveria Marta", license: "1524", specialties: ["CLINICA PEDIATRICA"] },
+  { name: "Urizar Rogelio", license: "1873", specialties: ["TERAPIA INTENSIVA"] },
+  { name: "Vilarino Daniel Alberto", license: "1418", specialties: ["NEUROLOGIA"] },
+  { name: "Weinbender Valeria", license: "3032", specialties: ["GINECOLOGIA", "OBSTETRICIA"] },
+  { name: "Zambotti Juan Emilio", license: "117252", specialties: ["ORTOPEDIA Y TRAUMATOLOGIA"] },
+  { name: "Zeytuntsian Maiza Rodrigo", license: "230164", specialties: ["ANESTESIOLOGIA"] }
+];
+
 function decodeHtml(text = "") {
   return text
     .replace(/&nbsp;/gi, " ")
@@ -372,6 +448,14 @@ function formatSpecialty(text = "") {
     .replace(/\bPor\b/g, "por");
 }
 
+function medicalSnapshotProfessionals() {
+  return MEDICAL_PROFESSIONALS_SNAPSHOT.map(professional => ({
+    ...professional,
+    specialties: (professional.specialties || []).map(formatSpecialty),
+    cached: true
+  }));
+}
+
 function parseRadioSuarez(html) {
   const current = html.match(/<div class="farm_turno">[\s\S]*?<span>De Turno:\s*([^<]+)<\/span>[\s\S]*?<div class="farm_info">([\s\S]*?)<\/div>/i);
   if (!current) return null;
@@ -553,12 +637,18 @@ async function handleMedicalProfessionals(request) {
   const url = new URL(request.url);
   const selectedSpecialty = url.searchParams.get("specialty") || "";
   let allProfessionals = [];
+  let fromCache = false;
 
   try {
     const html = await fetchText(SOURCES.medicalProfessionals);
     allProfessionals = parseMedicalProfessionals(html);
   } catch (error) {
     console.error("Medical professionals source failed", error?.message || error);
+  }
+
+  if (!allProfessionals.length) {
+    allProfessionals = medicalSnapshotProfessionals();
+    fromCache = true;
   }
   const specialtyCounts = new Map();
 
@@ -581,7 +671,8 @@ async function handleMedicalProfessionals(request) {
     specialties,
     sourceName: "Círculo Médico de Coronel Suárez",
     sourceUrl: SOURCES.medicalProfessionals,
-    available: allProfessionals.length > 0
+    available: allProfessionals.length > 0,
+    cached: fromCache
   }, {
     headers: {
       "Cache-Control": "public, max-age=21600"
