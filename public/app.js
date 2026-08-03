@@ -370,10 +370,10 @@ function renderListings() {
     </article>`;
   }).join("");
 
-  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Últimas actividades registradas en Guía Suárez");
+  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Últimos registrados en Guía Suárez");
   resultCount.textContent = routeListingSlug ? "" : (hasFilter
     ? `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`
-    : `${visibleListings.length} últimas`);
+    : `${visibleListings.length} registrados`);
   emptyState.hidden = visibleListings.length > 0;
   listingGrid.hidden = visibleListings.length === 0;
 }
