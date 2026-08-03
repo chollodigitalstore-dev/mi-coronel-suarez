@@ -552,8 +552,14 @@ async function enrichMedicalProfessionals(professionals) {
 async function handleMedicalProfessionals(request) {
   const url = new URL(request.url);
   const selectedSpecialty = url.searchParams.get("specialty") || "";
-  const html = await fetchText(SOURCES.medicalProfessionals);
-  const allProfessionals = parseMedicalProfessionals(html);
+  let allProfessionals = [];
+
+  try {
+    const html = await fetchText(SOURCES.medicalProfessionals);
+    allProfessionals = parseMedicalProfessionals(html);
+  } catch (error) {
+    console.error("Medical professionals source failed", error?.message || error);
+  }
   const specialtyCounts = new Map();
 
   for (const professional of allProfessionals) {
@@ -574,7 +580,8 @@ async function handleMedicalProfessionals(request) {
     professionals: professionals.sort((a, b) => a.name.localeCompare(b.name, "es")),
     specialties,
     sourceName: "Círculo Médico de Coronel Suárez",
-    sourceUrl: SOURCES.medicalProfessionals
+    sourceUrl: SOURCES.medicalProfessionals,
+    available: allProfessionals.length > 0
   }, {
     headers: {
       "Cache-Control": "public, max-age=21600"
