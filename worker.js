@@ -26,6 +26,8 @@ const CATEGORY_LABELS = {
   turismo: "Turismo y ocio"
 };
 
+const NEWS_MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
+
 const CATEGORY_PATHS = {
   automotor: "automotor",
   belleza: "belleza-y-bienestar",
@@ -195,6 +197,22 @@ function decodeXmlText(text = "") {
     .trim();
 }
 
+function parseNewsDate(rawDate = "") {
+  const value = decodeXmlText(rawDate || "");
+  if (!value) return null;
+  const time = new Date(value).getTime();
+  if (!Number.isFinite(time)) return null;
+  return new Date(time).toISOString();
+}
+
+function isRecentNewsItem(item, now = Date.now()) {
+  if (!item.publishedAt) return true;
+  const publishedTime = new Date(item.publishedAt).getTime();
+  if (!Number.isFinite(publishedTime)) return false;
+  if (publishedTime > now + 60 * 60 * 1000) return false;
+  return now - publishedTime <= NEWS_MAX_AGE_MS;
+}
+
 function parseRssNews(xml = "", sourceName = "Noticias") {
   const items = [];
   const itemPattern = /<item\b[\s\S]*?<\/item>|<entry\b[\s\S]*?<\/entry>/gi;
@@ -206,9 +224,17 @@ function parseRssNews(xml = "", sourceName = "Noticias") {
     const rssLink = decodeXmlText(item.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1] || "");
     const atomLink = decodeXmlText(item.match(/<link[^>]*href="([^"]+)"/i)?.[1] || "");
     const link = rssLink || atomLink;
+    const publishedAt = parseNewsDate(
+      item.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1]
+      || item.match(/<published[^>]*>([\s\S]*?)<\/published>/i)?.[1]
+      || item.match(/<updated[^>]*>([\s\S]*?)<\/updated>/i)?.[1]
+      || item.match(/<dc:date[^>]*>([\s\S]*?)<\/dc:date>/i)?.[1]
+    );
 
     if (!title || !link) continue;
-    items.push({ title: cleanText(title).slice(0, 140), url: link, source: sourceName });
+    const newsItem = { title: cleanText(title).slice(0, 140), url: link, source: sourceName, publishedAt };
+    if (!isRecentNewsItem(newsItem)) continue;
+    items.push(newsItem);
   }
 
   return items;
@@ -361,6 +387,7 @@ async function handleNewsTicker() {
         const dedupeKey = normalizeForCompare(item.title);
         if (seen.has(dedupeKey)) continue;
         seen.add(dedupeKey);
+        if (!isRecentNewsItem(item)) continue;
         merged.push(item);
         addedInRound = true;
         if (merged.length >= 8) break;
