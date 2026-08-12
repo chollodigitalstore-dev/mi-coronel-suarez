@@ -1228,3 +1228,259 @@ footer {
     height: 62px;
   }
 }
+
+/* ------------------------------------------------------------------
+   Ajuste de marca v2: más azul, más actual, menos vintage.
+   Conserva la estructura editorial, suaviza bordes y reduce acentos cálidos.
+------------------------------------------------------------------ */
+
+:root {
+  --ink: #0f2433;
+  --green: #1f6f8b;
+  --green-dark: #0c2f45;
+  --mint: #e8f2f6;
+  --cream: #f6f8fa;
+  --yellow: #d4a85d;
+  --coral: #2f7fa3;
+  --paper: #f8fafc;
+  --paper-strong: #eef4f7;
+  --line: #d7e2e8;
+  --muted: #5f7180;
+  --shadow: 0 18px 45px rgba(12, 47, 69, .10);
+}
+
+body {
+  background:
+    radial-gradient(circle at 8% 6%, rgba(31,111,139,.09), transparent 28%),
+    radial-gradient(circle at 92% 18%, rgba(12,47,69,.055), transparent 26%),
+    linear-gradient(180deg, #fbfdff, #f4f8fb);
+  background-size: auto;
+}
+
+.site-header {
+  border-bottom: 1px solid rgba(12,47,69,.12);
+  background: rgba(251,253,255,.9);
+  box-shadow: 0 10px 30px rgba(12,47,69,.06);
+}
+
+.brand-weather-mark,
+.brand-mark {
+  border: 1px solid rgba(31,111,139,.25);
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #1f6f8b, #0c2f45);
+}
+
+.brand-domain {
+  border-color: rgba(31,111,139,.35);
+  color: var(--green-dark);
+  background: #fff;
+}
+
+.weather-widget,
+.pharmacy-widget {
+  border: 1px solid rgba(31,111,139,.16);
+  border-radius: 999px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 12px 32px rgba(12,47,69,.07);
+}
+
+.pharmacy-widget[data-tooltip]::after {
+  border: 1px solid rgba(12,47,69,.16);
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(12,47,69,.14);
+}
+
+.button {
+  border-radius: 14px;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, #1f6f8b, #0c2f45);
+  box-shadow: 0 12px 28px rgba(12,47,69,.18);
+}
+
+.button-primary:hover {
+  background: linear-gradient(135deg, #185d77, #082638);
+}
+
+.button-outline {
+  color: var(--green-dark);
+  border: 1px solid rgba(31,111,139,.42);
+  background: rgba(255,255,255,.72);
+}
+
+.button-outline:hover {
+  color: #fff;
+  border-color: var(--green-dark);
+  background: var(--green-dark);
+}
+
+.news-ticker {
+  background: linear-gradient(90deg, #eef6fa, #f8fafc);
+}
+
+.news-ticker-label {
+  border-radius: 999px;
+  background: var(--green-dark);
+}
+
+.news-ticker a::before {
+  color: var(--green);
+}
+
+.hero {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.78), rgba(232,242,246,.92)),
+    radial-gradient(circle at 86% 22%, rgba(31,111,139,.13), transparent 34%);
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow,
+h1 em,
+.hero-copy h1 em,
+.search-input span,
+.location-select span,
+.popular button,
+.category-icon,
+.listing-category,
+.text-link {
+  color: var(--green);
+}
+
+.search-box {
+  border: 1px solid rgba(31,111,139,.18);
+  border-radius: 22px;
+  box-shadow: 0 18px 45px rgba(12,47,69,.12);
+}
+
+.hero-art {
+  border-left: 0;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.84), rgba(238,246,250,.66)),
+    radial-gradient(circle at top right, rgba(31,111,139,.16), transparent 42%);
+  box-shadow: inset 0 0 0 1px rgba(31,111,139,.11);
+}
+
+.floating-card {
+  border: 1px solid rgba(31,111,139,.14);
+  border-left: 0;
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(12,47,69,.08);
+}
+
+.floating-card b,
+.medical-icon,
+.medical-photo,
+.trust-card span {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1f6f8b, #0c2f45);
+}
+
+.value-card mark {
+  border-radius: 999px;
+  color: var(--green-dark);
+  background: rgba(31,111,139,.12);
+}
+
+.section-heading {
+  border-bottom: 1px solid rgba(12,47,69,.14);
+}
+
+.category-card {
+  border-left: 0;
+  border-radius: 20px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 10px 28px rgba(12,47,69,.055);
+}
+
+.category-card:hover,
+.category-card.active {
+  border-color: rgba(31,111,139,.35);
+  box-shadow: 0 16px 38px rgba(12,47,69,.11);
+}
+
+.listing-card,
+.medical-card,
+.trust-card,
+.medical-summary,
+.medical-selector,
+.listing-route-hero,
+.legal-card,
+.support-panel,
+dialog {
+  border-radius: 22px;
+  box-shadow: 0 14px 38px rgba(12,47,69,.075);
+}
+
+.listing-cover {
+  background: linear-gradient(135deg, #eef6fa, #f8fafc);
+}
+
+.listing-actions,
+.listing-secondary-actions a,
+.listing-secondary-actions button,
+.review-action,
+.medical-phone,
+.review-preview,
+.review-avatar,
+.visit-counter,
+.site-counter,
+.google-login-button,
+.support-options button,
+.support-answer,
+.form-success,
+.auth-gate,
+.install-steps li,
+.manage-item,
+.manage-actions button,
+.empty-manage {
+  border-radius: 14px;
+}
+
+.review-action,
+.medical-phone,
+.support-fab,
+.toast {
+  background: linear-gradient(135deg, #1f6f8b, #0c2f45);
+}
+
+.support-fab {
+  box-shadow: 0 18px 42px rgba(12,47,69,.22);
+}
+
+.support-fab span,
+.review-avatar,
+.install-steps li > span {
+  background: var(--green);
+  color: white;
+}
+
+.review-preview {
+  border-color: rgba(31,111,139,.16);
+  background: #f4f9fb;
+}
+
+.growth-banner {
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 84% 24%, rgba(255,255,255,.13), transparent 28%),
+    linear-gradient(135deg, #1f6f8b, #0c2f45);
+}
+
+footer {
+  background: #edf5f8;
+  border-top: 1px solid rgba(12,47,69,.12);
+}
+
+@media (max-width: 900px) {
+  .hero-art {
+    border-top: 0;
+  }
+}
