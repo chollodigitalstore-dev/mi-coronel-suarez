@@ -386,3 +386,845 @@ dialog textarea { resize: vertical; padding: 12px; border: 1px solid var(--line)
 @media (prefers-reduced-motion: reduce) {
   .service-scene, .service-scene::before, .news-ticker-track { animation: none; }
 }
+
+/* ------------------------------------------------------------------
+   Restyling editorial / directorio local
+   Objetivo: alejar la estética "landing IA" y acercarla a una guía
+   local sobria, viva y de consulta rápida.
+------------------------------------------------------------------ */
+
+:root {
+  --ink: #182522;
+  --green: #1f6470;
+  --green-dark: #102f37;
+  --mint: #e8eeee;
+  --cream: #f4efe6;
+  --yellow: #d99a38;
+  --coral: #bd5d3e;
+  --white: #ffffff;
+  --muted: #63706d;
+  --line: #d6cec2;
+  --paper: #fbf8f1;
+  --paper-strong: #f0e8db;
+  --shadow: 0 10px 24px rgba(24, 37, 34, .075);
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(31,100,112,.055), transparent 30%),
+    linear-gradient(90deg, rgba(24,37,34,.026) 1px, transparent 1px),
+    linear-gradient(180deg, var(--paper), #fff);
+  background-size: auto, 34px 34px, auto;
+  font-family: Arial, "Segoe UI", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: "Arial", "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -.04em;
+}
+
+.site-header {
+  height: 68px;
+  background: rgba(251,248,241,.96);
+  border-bottom: 2px solid var(--ink);
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  gap: 9px;
+}
+
+.brand-mark {
+  border-radius: 4px;
+  background: var(--ink);
+  box-shadow: none;
+}
+
+.brand-weather-mark {
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  background: var(--yellow);
+  font-size: 18px;
+}
+
+.brand-wordmark {
+  gap: 4px;
+}
+
+.brand-name {
+  color: var(--ink);
+  font-family: Arial, "Segoe UI", system-ui, sans-serif;
+  font-size: 20px;
+  letter-spacing: -.06em;
+  text-transform: none;
+}
+
+.brand-domain {
+  width: 31px;
+  height: 31px;
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  background: transparent;
+  box-shadow: none;
+  font-family: Georgia, serif;
+  transform: none;
+}
+
+.current-date {
+  color: #786f64;
+  font-weight: 700;
+}
+
+.weather-widget,
+.pharmacy-widget {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: none;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.weather-widget {
+  left: 37%;
+}
+
+.pharmacy-widget {
+  left: 51%;
+}
+
+.pharmacy-widget[data-tooltip]::after {
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 6px 6px 0 rgba(24,37,34,.14);
+}
+
+.button {
+  border-radius: 4px;
+  box-shadow: none;
+  font-weight: 800;
+}
+
+.button:hover {
+  transform: none;
+}
+
+.button-primary {
+  background: var(--green-dark);
+  box-shadow: none;
+}
+
+.button-primary:hover {
+  background: #0b242a;
+}
+
+.button-outline {
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  background: transparent;
+}
+
+.button-outline:hover {
+  color: #fff;
+  background: var(--ink);
+}
+
+.button-light {
+  color: var(--ink);
+  border: 2px solid #fff;
+  border-radius: 4px;
+}
+
+.button-share {
+  border-radius: 4px;
+}
+
+.news-ticker {
+  height: 34px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-strong);
+}
+
+.news-ticker-label {
+  border-radius: 2px;
+  background: var(--coral);
+  letter-spacing: .08em;
+}
+
+.news-ticker a {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.news-ticker a::before {
+  content: "•";
+  color: var(--coral);
+}
+
+.hero {
+  min-height: 0;
+  padding: 44px max(5vw, 24px) 34px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(310px, .7fr);
+  align-items: stretch;
+  background:
+    linear-gradient(90deg, rgba(16,47,55,.08) 1px, transparent 1px),
+    linear-gradient(180deg, #fbf8f1, #f6f1e9);
+  background-size: 44px 44px, auto;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero > * {
+  min-width: 0;
+}
+
+.eyebrow {
+  color: var(--coral);
+  letter-spacing: .14em;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  max-width: 760px;
+  font-size: clamp(30px, 4vw, 50px);
+  line-height: 1.02;
+  letter-spacing: -.055em;
+}
+
+h1 em {
+  color: var(--coral);
+}
+
+.hero-copy > p {
+  max-width: 650px;
+  margin: 14px 0 0;
+  color: #53605d;
+  font-size: 17px;
+}
+
+.search-box {
+  max-width: 860px;
+  min-height: 62px;
+  margin-top: 20px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 6px 6px 0 rgba(16,47,55,.12);
+}
+
+.search-input span,
+.location-select span {
+  color: var(--coral);
+}
+
+.location-select {
+  border-left-color: var(--line);
+}
+
+.popular {
+  color: #736b61 !important;
+}
+
+.popular button {
+  color: var(--green-dark);
+  font-weight: 800;
+}
+
+.hero-art {
+  height: auto;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 18px;
+  border-left: 4px solid var(--ink);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.42)),
+    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(24,37,34,.075) 28px);
+}
+
+.sun,
+.service-scenes,
+.hero-logo {
+  display: none;
+}
+
+.floating-card {
+  min-width: 0;
+  position: static;
+  padding: 15px 14px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--coral);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+.floating-card b {
+  width: 30px;
+  height: 30px;
+  border-radius: 2px;
+  background: var(--green);
+}
+
+.value-card {
+  width: 100%;
+}
+
+.value-card strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.value-card mark {
+  padding: 0 3px;
+  border-radius: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(217,154,56,.36) 0);
+}
+
+.value-card small {
+  color: #5f6a66;
+}
+
+.section {
+  padding: 60px max(5vw, 24px);
+}
+
+.section-heading {
+  align-items: end;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+
+.section-heading h2 {
+  font-size: clamp(25px, 2.7vw, 38px);
+  letter-spacing: -.05em;
+}
+
+.text-link {
+  color: var(--green-dark);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.category-grid {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.category-card {
+  min-height: 92px;
+  align-items: start;
+  padding: 14px 16px;
+  gap: 7px;
+  text-align: left;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--green);
+  background: #fff;
+}
+
+.category-card:hover,
+.category-card.active {
+  border-color: var(--ink);
+  border-left-color: var(--coral);
+  transform: none;
+  box-shadow: 5px 5px 0 rgba(16,47,55,.1);
+}
+
+.category-icon {
+  width: auto;
+  height: auto;
+  display: block;
+  border-radius: 0;
+  background: transparent;
+  color: var(--coral);
+  font-size: 21px;
+  line-height: 1;
+}
+
+.category-card strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.ad-section,
+.medical-section,
+.trust-section,
+.results-section {
+  background: transparent;
+}
+
+.ad-banner {
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.ad-banner:hover {
+  transform: none;
+  box-shadow: 5px 5px 0 rgba(16,47,55,.12);
+}
+
+.medical-panel,
+.trust-grid,
+.listing-grid {
+  gap: 14px;
+}
+
+.medical-summary,
+.medical-selector,
+.trust-card,
+.listing-card,
+.listing-route-hero,
+.legal-card,
+dialog,
+.manage-item,
+.support-panel {
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.medical-summary {
+  border-left: 5px solid var(--green);
+  background: #fff;
+}
+
+.medical-icon,
+.medical-photo,
+.trust-card span {
+  border-radius: 3px;
+  background: var(--green-dark);
+}
+
+.medical-selector {
+  background: #fff;
+}
+
+.medical-selector select,
+dialog input,
+dialog select,
+dialog textarea {
+  border-radius: 3px;
+}
+
+.medical-card {
+  border-radius: 4px;
+  box-shadow: none;
+  background: #fff;
+}
+
+.medical-phone {
+  border-radius: 3px;
+  background: var(--green-dark);
+}
+
+.trust-card {
+  padding: 22px;
+  border-top: 4px solid var(--line);
+  background: #fff;
+}
+
+.trust-card.featured {
+  color: var(--ink);
+  background: #fff;
+  border-color: var(--coral);
+  transform: none;
+}
+
+.trust-card.featured span {
+  color: #fff;
+  background: var(--coral);
+}
+
+.trust-card.featured p {
+  color: var(--muted);
+}
+
+.listing-route-hero {
+  background: #fff;
+}
+
+body.listing-route-page main {
+  background: var(--paper);
+}
+
+.listing-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.listing-card {
+  overflow: visible;
+  border-color: var(--line);
+  background: #fff;
+}
+
+.listing-card:hover {
+  border-color: var(--ink);
+}
+
+.listing-cover {
+  height: 68px;
+  padding: 14px 18px;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--paper-strong);
+  border-bottom: 1px solid var(--line);
+}
+
+.listing-cover span:first-child {
+  font-size: 29px;
+}
+
+.verified {
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.listing-body {
+  padding: 17px 18px 18px;
+}
+
+.listing-category {
+  color: var(--coral);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.listing-body h3 {
+  font-size: 20px;
+  letter-spacing: -.035em;
+}
+
+.listing-meta {
+  margin: 13px 0;
+  flex-wrap: wrap;
+}
+
+.listing-actions {
+  border-radius: 3px;
+}
+
+.listing-actions a {
+  color: var(--green-dark);
+}
+
+.listing-actions a:hover {
+  background: #f1ece3;
+}
+
+.listing-secondary-actions a,
+.listing-secondary-actions button,
+.review-action {
+  border-radius: 3px;
+}
+
+.review-action {
+  background: var(--green-dark);
+}
+
+.rating-summary {
+  color: #8a5700;
+}
+
+.review-preview {
+  border-radius: 3px;
+  background: #fbf3df;
+}
+
+.review-avatar {
+  border-radius: 3px;
+  background: var(--yellow);
+}
+
+.growth-banner {
+  margin-top: 42px;
+  margin-bottom: 50px;
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px),
+    var(--green-dark);
+  background-size: 36px 36px, auto;
+}
+
+.growth-banner::after {
+  content: "GS";
+  right: 28px;
+  bottom: -66px;
+  font-family: Arial, system-ui, sans-serif;
+}
+
+footer {
+  background: var(--paper-strong);
+  border-top: 2px solid var(--ink);
+}
+
+.visit-counter,
+.site-counter {
+  border-radius: 3px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.google-login-button,
+.support-fab,
+.support-options button,
+.support-answer,
+.form-success,
+.auth-gate,
+.install-steps li {
+  border-radius: 4px;
+}
+
+.support-fab {
+  background: var(--ink);
+  box-shadow: 5px 5px 0 rgba(16,47,55,.16);
+}
+
+.support-fab span {
+  background: var(--yellow);
+}
+
+.support-panel {
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.toast {
+  border-radius: 4px;
+  background: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 32px;
+  }
+
+  .hero-art {
+    border-left: 0;
+    border-top: 3px solid var(--ink);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weather-widget,
+  .pharmacy-widget {
+    border-radius: 3px;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  body > * {
+    max-width: 100vw;
+  }
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .site-header {
+    height: 64px;
+    width: 100%;
+    padding-inline: 12px;
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  .weather-widget,
+  .pharmacy-widget {
+    display: none;
+  }
+
+  nav {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  nav .button {
+    max-width: 96px;
+    overflow: hidden;
+    padding-inline: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand-name {
+    max-width: 118px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hero,
+  .section,
+  .ad-section,
+  .medical-section,
+  .trust-section,
+  .results-section {
+    width: 100%;
+    max-width: 100vw;
+    padding-inline: 16px;
+  }
+
+  .hero-copy,
+  .hero-copy > *,
+  .section-heading,
+  .section-heading > *,
+  .ad-container,
+  .medical-layout,
+  .category-grid,
+  .listing-grid {
+    width: 100%;
+    max-width: calc(100vw - 32px);
+    min-width: 0;
+  }
+
+  .hero {
+    padding-top: 28px;
+    overflow: hidden;
+  }
+
+  h1 {
+    display: block;
+    width: 100%;
+    max-width: 330px;
+    font-size: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+    letter-spacing: -1px;
+    white-space: normal;
+  }
+
+  .hero-copy h1::before {
+    content: "Comercios en Coronel Suárez,\A profesionales y servicios";
+    display: block;
+    max-width: 330px;
+    color: var(--ink);
+    font-size: 24px;
+    line-height: 1.08;
+    white-space: pre-line;
+  }
+
+  .hero-copy h1 em {
+    display: block;
+    color: var(--coral);
+    font-size: 24px;
+    line-height: 1.08;
+  }
+
+  .hero-copy > p {
+    width: 100%;
+    max-width: 300px;
+    font-size: 14px;
+    overflow-wrap: break-word;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: 330px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    border-width: 1px;
+    box-shadow: none;
+  }
+
+  .search-input,
+  .location-select {
+    min-width: 0;
+  }
+
+  .search-box .button-primary {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 12px;
+  }
+
+  .popular {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    max-width: 330px;
+    line-height: 1.5;
+  }
+
+  .popular button {
+    flex: 0 1 auto;
+  }
+
+  .hero-art {
+    grid-template-columns: 1fr;
+    padding: 12px 0 0;
+    background: transparent;
+  }
+
+  .floating-card {
+    padding: 12px;
+    width: calc(100vw - 56px);
+    max-width: 320px;
+    min-width: 0;
+  }
+
+  .floating-card div,
+  .floating-card p,
+  .floating-card strong,
+  .floating-card small {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .section-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .section-heading h2 {
+    max-width: 330px;
+    font-size: 24px;
+    overflow-wrap: anywhere;
+  }
+
+  .text-link {
+    max-width: 100%;
+  }
+
+  .support-fab {
+    right: 10px;
+    bottom: 10px;
+    max-width: 58px;
+    overflow: hidden;
+    padding: 9px 10px 9px 9px;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .support-fab span {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .listing-cover {
+    height: 62px;
+  }
+}
