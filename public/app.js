@@ -1467,7 +1467,7 @@ function renderJobs(data = {}) {
 async function loadJobs() {
   if (!jobGrid) return;
   try {
-    const response = await fetch("/api/jobs?v=jobs-1");
+    const response = await fetch("/api/jobs?v=jobs-2", { cache: "no-store" });
     if (!response.ok) throw new Error("Jobs unavailable");
     const data = await response.json();
     renderJobs(data);

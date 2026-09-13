@@ -595,7 +595,7 @@ async function handleJobs(request, env) {
     portals: JOB_PORTALS,
     updatedAt: new Date().toISOString()
   }, {
-    headers: { "Cache-Control": "public, max-age=1800" }
+    headers: { "Cache-Control": "public, max-age=120" }
   });
 }
 
