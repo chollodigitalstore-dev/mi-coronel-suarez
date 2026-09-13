@@ -265,25 +265,62 @@ body.listing-route-page .listing-secondary-actions a { display: none; }
 }
 .job-link:hover { background: #164f64; transform: translateY(-1px); }
 .job-portals {
+  max-width: 420px;
   margin-top: 18px;
-  padding: 18px;
-  border: 1px solid rgba(31,111,139,.12);
-  border-radius: 24px;
-  background: rgba(255,255,255,.68);
 }
-.job-portals > strong { display: block; margin-bottom: 12px; color: var(--ink); }
-.job-portals > div { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.job-portals a {
+.job-portal-dropdown {
+  position: relative;
+}
+.job-portal-dropdown summary {
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 18px;
+  border: 1px solid #1f6f8b;
+  border-radius: 999px;
+  color: #1f6f8b;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 10px 24px rgba(12,47,69,.08);
+  font-weight: 900;
+  list-style: none;
+  cursor: pointer;
+}
+.job-portal-dropdown summary::-webkit-details-marker { display: none; }
+.job-portal-dropdown summary::after {
+  content: "⌄";
+  margin-left: 10px;
+  font-size: 16px;
+}
+.job-portal-dropdown[open] summary {
+  color: white;
+  background: #1f6f8b;
+}
+.job-portal-dropdown[open] summary::after {
+  transform: rotate(180deg);
+}
+.job-portal-dropdown > div {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(31,111,139,.14);
+  border-radius: 22px;
+  background: white;
+  box-shadow: 0 18px 40px rgba(12,47,69,.12);
+}
+.job-portal-dropdown a {
   display: grid;
   gap: 3px;
   padding: 13px 14px;
   border: 1px solid rgba(31,111,139,.14);
-  border-radius: 18px;
-  background: white;
+  border-radius: 16px;
+  background: #f7fbfe;
 }
-.job-portals a span { color: #1f6f8b; font-weight: 900; }
-.job-portals a small { color: var(--muted); }
-.job-portals a:hover { border-color: #1f6f8b; box-shadow: 0 10px 22px rgba(12,47,69,.07); }
+.job-portal-dropdown a span { color: #1f6f8b; font-weight: 900; }
+.job-portal-dropdown a small { color: var(--muted); }
+.job-portal-dropdown a:hover { border-color: #1f6f8b; box-shadow: 0 10px 22px rgba(12,47,69,.07); }
 .listing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .listing-card { overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: 0 8px 30px rgba(22,74,57,.06); }
 .listing-cover { height: 120px; padding: 20px; display: flex; align-items: end; justify-content: space-between; background: linear-gradient(135deg, var(--mint), #f8e9c4); }
@@ -2423,7 +2460,6 @@ footer {
 
 @media (max-width: 900px) {
   .job-grid { grid-template-columns: 1fr; }
-  .job-portals > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
@@ -2497,11 +2533,11 @@ footer {
   }
 
   .job-portals {
-    padding: 14px;
-    border-radius: 22px;
+    max-width: calc(100vw - 32px);
   }
 
-  .job-portals > div {
-    grid-template-columns: 1fr;
+  .job-portal-dropdown summary {
+    min-height: 48px;
+    border-radius: 16px;
   }
 }

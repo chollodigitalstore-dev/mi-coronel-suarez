@@ -1418,15 +1418,17 @@ function renderJobPortals(portals = []) {
   }
 
   jobPortals.innerHTML = `
-    <strong>Buscar también en portales</strong>
-    <div>
+    <details class="job-portal-dropdown">
+      <summary>💼 Encontrá trabajo</summary>
+      <div>
       ${portals.map(portal => `
         <a href="${escapeHtml(portal.url || "#")}" target="_blank" rel="noopener noreferrer">
-          <span>${escapeHtml(portal.name || "Portal")}</span>
+          <span>${escapeHtml(portal.label || `Ofertas en ${portal.name || "portal"} para Coronel Suárez`)}</span>
           <small>${escapeHtml(portal.note || "Abrir búsqueda externa")}</small>
         </a>
       `).join("")}
-    </div>
+      </div>
+    </details>
   `;
 }
 

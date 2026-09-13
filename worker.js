@@ -13,23 +13,27 @@ const SOURCES = {
 const JOB_PORTALS = [
   {
     name: "Computrabajo",
+    label: "Ofertas en Computrabajo para Coronel Suárez",
     url: "https://ar.computrabajo.com/empleos-en-buenos-aires-en-coronel-suarez",
-    note: "Búsqueda directa de empleos en Coronel Suárez."
+    note: "Búsqueda directa en la zona."
   },
   {
     name: "Bumeran",
+    label: "Ofertas en Bumeran para Coronel Suárez",
     url: "https://www.bumeran.com.ar/en-buenos-aires/coronel-suarez/empleos-publicacion-menor-a-1-mes.html",
-    note: "Avisos publicados recientemente en la zona."
+    note: "Avisos publicados recientemente."
   },
   {
     name: "LinkedIn",
+    label: "Ofertas en LinkedIn para Coronel Suárez",
     url: "https://ar.linkedin.com/jobs/empleos-en-coronel-su%C3%A1rez",
-    note: "Ofertas profesionales y búsquedas activas."
+    note: "Búsquedas profesionales activas."
   },
   {
     name: "Indeed",
+    label: "Ofertas en Indeed para Coronel Suárez",
     url: "https://ar.indeed.com/l-coronel-su%C3%A1rez%2C-buenos-aires-empleos.html",
-    note: "Más búsquedas laborales para revisar."
+    note: "Más búsquedas laborales."
   }
 ];
 
