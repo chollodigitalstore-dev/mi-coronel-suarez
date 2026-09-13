@@ -1410,14 +1410,9 @@ function formatJobDate(value) {
   return new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short" }).format(date);
 }
 
-function renderJobPortals(portals = []) {
-  if (!jobPortals) return;
-  if (!portals.length) {
-    jobPortals.innerHTML = "";
-    return;
-  }
-
-  jobPortals.innerHTML = `
+function jobPortalsMarkup(portals = []) {
+  if (!portals.length) return "";
+  return `
     <details class="job-portal-dropdown">
       <summary>💼 Encontrá trabajo</summary>
       <div>
@@ -1437,13 +1432,14 @@ function renderJobs(data = {}) {
   const jobs = Array.isArray(data.items) ? data.items : [];
   const portals = Array.isArray(data.portals) ? data.portals : [];
   if (jobCount) jobCount.textContent = jobs.length ? `${jobs.length} avisos` : "Portales activos";
-  renderJobPortals(portals);
+  if (jobPortals) jobPortals.innerHTML = jobs.length ? jobPortalsMarkup(portals) : "";
 
   if (!jobs.length) {
     jobGrid.innerHTML = `<article class="job-card job-card-empty">
       <span class="job-source">Trabajo local</span>
       <h3>Buscá ofertas en portales de empleo.</h3>
       <p>Reunimos los accesos directos a búsquedas de Coronel Suárez para que no tengas que entrar portal por portal.</p>
+      <div class="job-portals job-portals-inside">${jobPortalsMarkup(portals)}</div>
     </article>`;
     return;
   }
