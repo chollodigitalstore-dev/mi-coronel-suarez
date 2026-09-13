@@ -5,15 +5,37 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const SITE_URL = "https://guiasuarez.ar";
 
 const categories = [
+  { id: "abogados", name: "Abogados", icon: "⚖️", path: "abogados" },
+  { id: "agrimensores", name: "Agrimensores", icon: "📐", path: "agrimensores" },
+  { id: "arquitectos", name: "Arquitectos", icon: "🏛️", path: "arquitectos" },
   { id: "automotor", name: "Automotor", icon: "🚙", path: "automotor" },
   { id: "belleza", name: "Belleza y bienestar", icon: "✦", path: "belleza-y-bienestar" },
+  { id: "bicicleterias", name: "Bicicleterías", icon: "🚲", path: "bicicleterias" },
   { id: "comercios", name: "Comercios", icon: "🛍️", path: "comercios" },
+  { id: "construccion", name: "Construcción", icon: "🧱", path: "construccion" },
+  { id: "contadores", name: "Contadores", icon: "🧾", path: "contadores" },
   { id: "educacion", name: "Educación", icon: "📚", path: "educacion" },
+  { id: "escribanos", name: "Escribanos", icon: "✒️", path: "escribanos" },
   { id: "eventos", name: "Eventos", icon: "🎈", path: "eventos" },
+  { id: "farmacias", name: "Farmacias", icon: "💊", path: "farmacias" },
+  { id: "fletes", name: "Fletes", icon: "🚚", path: "fletes" },
   { id: "gastronomia", name: "Gastronomía", icon: "🍴", path: "gastronomia" },
+  { id: "gestores", name: "Gestores", icon: "📋", path: "gestores" },
   { id: "hogar", name: "Hogar y oficios", icon: "🛠️", path: "hogar-y-oficios" },
+  { id: "inmobiliarias", name: "Inmobiliarias", icon: "🏠", path: "inmobiliarias" },
+  { id: "internet", name: "Internet", icon: "📡", path: "internet" },
+  { id: "jardineria", name: "Jardinería", icon: "🌿", path: "jardineria" },
+  { id: "lavaderos", name: "Lavaderos", icon: "🧽", path: "lavaderos" },
+  { id: "limpieza", name: "Limpieza", icon: "🧼", path: "limpieza" },
   { id: "mascotas", name: "Mascotas", icon: "🐾", path: "mascotas" },
+  { id: "mecanicos", name: "Mecánicos", icon: "🔧", path: "mecanicos" },
+  { id: "medicos", name: "Médicos", icon: "🩺", path: "medicos" },
+  { id: "nineras", name: "Niñeras", icon: "🧸", path: "nineras" },
+  { id: "parqueros", name: "Parqueros", icon: "🌱", path: "parqueros" },
   { id: "profesionales", name: "Profesionales", icon: "💼", path: "profesionales" },
+  { id: "reparaciones", name: "Reparaciones", icon: "🛠️", path: "reparaciones" },
+  { id: "repuestos", name: "Repuestos", icon: "⚙️", path: "repuestos" },
+  { id: "sacabollos", name: "Sacabollos", icon: "🚗", path: "sacabollos" },
   { id: "salud", name: "Salud", icon: "✚", path: "salud" },
   { id: "servicios", name: "Servicios", icon: "🤝", path: "servicios" },
   { id: "tecnologia", name: "Tecnología", icon: "💻", path: "tecnologia" },
@@ -300,11 +322,17 @@ function hydrateListing(item) {
 
 function renderCategories() {
   renderActivityCounter();
-  const visible = expandedCategories ? categories : categories.slice(0, 6);
+  const categoriesWithCounts = categories
+    .map(category => ({
+      ...category,
+      count: listings.filter(item => item.category === category.id && item.active !== false).length
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }));
+  const populatedCategories = categoriesWithCounts.filter(category => category.count > 0);
+  const visible = expandedCategories ? categoriesWithCounts : (populatedCategories.length ? populatedCategories : categoriesWithCounts.slice(0, 8));
   categoryGrid.innerHTML = visible.map(category => {
-    const count = listings.filter(item => item.category === category.id && item.active !== false).length;
     return `<button class="category-card ${activeCategory === category.id ? "active" : ""}" data-category="${category.id}">
-      <span class="category-icon">${category.icon}</span><strong>${category.name}</strong><small>${count || "Próximamente"}</small>
+      <span class="category-icon">${category.icon}</span><strong>${category.name}</strong><small>${category.count || "Próximamente"}</small>
     </button>`;
   }).join("");
 }
