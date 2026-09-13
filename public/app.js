@@ -1440,8 +1440,8 @@ function renderJobs(data = {}) {
   if (!jobs.length) {
     jobGrid.innerHTML = `<article class="job-card job-card-empty">
       <span class="job-source">Trabajo local</span>
-      <h3>No encontramos avisos recientes cargados.</h3>
-      <p>Mientras tanto, podés revisar las búsquedas directas en portales de empleo para Coronel Suárez.</p>
+      <h3>Buscá ofertas en portales de empleo.</h3>
+      <p>Reunimos los accesos directos a búsquedas de Coronel Suárez para que no tengas que entrar portal por portal.</p>
     </article>`;
     return;
   }
@@ -1476,7 +1476,7 @@ async function loadJobs() {
     renderJobs({
       items: [],
       portals: [
-        { name: "Computrabajo", url: "https://ar.computrabajo.com/empleos-en-buenos-aires-en-coronel-suarez", note: "Empleos en Coronel Suárez." },
+        { name: "Computrabajo", url: "https://ar.computrabajo.com/empleos-en-buenos-aires-en-coronel-suarez", note: "Búsqueda directa en Coronel Suárez." },
         { name: "Bumeran", url: "https://www.bumeran.com.ar/en-buenos-aires/coronel-suarez/empleos-publicacion-menor-a-1-mes.html", note: "Avisos recientes en la zona." },
         { name: "LinkedIn", url: "https://ar.linkedin.com/jobs/empleos-en-coronel-su%C3%A1rez", note: "Búsquedas profesionales." }
       ]

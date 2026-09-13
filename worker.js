@@ -7,7 +7,6 @@ const SOURCES = {
   suarezAlDia: "https://www.suarezaldia.com.ar/",
   laBrujulaCoronelSuarez: "https://www.labrujula24.com/notas/tag/coronel-suarez-2/feed/",
   municipalNews: "https://www.coronelsuarez.gob.ar/feed/",
-  municipalEmploymentFeed: "https://www.coronelsuarez.gob.ar/category/produccion/empleo/feed/",
   googleLocalNews: "https://news.google.com/rss/search?q=Coronel%20Su%C3%A1rez&hl=es-419&gl=AR&ceid=AR:es-419"
 };
 
@@ -517,15 +516,6 @@ async function handleNewsTicker() {
   });
 }
 
-function jobDateIsCurrent(value = "", maxAgeDays = 60) {
-  if (!value) return true;
-  const time = new Date(value).getTime();
-  if (!Number.isFinite(time)) return true;
-  const now = Date.now();
-  if (time > now + 24 * 60 * 60 * 1000) return false;
-  return now - time <= maxAgeDays * 24 * 60 * 60 * 1000;
-}
-
 function normalizeJobItem(item = {}) {
   const title = cleanText(item.title || "").slice(0, 110);
   const sourceUrl = String(item.sourceUrl || item.source_url || item.url || "").trim();
@@ -541,46 +531,6 @@ function normalizeJobItem(item = {}) {
     publishedAt: item.publishedAt || item.published_at || null,
     external: true
   };
-}
-
-function parseMunicipalEmploymentJobs(xml = "") {
-  const items = [];
-  const itemPattern = /<item\b[\s\S]*?<\/item>/gi;
-  let match;
-
-  while ((match = itemPattern.exec(xml)) !== null && items.length < 8) {
-    const item = match[0];
-    const title = decodeXmlText(item.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "");
-    const link = decodeXmlText(item.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1] || "");
-    const publishedAt = parseNewsDate(item.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || "");
-    const description = decodeXmlText(
-      item.match(/<content:encoded[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/i)?.[1]
-      || item.match(/<description[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i)?.[1]
-      || item.match(/<description[^>]*>([\s\S]*?)<\/description>/i)?.[1]
-      || ""
-    );
-    const normalized = normalizeForCompare(`${title} ${description}`);
-    const looksLikeEmployment = /buscapersonal|sebusca|sesolicita|vacante|puesto|postulate|postulacion|curriculum|enviatucv|enviarcv|cv|busquedalaboral|ofertalaboral/.test(normalized);
-    const looksInstitutional = /galpon|inversion|credito|capacitacion|curso|programa|encuesta|agentesterritoriales|relevamientoterritorial/.test(normalized);
-    if (looksInstitutional) continue;
-    if (!looksLikeEmployment || !jobDateIsCurrent(publishedAt)) continue;
-    const normalizedItem = normalizeJobItem({
-      title,
-      sourceUrl: link,
-      source: "Municipalidad",
-      location: "Coronel Suárez",
-      summary: description,
-      publishedAt
-    });
-    if (normalizedItem) items.push(normalizedItem);
-  }
-
-  return items;
-}
-
-async function fetchMunicipalEmploymentJobs() {
-  const xml = await fetchText(SOURCES.municipalEmploymentFeed);
-  return parseMunicipalEmploymentJobs(xml);
 }
 
 async function fetchStoredJobs(env) {
@@ -630,17 +580,14 @@ async function handleJobs(request, env) {
     return Response.json({ error: "Method not allowed" }, { status: 405 });
   }
 
-  const [storedResult, municipalResult] = await Promise.allSettled([
-    fetchStoredJobs(env),
-    fetchMunicipalEmploymentJobs()
+  const [storedResult] = await Promise.allSettled([
+    fetchStoredJobs(env)
   ]);
 
   if (storedResult.status === "rejected") console.warn("Stored jobs failed", storedResult.reason?.message || storedResult.reason);
-  if (municipalResult.status === "rejected") console.warn("Municipal jobs failed", municipalResult.reason?.message || municipalResult.reason);
 
   const storedJobs = storedResult.status === "fulfilled" ? storedResult.value : [];
-  const municipalJobs = municipalResult.status === "fulfilled" ? municipalResult.value : [];
-  const items = mergeJobs([...storedJobs, ...municipalJobs]);
+  const items = mergeJobs(storedJobs);
 
   return Response.json({
     available: true,
