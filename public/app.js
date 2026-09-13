@@ -85,6 +85,9 @@ const visitCounter = document.querySelector("#visitCounter");
 const activityCounter = document.querySelector("#activityCounter");
 const newsTicker = document.querySelector("#newsTicker");
 const newsTickerTrack = document.querySelector("#newsTickerTrack");
+const jobGrid = document.querySelector("#jobGrid");
+const jobCount = document.querySelector("#jobCount");
+const jobPortals = document.querySelector("#jobPortals");
 const installAppButton = document.querySelector("#installAppButton");
 const iosInstallDialog = document.querySelector("#iosInstallDialog");
 const closeIosInstallDialog = document.querySelector("#closeIosInstallDialog");
@@ -1400,6 +1403,87 @@ async function loadNewsTicker() {
   }
 }
 
+function formatJobDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short" }).format(date);
+}
+
+function renderJobPortals(portals = []) {
+  if (!jobPortals) return;
+  if (!portals.length) {
+    jobPortals.innerHTML = "";
+    return;
+  }
+
+  jobPortals.innerHTML = `
+    <strong>Buscar también en portales</strong>
+    <div>
+      ${portals.map(portal => `
+        <a href="${escapeHtml(portal.url || "#")}" target="_blank" rel="noopener noreferrer">
+          <span>${escapeHtml(portal.name || "Portal")}</span>
+          <small>${escapeHtml(portal.note || "Abrir búsqueda externa")}</small>
+        </a>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderJobs(data = {}) {
+  if (!jobGrid) return;
+  const jobs = Array.isArray(data.items) ? data.items : [];
+  const portals = Array.isArray(data.portals) ? data.portals : [];
+  if (jobCount) jobCount.textContent = jobs.length ? `${jobs.length} avisos` : "Portales activos";
+  renderJobPortals(portals);
+
+  if (!jobs.length) {
+    jobGrid.innerHTML = `<article class="job-card job-card-empty">
+      <span class="job-source">Trabajo local</span>
+      <h3>No encontramos avisos recientes cargados.</h3>
+      <p>Mientras tanto, podés revisar las búsquedas directas en portales de empleo para Coronel Suárez.</p>
+    </article>`;
+    return;
+  }
+
+  jobGrid.innerHTML = jobs.map(job => {
+    const date = formatJobDate(job.publishedAt);
+    const company = job.company ? escapeHtml(job.company) : "Oferta laboral";
+    const location = job.location ? escapeHtml(job.location) : "Coronel Suárez";
+    const meta = [company, location, date].filter(Boolean).join(" · ");
+    return `<article class="job-card">
+      <div class="job-card-head">
+        <span class="job-source">${escapeHtml(job.source || "Fuente externa")}</span>
+        ${job.employmentType ? `<span class="job-type">${escapeHtml(job.employmentType)}</span>` : ""}
+      </div>
+      <h3>${escapeHtml(job.title || "Oportunidad laboral")}</h3>
+      <p>${escapeHtml(job.summary || "Ver detalle completo en la fuente original.")}</p>
+      <small class="job-meta">${meta}</small>
+      <a class="job-link" href="${escapeHtml(job.sourceUrl || "#")}" target="_blank" rel="noopener noreferrer">Ver oferta →</a>
+    </article>`;
+  }).join("");
+}
+
+async function loadJobs() {
+  if (!jobGrid) return;
+  try {
+    const response = await fetch("/api/jobs?v=jobs-1");
+    if (!response.ok) throw new Error("Jobs unavailable");
+    const data = await response.json();
+    renderJobs(data);
+  } catch (error) {
+    console.warn("No pudimos cargar los avisos de trabajo", error);
+    renderJobs({
+      items: [],
+      portals: [
+        { name: "Computrabajo", url: "https://ar.computrabajo.com/empleos-en-buenos-aires-en-coronel-suarez", note: "Empleos en Coronel Suárez." },
+        { name: "Bumeran", url: "https://www.bumeran.com.ar/en-buenos-aires/coronel-suarez/empleos-publicacion-menor-a-1-mes.html", note: "Avisos recientes en la zona." },
+        { name: "LinkedIn", url: "https://ar.linkedin.com/jobs/empleos-en-coronel-su%C3%A1rez", note: "Búsquedas profesionales." }
+      ]
+    });
+  }
+}
+
 const supportFab = document.querySelector("#supportFab");
 const supportPanel = document.querySelector("#supportPanel");
 const supportClose = document.querySelector("#supportClose");
@@ -1531,6 +1615,7 @@ renderCurrentDate();
 loadWeather();
 loadPharmacyShift();
 loadNewsTicker();
+loadJobs();
 await loadMedicalProfessionals();
 if (initialQuery) await routeSearchToMedicalSpecialty();
 loadVisitCounter();

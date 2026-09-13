@@ -7,8 +7,32 @@ const SOURCES = {
   suarezAlDia: "https://www.suarezaldia.com.ar/",
   laBrujulaCoronelSuarez: "https://www.labrujula24.com/notas/tag/coronel-suarez-2/feed/",
   municipalNews: "https://www.coronelsuarez.gob.ar/feed/",
+  municipalEmploymentFeed: "https://www.coronelsuarez.gob.ar/category/produccion/empleo/feed/",
   googleLocalNews: "https://news.google.com/rss/search?q=Coronel%20Su%C3%A1rez&hl=es-419&gl=AR&ceid=AR:es-419"
 };
+
+const JOB_PORTALS = [
+  {
+    name: "Computrabajo",
+    url: "https://ar.computrabajo.com/empleos-en-buenos-aires-en-coronel-suarez",
+    note: "Búsqueda directa de empleos en Coronel Suárez."
+  },
+  {
+    name: "Bumeran",
+    url: "https://www.bumeran.com.ar/en-buenos-aires/coronel-suarez/empleos-publicacion-menor-a-1-mes.html",
+    note: "Avisos publicados recientemente en la zona."
+  },
+  {
+    name: "LinkedIn",
+    url: "https://ar.linkedin.com/jobs/empleos-en-coronel-su%C3%A1rez",
+    note: "Ofertas profesionales y búsquedas activas."
+  },
+  {
+    name: "Indeed",
+    url: "https://ar.indeed.com/l-coronel-su%C3%A1rez%2C-buenos-aires-empleos.html",
+    note: "Más búsquedas laborales para revisar."
+  }
+];
 
 const CATEGORY_LABELS = {
   abogados: "Abogados",
@@ -490,6 +514,139 @@ async function handleNewsTicker() {
   }, {
     status: 503,
     headers: { "Cache-Control": "public, max-age=300" }
+  });
+}
+
+function jobDateIsCurrent(value = "", maxAgeDays = 60) {
+  if (!value) return true;
+  const time = new Date(value).getTime();
+  if (!Number.isFinite(time)) return true;
+  const now = Date.now();
+  if (time > now + 24 * 60 * 60 * 1000) return false;
+  return now - time <= maxAgeDays * 24 * 60 * 60 * 1000;
+}
+
+function normalizeJobItem(item = {}) {
+  const title = cleanText(item.title || "").slice(0, 110);
+  const sourceUrl = String(item.sourceUrl || item.source_url || item.url || "").trim();
+  if (!title || !sourceUrl) return null;
+  return {
+    title,
+    company: cleanText(item.company || "").slice(0, 80),
+    location: cleanText(item.location || "Coronel Suárez").slice(0, 80),
+    source: cleanText(item.source || "Fuente externa").slice(0, 60),
+    sourceUrl,
+    summary: cleanText(item.summary || item.description || "").replace(/\bRead more\b/gi, "").slice(0, 210),
+    employmentType: cleanText(item.employmentType || item.employment_type || "").slice(0, 60),
+    publishedAt: item.publishedAt || item.published_at || null,
+    external: true
+  };
+}
+
+function parseMunicipalEmploymentJobs(xml = "") {
+  const items = [];
+  const itemPattern = /<item\b[\s\S]*?<\/item>/gi;
+  let match;
+
+  while ((match = itemPattern.exec(xml)) !== null && items.length < 8) {
+    const item = match[0];
+    const title = decodeXmlText(item.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "");
+    const link = decodeXmlText(item.match(/<link[^>]*>([\s\S]*?)<\/link>/i)?.[1] || "");
+    const publishedAt = parseNewsDate(item.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i)?.[1] || "");
+    const description = decodeXmlText(
+      item.match(/<content:encoded[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/i)?.[1]
+      || item.match(/<description[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i)?.[1]
+      || item.match(/<description[^>]*>([\s\S]*?)<\/description>/i)?.[1]
+      || ""
+    );
+    const normalized = normalizeForCompare(`${title} ${description}`);
+    const looksLikeEmployment = /empleo|laboral|trabaj|puesto|b[uú]squeda|oportunidad|curriculum|cv|empresa|vacante|personal/.test(normalized);
+    if (!looksLikeEmployment || !jobDateIsCurrent(publishedAt)) continue;
+    const normalizedItem = normalizeJobItem({
+      title,
+      sourceUrl: link,
+      source: "Municipalidad",
+      location: "Coronel Suárez",
+      summary: description,
+      publishedAt
+    });
+    if (normalizedItem) items.push(normalizedItem);
+  }
+
+  return items;
+}
+
+async function fetchMunicipalEmploymentJobs() {
+  const xml = await fetchText(SOURCES.municipalEmploymentFeed);
+  return parseMunicipalEmploymentJobs(xml);
+}
+
+async function fetchStoredJobs(env) {
+  const supabaseUrl = env.SUPABASE_URL || SUPABASE_PUBLIC_URL;
+  const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_PUBLIC_KEY;
+  if (!supabaseUrl || !supabaseKey) return [];
+
+  const endpoint = new URL(`${supabaseUrl}/rest/v1/job_posts`);
+  endpoint.searchParams.set("select", "title,company,location,source,source_url,summary,employment_type,published_at,expires_at,active,created_at");
+  endpoint.searchParams.set("active", "eq.true");
+  endpoint.searchParams.set("order", "published_at.desc.nullslast,created_at.desc");
+  endpoint.searchParams.set("limit", "12");
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`
+    }
+  });
+
+  if (!response.ok) {
+    console.warn("Stored jobs unavailable", response.status, (await response.text()).slice(0, 180));
+    return [];
+  }
+
+  const rows = await response.json();
+  const now = Date.now();
+  return rows
+    .filter(row => !row.expires_at || new Date(row.expires_at).getTime() > now)
+    .map(normalizeJobItem)
+    .filter(Boolean);
+}
+
+function mergeJobs(items = []) {
+  const seen = new Set();
+  const merged = [];
+  for (const item of items) {
+    const key = item.sourceUrl || normalizeForCompare(`${item.title}${item.company}${item.source}`);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(item);
+  }
+  return merged.slice(0, 6);
+}
+
+async function handleJobs(request, env) {
+  if (request.method !== "GET") {
+    return Response.json({ error: "Method not allowed" }, { status: 405 });
+  }
+
+  const [storedResult, municipalResult] = await Promise.allSettled([
+    fetchStoredJobs(env),
+    fetchMunicipalEmploymentJobs()
+  ]);
+
+  if (storedResult.status === "rejected") console.warn("Stored jobs failed", storedResult.reason?.message || storedResult.reason);
+  if (municipalResult.status === "rejected") console.warn("Municipal jobs failed", municipalResult.reason?.message || municipalResult.reason);
+
+  const storedJobs = storedResult.status === "fulfilled" ? storedResult.value : [];
+  const municipalJobs = municipalResult.status === "fulfilled" ? municipalResult.value : [];
+  const items = mergeJobs([...storedJobs, ...municipalJobs]);
+
+  return Response.json({
+    available: true,
+    items,
+    portals: JOB_PORTALS,
+    updatedAt: new Date().toISOString()
+  }, {
+    headers: { "Cache-Control": "public, max-age=1800" }
   });
 }
 
@@ -1614,6 +1771,9 @@ export default {
     }
     if (url.pathname === "/api/news-ticker") {
       return handleNewsTicker();
+    }
+    if (url.pathname === "/api/jobs") {
+      return handleJobs(request, env);
     }
     if (url.pathname === "/api/medical-professionals") {
       return handleMedicalProfessionals(request);
