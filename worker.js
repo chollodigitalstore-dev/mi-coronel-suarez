@@ -560,7 +560,9 @@ function parseMunicipalEmploymentJobs(xml = "") {
       || ""
     );
     const normalized = normalizeForCompare(`${title} ${description}`);
-    const looksLikeEmployment = /empleo|laboral|trabaj|puesto|b[uú]squeda|oportunidad|curriculum|cv|empresa|vacante|personal/.test(normalized);
+    const looksLikeEmployment = /buscapersonal|sebusca|sesolicita|vacante|puesto|postulate|postulacion|curriculum|enviatucv|enviarcv|cv|busquedalaboral|ofertalaboral/.test(normalized);
+    const looksInstitutional = /galpon|inversion|credito|capacitacion|curso|programa|encuesta|agentesterritoriales|relevamientoterritorial/.test(normalized);
+    if (looksInstitutional) continue;
     if (!looksLikeEmployment || !jobDateIsCurrent(publishedAt)) continue;
     const normalizedItem = normalizeJobItem({
       title,
