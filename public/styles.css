@@ -92,24 +92,19 @@ h1 em { color: var(--green); font-style: normal; }
 .location-select { width: 200px; border-left: 1px solid var(--line); }
 .popular { font-size: 13px !important; }
 .popular button { padding: 0; color: var(--green); border: 0; background: none; text-decoration: underline; text-underline-offset: 3px; }
-.jobs-hero-link {
-  min-height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
+.header-jobs-link {
   color: #1f6f8b;
   border-color: #1f6f8b;
-  background: rgba(255,255,255,.74);
-  box-shadow: 0 10px 24px rgba(12,47,69,.08);
+  background: rgba(255,255,255,.72);
 }
-.jobs-hero-link::before {
+.header-jobs-link::before {
   content: "💼";
   margin-right: 8px;
 }
-.jobs-hero-link:hover {
+.header-jobs-link:hover {
+  color: #fff;
+  background: #1f6f8b;
   border-color: #1f6f8b;
-  transform: translateY(-1px);
 }
 .hero-art { height: 400px; position: relative; }
 .sun { width: 330px; height: 330px; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); border-radius: 50%; background: #f2c969; opacity: .75; }
@@ -1880,16 +1875,6 @@ footer {
     white-space: nowrap;
   }
 
-  .hero-actions {
-    margin-top: 12px;
-  }
-
-  .jobs-hero-link {
-    width: 100%;
-    min-height: 48px;
-    border-radius: 16px;
-  }
-
   .popular::-webkit-scrollbar {
     display: none;
   }
@@ -2443,7 +2428,21 @@ footer {
 
 @media (max-width: 760px) {
   .header-jobs-link {
-    display: none;
+    min-height: 38px;
+    padding: 9px 11px;
+    border-radius: 999px;
+    font-size: 0;
+  }
+
+  .header-jobs-link::before {
+    margin-right: 0;
+    font-size: 15px;
+  }
+
+  .header-jobs-link::after {
+    content: "Trabajo";
+    margin-left: 6px;
+    font-size: 13px;
   }
 
   .jobs-section {
