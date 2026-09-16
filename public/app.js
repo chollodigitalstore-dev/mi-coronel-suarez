@@ -56,6 +56,7 @@ const categoryGrid = document.querySelector("#categoryGrid");
 const listingGrid = document.querySelector("#listingGrid");
 const searchInput = document.querySelector("#searchInput");
 const locationSelect = document.querySelector("#locationSelect");
+const resultsSection = document.querySelector("#resultados");
 const resultsTitle = document.querySelector("#resultsTitle");
 const resultCount = document.querySelector("#resultCount");
 const emptyState = document.querySelector("#emptyState");
@@ -346,17 +347,11 @@ function renderActivityCounter() {
   activityCounter.textContent = `${count.toLocaleString("es-AR")} ${count === 1 ? "actividad" : "actividades"}`;
 }
 
-function pickFeaturedListings(items) {
-  return items
-    .filter(item => item.active !== false)
-    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
-    .slice(0, 3);
-}
-
 function renderListings() {
   const query = normalize(searchInput.value.trim());
   const location = locationSelect.value;
   const hasFilter = query || activeCategory || location !== "todas" || routeListingSlug;
+  if (resultsSection) resultsSection.hidden = !hasFilter;
   const filtered = listings.filter(item => {
     const categoryName = categoryById(item.category)?.name || item.category;
     const haystack = normalize(`${item.name} ${item.tags} ${categoryName} ${item.description}`);
@@ -366,7 +361,7 @@ function renderListings() {
       && (!activeCategory || item.category === activeCategory)
       && (location === "todas" || item.location === location);
   });
-  const visibleListings = hasFilter ? filtered : pickFeaturedListings(filtered);
+  const visibleListings = hasFilter ? filtered : [];
 
   listingGrid.innerHTML = visibleListings.map(item => {
     const category = categoryById(item.category)?.name || item.category;
@@ -401,12 +396,17 @@ function renderListings() {
     </article>`;
   }).join("");
 
-  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : (hasFilter ? "Resultados de tu búsqueda" : "Últimos registrados en Guía Suárez");
-  resultCount.textContent = routeListingSlug ? "" : (hasFilter
-    ? `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`
-    : `${visibleListings.length} registrados`);
-  emptyState.hidden = visibleListings.length > 0;
-  listingGrid.hidden = visibleListings.length === 0;
+  resultsTitle.textContent = routeListingSlug ? "Ficha compartida" : "Resultados de tu búsqueda";
+  resultCount.textContent = routeListingSlug ? "" : `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
+  emptyState.hidden = !hasFilter || visibleListings.length > 0;
+  listingGrid.hidden = !hasFilter || visibleListings.length === 0;
+  return hasFilter;
+}
+
+function scrollToResultsIfVisible() {
+  if (resultsSection && !resultsSection.hidden) {
+    resultsSection.scrollIntoView({ behavior: "smooth" });
+  }
 }
 
 async function loadListings() {
@@ -1018,7 +1018,7 @@ categoryGrid.addEventListener("click", event => {
   activeCategory = activeCategory === card.dataset.category ? null : card.dataset.category;
   renderCategories();
   renderListings();
-  document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
+  scrollToResultsIfVisible();
 });
 
 document.querySelector("#showAllCategories").addEventListener("click", event => {
@@ -1034,7 +1034,7 @@ document.querySelector("#searchForm").addEventListener("submit", async event => 
   renderCategories();
   if (await routeSearchToMedicalSpecialty()) return;
   renderListings();
-  document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
+  scrollToResultsIfVisible();
 });
 
 document.querySelectorAll("[data-query]").forEach(button => button.addEventListener("click", async () => {
@@ -1044,7 +1044,7 @@ document.querySelectorAll("[data-query]").forEach(button => button.addEventListe
   renderCategories();
   if (await routeSearchToMedicalSpecialty()) return;
   renderListings();
-  document.querySelector("#resultados").scrollIntoView({ behavior: "smooth" });
+  scrollToResultsIfVisible();
 }));
 
 locationSelect.addEventListener("change", () => {
