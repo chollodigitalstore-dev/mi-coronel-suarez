@@ -2562,3 +2562,444 @@ footer {
     border-radius: 16px;
   }
 }
+
+/* ------------------------------------------------------------------
+   Editorial/pro restyle.
+   Más sobrio, más local-product, menos "landing genérica".
+------------------------------------------------------------------ */
+
+:root {
+  --ink: #07131b;
+  --green: #1f6f8b;
+  --green-dark: #0a2633;
+  --mint: #e7f1f5;
+  --cream: #f3f0e8;
+  --yellow: #c99643;
+  --coral: #c06b4f;
+  --muted: #5f7180;
+  --line: #d7e1e6;
+  --shadow: 0 24px 70px rgba(7, 19, 27, .12);
+}
+
+body {
+  color: #0b2430;
+  background: #f4f7f8;
+}
+
+.site-header {
+  height: 74px;
+  background: rgba(7, 19, 27, .92);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 14px 40px rgba(7,19,27,.18);
+}
+
+.brand-wordmark,
+.brand-name {
+  color: #f7fbfc;
+}
+
+.brand-domain {
+  color: #0a2633;
+  background: #f0c46e;
+  border-color: rgba(240,196,110,.36);
+}
+
+.current-date {
+  color: rgba(247,251,252,.62);
+}
+
+.brand-weather-mark {
+  border-color: rgba(240,196,110,.35);
+  background: linear-gradient(135deg, #f0c46e, #e7f1f5);
+  color: #0a2633;
+}
+
+.weather-widget,
+.pharmacy-widget {
+  color: #f7fbfc;
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.12);
+  box-shadow: none;
+}
+
+.pharmacy-widget[data-tooltip]::after {
+  color: #0b2430;
+}
+
+nav {
+  gap: 16px;
+}
+
+.button {
+  border-radius: 999px;
+  letter-spacing: -.1px;
+}
+
+.button-outline,
+.header-jobs-link {
+  color: #f7fbfc;
+  border-color: rgba(255,255,255,.32);
+  background: rgba(255,255,255,.06);
+}
+
+.button-outline:hover,
+.header-jobs-link:hover {
+  color: #07131b;
+  background: #f0c46e;
+  border-color: #f0c46e;
+}
+
+.button-primary {
+  color: #07131b;
+  background: #f0c46e;
+  box-shadow: 0 14px 34px rgba(201,150,67,.22);
+}
+
+.button-primary:hover {
+  background: #dcae59;
+}
+
+.news-ticker {
+  color: #dbe8ee;
+  background: #0b1821;
+  border-bottom-color: rgba(255,255,255,.07);
+}
+
+.news-ticker-label {
+  color: #07131b;
+  background: #f0c46e;
+}
+
+.news-ticker a {
+  color: #dbe8ee;
+}
+
+.hero {
+  min-height: 640px;
+  position: relative;
+  padding-top: 92px;
+  padding-bottom: 88px;
+  isolation: isolate;
+  background:
+    linear-gradient(90deg, rgba(7,19,27,.96) 0%, rgba(7,19,27,.88) 42%, rgba(7,19,27,.58) 70%, rgba(7,19,27,.32) 100%),
+    radial-gradient(circle at 78% 18%, rgba(201,150,67,.3), transparent 30%),
+    linear-gradient(135deg, #07131b, #123240 58%, #935f32);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: .28;
+  background-image:
+    linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(90deg, #000, rgba(0,0,0,.7), transparent);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(7,19,27,.76), transparent 62%),
+    radial-gradient(circle at 80% 70%, rgba(240,196,110,.22), transparent 32%);
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-copy .eyebrow,
+.eyebrow {
+  color: #c99643;
+  letter-spacing: 2.8px;
+}
+
+.hero h1,
+.hero-copy h1 {
+  max-width: 740px;
+  color: #f7fbfc;
+  font-size: clamp(40px, 5vw, 74px);
+  line-height: .98;
+  letter-spacing: -3.2px;
+}
+
+.hero h1 em {
+  color: #c99643;
+}
+
+.hero-copy > p {
+  max-width: 640px;
+  color: #b8c9d3;
+  font-size: clamp(17px, 1.45vw, 21px);
+}
+
+.search-box {
+  max-width: 820px;
+  min-height: 74px;
+  margin-top: 30px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  background: rgba(255,255,255,.95);
+  box-shadow: 0 28px 80px rgba(0,0,0,.28);
+}
+
+.search-box .button-primary {
+  min-height: 52px;
+  padding-inline: 28px;
+}
+
+.popular {
+  margin-top: 18px;
+  color: #8fa6b3;
+}
+
+.popular button {
+  color: #f0c46e;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(240,196,110,.42);
+}
+
+.hero-art {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: min(54vw, 760px);
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  border-left: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.hero-art::before {
+  content: "";
+  position: absolute;
+  inset: 11% 5% 8% 12%;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 28px 0 0 28px;
+  background:
+    linear-gradient(110deg, rgba(7,19,27,.34), rgba(7,19,27,.7)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.11) 0 1px, transparent 1px 72px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 1px, transparent 1px 54px),
+    radial-gradient(circle at 74% 28%, rgba(201,150,67,.26), transparent 34%),
+    linear-gradient(135deg, rgba(65, 44, 31, .68), rgba(6, 22, 30, .9));
+  box-shadow:
+    inset 0 0 90px rgba(255,255,255,.04),
+    0 28px 90px rgba(0,0,0,.18);
+}
+
+.sun,
+.service-scenes,
+.service-scene,
+.floating-card {
+  display: none;
+}
+
+.hero-logo {
+  width: min(520px, 62%);
+  max-height: none;
+  top: 50%;
+  left: 54%;
+  opacity: .16;
+  mix-blend-mode: screen;
+  filter: grayscale(1) contrast(1.2) drop-shadow(0 30px 70px rgba(0,0,0,.42));
+  transform: translate(-50%, -50%);
+}
+
+.section,
+.ad-section,
+.medical-section,
+.trust-section,
+.results-section,
+.jobs-section {
+  background: #f4f7f8;
+}
+
+.section-heading {
+  border-bottom: 1px solid rgba(7,19,27,.1);
+  padding-bottom: 24px;
+}
+
+.section-heading h2 {
+  color: #07131b;
+  letter-spacing: -1.8px;
+}
+
+.category-card,
+.listing-card,
+.medical-card,
+.medical-selector,
+.trust-card,
+.job-card {
+  border-color: rgba(7,19,27,.1);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 16px 48px rgba(7,19,27,.07);
+}
+
+.category-card:hover,
+.category-card.active {
+  border-color: #1f6f8b;
+  box-shadow: 0 18px 50px rgba(31,111,139,.14);
+}
+
+.category-icon,
+.medical-icon,
+.trust-card span {
+  border-radius: 8px;
+  color: #f7fbfc;
+  background: #0f4052;
+}
+
+.listing-cover {
+  background:
+    linear-gradient(135deg, rgba(31,111,139,.08), rgba(201,150,67,.18)),
+    #eef4f6;
+}
+
+.listing-actions,
+.listing-secondary-actions a,
+.listing-secondary-actions button,
+.review-action {
+  border-radius: 8px;
+}
+
+.review-action,
+.medical-phone,
+.job-link {
+  color: #fff;
+  background: linear-gradient(135deg, #1f6f8b, #0a2633);
+}
+
+.trust-card.featured {
+  background: #0a2633;
+  border-color: #0a2633;
+}
+
+.jobs-section {
+  background:
+    linear-gradient(180deg, #edf3f6, #f4f7f8);
+}
+
+.job-card-empty {
+  max-width: 560px;
+}
+
+.growth-banner {
+  border-radius: 10px;
+  background:
+    linear-gradient(120deg, rgba(7,19,27,.94), rgba(10,38,51,.9)),
+    #0a2633;
+  box-shadow: 0 24px 70px rgba(7,19,27,.18);
+}
+
+footer {
+  color: #dbe8ee;
+  background: #07131b;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+footer p,
+footer small,
+footer a {
+  color: rgba(247,251,252,.74);
+}
+
+.support-fab {
+  background: #07131b;
+  box-shadow: 0 18px 50px rgba(7,19,27,.28);
+}
+
+@media (max-width: 900px) {
+  .site-header {
+    background: rgba(7, 19, 27, .96);
+  }
+
+  .hero {
+    min-height: auto;
+    padding: 44px max(5vw, 18px) 34px;
+  }
+
+  .hero-art {
+    display: none;
+  }
+
+  .hero h1,
+  .hero-copy h1 {
+    font-size: clamp(34px, 9vw, 52px);
+    letter-spacing: -2.2px;
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    background: #f4f7f8;
+  }
+
+  .site-header {
+    background: rgba(7, 19, 27, .96);
+  }
+
+  .hero {
+    background:
+      linear-gradient(180deg, rgba(7,19,27,.98), rgba(11,40,53,.94)),
+      radial-gradient(circle at 100% 0%, rgba(201,150,67,.25), transparent 42%);
+  }
+
+  .hero-copy h1 {
+    max-width: 340px;
+    font-size: 0;
+  }
+
+  .hero-copy h1 em {
+    display: none;
+  }
+
+  .hero-copy h1::before {
+    content: "Todo Suárez, en una guía simple.";
+    color: #f7fbfc;
+    font: 900 34px/.98 "Manrope", sans-serif;
+    letter-spacing: -1.6px;
+  }
+
+  .site-header nav .header-jobs-link::before {
+    content: "💼";
+    margin-right: 0;
+    font-size: 15px;
+  }
+
+  .site-header nav .header-jobs-link::after {
+    content: "Trabajo";
+    margin-left: 6px;
+    font-size: 13px;
+  }
+
+  .hero-copy > p {
+    color: #b8c9d3;
+  }
+
+  .search-box {
+    border-radius: 22px;
+    background: #fff;
+  }
+
+  .results-section,
+  .jobs-section {
+    background: #f4f7f8;
+  }
+
+  .category-card,
+  .listing-card,
+  .medical-card,
+  .trust-card,
+  .job-card {
+    border-radius: 18px;
+  }
+}
