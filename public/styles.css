@@ -3003,3 +3003,220 @@ footer a {
     border-radius: 18px;
   }
 }
+
+/* ------------------------------------------------------------------
+   Restrained palette refinement.
+   Menos color decorativo; azul como sistema y dorado sólo como acento fino.
+------------------------------------------------------------------ */
+
+:root {
+  --ink: #071722;
+  --green: #1e6680;
+  --green-dark: #0b2a3a;
+  --mint: #edf4f7;
+  --cream: #f5f7f8;
+  --yellow: #b8893e;
+  --coral: #6f8796;
+  --muted: #627584;
+  --line: #d9e4ea;
+  --shadow: 0 22px 58px rgba(7, 23, 34, .1);
+}
+
+body {
+  background: #f5f7f8;
+}
+
+.site-header {
+  background: rgba(8, 28, 39, .96);
+}
+
+.brand-weather-mark,
+.brand-domain {
+  background: #f3f7f9;
+  color: #0b2a3a;
+  border-color: rgba(255,255,255,.16);
+}
+
+.weather-widget,
+.pharmacy-widget,
+.button-outline,
+.header-jobs-link {
+  background: rgba(255,255,255,.055);
+  border-color: rgba(255,255,255,.16);
+}
+
+.button-outline:hover,
+.header-jobs-link:hover {
+  color: #f7fbfc;
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.28);
+}
+
+.button-primary,
+.search-box .button-primary {
+  color: #f7fbfc;
+  background: linear-gradient(135deg, #1e6680, #0b2a3a);
+  box-shadow: 0 14px 34px rgba(11,42,58,.2);
+}
+
+.button-primary:hover {
+  background: linear-gradient(135deg, #24728e, #0e3245);
+}
+
+.news-ticker-label {
+  color: #f7fbfc;
+  background: #1e6680;
+}
+
+.hero {
+  background:
+    linear-gradient(90deg, rgba(7,23,34,.98) 0%, rgba(7,23,34,.91) 46%, rgba(7,23,34,.68) 76%, rgba(7,23,34,.42) 100%),
+    radial-gradient(circle at 74% 18%, rgba(30,102,128,.24), transparent 32%),
+    linear-gradient(135deg, #071722, #0e3142 62%, #153949);
+}
+
+.hero::after {
+  background:
+    linear-gradient(90deg, rgba(7,23,34,.78), transparent 64%),
+    radial-gradient(circle at 82% 70%, rgba(30,102,128,.22), transparent 34%);
+}
+
+.hero-copy .eyebrow,
+.eyebrow {
+  color: #8fb5c4;
+}
+
+.hero h1 em {
+  color: #d8e7ee;
+}
+
+.hero-copy > p {
+  color: #c2d0d7;
+}
+
+.popular button {
+  color: #b9d2dd;
+  border-bottom-color: rgba(185,210,221,.38);
+}
+
+.hero-art::before {
+  border-color: rgba(255,255,255,.08);
+  background:
+    linear-gradient(110deg, rgba(7,23,34,.44), rgba(7,23,34,.78)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 1px, transparent 1px 72px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 54px),
+    radial-gradient(circle at 74% 28%, rgba(109,135,150,.18), transparent 36%),
+    linear-gradient(135deg, rgba(11,42,58,.76), rgba(7,23,34,.92));
+}
+
+.section,
+.ad-section,
+.medical-section,
+.trust-section,
+.results-section,
+.jobs-section {
+  background: #f5f7f8;
+}
+
+.section-heading .eyebrow {
+  color: #1e6680;
+}
+
+.category-icon,
+.medical-icon,
+.trust-card span {
+  background: #123d50;
+}
+
+.listing-cover {
+  background:
+    linear-gradient(135deg, rgba(30,102,128,.08), rgba(111,135,150,.08)),
+    #eef4f7;
+}
+
+.review-action,
+.medical-phone,
+.job-link {
+  background: linear-gradient(135deg, #1e6680, #0b2a3a);
+}
+
+.jobs-section {
+  background: linear-gradient(180deg, #edf3f6, #f5f7f8);
+}
+
+.growth-banner {
+  background:
+    linear-gradient(120deg, rgba(7,23,34,.96), rgba(11,42,58,.92)),
+    #0b2a3a;
+}
+
+@media (max-width: 760px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  .hero {
+    background:
+      linear-gradient(180deg, rgba(7,23,34,.98), rgba(11,42,58,.95)),
+      radial-gradient(circle at 100% 0%, rgba(30,102,128,.22), transparent 42%);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .section,
+  .ad-section,
+  .medical-section,
+  .trust-section,
+  .results-section,
+  .jobs-section,
+  .growth-banner {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .hero-copy,
+  .hero-copy > p,
+  .section-heading,
+  .section-heading h2 {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-copy > p {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  .search-box {
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  .section > .section-heading {
+    display: block;
+  }
+
+  .section-heading h2 {
+    width: 100%;
+    max-width: calc(100vw - 32px);
+    overflow-wrap: anywhere;
+  }
+
+  .section-heading .button,
+  .section-heading .text-link,
+  #showAllCategories {
+    display: inline-flex;
+    margin-top: 12px;
+  }
+}
