@@ -326,6 +326,7 @@ function hydrateListing(item) {
 
 function renderCategories() {
   renderActivityCounter();
+  categoryGrid.dataset.expanded = String(expandedCategories);
   const categoriesWithCounts = categories
     .map(category => ({
       ...category,
@@ -1535,7 +1536,7 @@ function isStandaloneApp() {
 }
 
 function isMobileBrowser() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  return /Android/i.test(navigator.userAgent) || isIosBrowser();
 }
 
 function isWindowsBrowser() {
@@ -1543,7 +1544,8 @@ function isWindowsBrowser() {
 }
 
 function isIosBrowser() {
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 }
 
 function updateInstallButton() {
@@ -1575,7 +1577,7 @@ installAppButton?.addEventListener("click", async () => {
   if (isIosBrowser()) {
     if (iosInstallDialog && !iosInstallDialog.open) iosInstallDialog.showModal();
   } else if (/Android/i.test(navigator.userAgent)) {
-    showToast("En Android: abrí Chrome, tocá ⋮ y elegí Agregar a pantalla principal. Si no aparece, recargá la página.");
+    document.querySelector("#androidInstallDialog")?.showModal();
   } else {
     showToast("En Chrome o Edge, usá el ícono de instalación de la barra de direcciones o el menú del navegador.");
   }
@@ -1583,6 +1585,9 @@ installAppButton?.addEventListener("click", async () => {
 
 document.querySelector(".install-close")?.addEventListener("click", () => iosInstallDialog?.close());
 closeIosInstallDialog?.addEventListener("click", () => iosInstallDialog?.close());
+
+updateInstallButton();
+window.matchMedia("(display-mode: standalone)").addEventListener("change", updateInstallButton);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

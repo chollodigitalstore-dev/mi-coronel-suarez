@@ -1699,8 +1699,7 @@ footer {
     font-size: 10px;
   }
 
-  .current-date,
-  .button-install {
+  .current-date {
     display: none !important;
   }
 
@@ -3367,13 +3366,14 @@ body {
 @media (max-width: 760px) {
   main,
   main > section {
-    inline-size: 100vw;
-    max-inline-size: 100vw;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
   }
 
   .hero {
-    inline-size: 100vw;
-    max-inline-size: 100vw;
+    inline-size: 100%;
+    max-inline-size: 100%;
     display: block;
     padding: 18px 16px 20px;
   }
@@ -3382,21 +3382,21 @@ body {
   .hero-copy h1,
   .section-heading,
   .section-heading > div {
-    inline-size: calc(100vw - 32px);
-    max-inline-size: calc(100vw - 32px);
+    inline-size: 100%;
+    max-inline-size: 100%;
   }
 
   .hero-copy h1::before,
   .hero-copy > p {
-    inline-size: calc(100vw - 32px);
-    max-inline-size: calc(100vw - 32px);
+    inline-size: 100%;
+    max-inline-size: 100%;
     white-space: normal;
     overflow-wrap: break-word;
   }
 
   .search-box {
-    inline-size: calc(100vw - 32px);
-    max-inline-size: calc(100vw - 32px) !important;
+    inline-size: 100%;
+    max-inline-size: 100% !important;
   }
 
   .section {
@@ -3404,9 +3404,111 @@ body {
   }
 
   .section-heading h2 {
-    inline-size: calc(100vw - 32px);
-    max-inline-size: calc(100vw - 32px);
+    inline-size: 100%;
+    max-inline-size: 100%;
     white-space: normal;
     overflow-wrap: break-word;
+  }
+
+  .site-header {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 16px;
+    height: auto;
+  }
+
+  .site-header .brand { flex: 1 0 100%; }
+  .site-header nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+    order: 2;
+  }
+  .site-header nav > .button {
+    display: inline-flex;
+    width: 100%;
+    max-width: none;
+    overflow: visible;
+    flex: 1 1 auto;
+    min-height: 44px;
+    padding: 10px;
+    justify-content: center;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: none;
+  }
+  .site-header nav > .button::before,
+  .site-header nav > .button::after { content: none; }
+  .site-header .button-install:not([hidden]) {
+    display: inline-flex;
+    grid-column: 1 / -1;
+    order: -1;
+    color: #082332;
+    background: #f3f7f9;
+  }
+  .site-header .pharmacy-widget {
+    position: static;
+    transform: none;
+    flex: 1 1 100%;
+    max-width: 100%;
+    min-height: 36px;
+    order: 3;
+  }
+  .site-header .user-menu { max-width: 100%; flex-wrap: wrap; }
+  .site-header .user-menu button { min-height: 44px; }
+  .site-header .user-menu #logoutButton { display: inline-block; color: #fff; }
+  .news-ticker { display: none; }
+  .hero-copy h1 { font-size: 0; margin: 0; }
+  .hero-copy h1::before {
+    font-size: clamp(28px, 8vw, 34px);
+    line-height: 1.12;
+    letter-spacing: -1px;
+  }
+  .hero-copy > p { font-size: 14px; line-height: 1.5; }
+  .search-box {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    border-radius: 18px;
+    padding: 10px;
+  }
+  .search-box > *, .search-input input, .location-select select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  .search-input, .location-select { min-height: 46px; }
+  .popular { margin-right: 0; flex-wrap: wrap; white-space: normal; }
+  .popular::before { color: #b9d2dd; }
+  .popular button { color: #123d50; }
+  .section-heading h2 { font-size: 24px; line-height: 1.2; letter-spacing: -.6px; }
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .category-card { min-width: 0; overflow-wrap: anywhere; }
+  .category-grid[data-expanded="false"] .category-card:nth-child(n+9) { display: none; }
+  .trust-card.featured h3 { color: #f7fbfc; }
+  .trust-card.featured p { color: #c2d0d7; }
+  .medical-panel, .medical-grid, .listing-grid, .job-grid { min-width: 0; }
+  .medical-card > *, .listing-card > *, .job-card > * { min-width: 0; }
+  .medical-selector select { width: 100%; min-width: 0; }
+  .growth-banner { width: auto; inline-size: auto; }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .site-header { height: auto; display: flex; flex-wrap: wrap; gap: 12px; padding: 16px 24px; }
+  .site-header nav { width: 100%; flex-wrap: wrap; gap: 12px; }
+  .site-header .weather-widget, .site-header .pharmacy-widget {
+    position: static; transform: none; max-width: 100%;
   }
 }
