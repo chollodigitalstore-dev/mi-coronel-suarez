@@ -25,6 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/mobile.css?v=20261011">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -63,7 +64,8 @@
       <span>💊</span>
       <span id="pharmacyHeaderText">Farmacia de turno</span>
     </div>
-    <nav aria-label="Navegación principal">
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mainNavigation">Menú</button>
+    <nav id="mainNavigation" aria-label="Navegación principal">
       <a class="button button-outline header-jobs-link" href="#trabajos">Encontrá trabajo</a>
       <button class="button button-install" type="button" id="installAppButton" hidden>
         <span class="play-icon" aria-hidden="true"></span>
@@ -87,8 +89,8 @@
     <section class="hero" id="inicio">
       <div class="hero-copy">
         <span class="eyebrow">Guía comercial de Coronel Suárez</span>
-        <h1>Comercios en Coronel Suárez, profesionales y servicios <em>con confianza.</em></h1>
-        <p>Encontrá comercios, profesionales y servicios locales. Buscá libremente, compará calificaciones y publicá tu actividad gratis para siempre.</p>
+        <h1><span class="desktop-copy">Comercios en Coronel Suárez, profesionales y servicios <em>con confianza.</em></span><span class="mobile-copy">¿Qué necesitás<br>en Suárez?</span></h1>
+        <p><span class="desktop-copy">Encontrá comercios, profesionales y servicios locales. Buscá libremente, compará calificaciones y publicá tu actividad gratis para siempre.</span><span class="mobile-copy">Encontrá, elegí y contactá. Así de simple.</span></p>
 
         <form class="search-box" id="searchForm" role="search">
           <label class="search-input">
@@ -124,7 +126,7 @@
 
     <section class="section" id="rubros">
       <div class="section-heading">
-        <div><span class="eyebrow">Comercios por rubro</span><h2>Buscá comercios en Coronel Suárez por categoría</h2></div>
+        <div><span class="eyebrow">Comercios por rubro</span><h2><span class="desktop-copy">Buscá comercios en Coronel Suárez por categoría</span><span class="mobile-copy">Explorá por rubro</span></h2></div>
         <button class="text-link" id="showAllCategories">Ver todos los rubros →</button>
       </div>
       <div class="category-grid" id="categoryGrid"></div>
@@ -141,7 +143,7 @@
       <div class="section-heading">
         <div>
           <span class="eyebrow">Salud local</span>
-          <h2>Profesionales médicos en Coronel Suárez</h2>
+          <h2><span class="desktop-copy">Profesionales médicos en Coronel Suárez</span><span class="mobile-copy">Profesionales de salud</span></h2>
           <p class="section-lead">Consultá médicos y especialidades registrados en el padrón público del Círculo Médico.</p>
         </div>
         <a class="text-link" href="https://www.circulomedicocoronelsuarez.com.ar/padron/" target="_blank" rel="noopener">Ver padrón completo →</a>
@@ -213,7 +215,7 @@
       <div class="section-heading">
         <div>
           <span class="eyebrow">Trabajo local</span>
-          <h2>Oportunidades laborales en Coronel Suárez</h2>
+          <h2><span class="desktop-copy">Oportunidades laborales en Coronel Suárez</span><span class="mobile-copy">Encontrá trabajo</span></h2>
           <p class="section-lead">Accesos directos a búsquedas de empleo en portales conocidos, reunidos en un solo lugar para ahorrar tiempo.</p>
         </div>
         <span class="result-count" id="jobCount">Actualizando…</span>
@@ -230,8 +232,8 @@
 
     <section class="growth-banner" aria-label="Ayudanos a completar Guía Suárez">
       <div>
-        <span class="eyebrow">Primeros 100 avisos</span>
-        <h2>Ayudanos a completar la guía local de Coronel Suárez</h2>
+        <span class="eyebrow">Tu actividad en la guía</span>
+        <h2><span class="desktop-copy">Ayudanos a completar la guía local de Coronel Suárez</span><span class="mobile-copy">¿Ofrecés un servicio?</span></h2>
         <p>Si conocés un comercio, profesional o servicio que debería aparecer, compartile Guía Suárez. Publicar es gratis para siempre.</p>
       </div>
       <div class="growth-actions">

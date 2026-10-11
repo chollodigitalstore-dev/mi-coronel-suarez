@@ -1,7 +1,8 @@
-const CACHE_NAME = "guia-suarez-shell-v2";
+const CACHE_NAME = "guia-suarez-shell-v3";
 const APP_SHELL = [
   "/",
   "/styles.css",
+  "/mobile.css?v=20261011",
   "/app.js",
   "/supabase-config.js",
   "/assets/icons/isidoro-favicon-32.png",

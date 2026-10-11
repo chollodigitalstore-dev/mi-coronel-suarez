@@ -90,6 +90,16 @@ const jobGrid = document.querySelector("#jobGrid");
 const jobCount = document.querySelector("#jobCount");
 const jobPortals = document.querySelector("#jobPortals");
 const installAppButton = document.querySelector("#installAppButton");
+const mobileMenuToggle = document.querySelector("#mobileMenuToggle");
+mobileMenuToggle?.addEventListener("click", () => {
+  const open = mobileMenuToggle.getAttribute("aria-expanded") !== "true";
+  mobileMenuToggle.setAttribute("aria-expanded", String(open));
+  mobileMenuToggle.textContent = open ? "Cerrar" : "Menú";
+  document.querySelector(".site-header")?.classList.toggle("mobile-menu-open", open);
+});
+document.querySelector("#mainNavigation")?.addEventListener("click", event => {
+  if (event.target.closest("a, button") && mobileMenuToggle?.getAttribute("aria-expanded") === "true") mobileMenuToggle.click();
+});
 const iosInstallDialog = document.querySelector("#iosInstallDialog");
 const closeIosInstallDialog = document.querySelector("#closeIosInstallDialog");
 

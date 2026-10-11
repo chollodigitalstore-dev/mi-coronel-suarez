@@ -1,0 +1,71 @@
+/* Mobile composition: search first, compact navigation, no floating obstruction. */
+.mobile-copy, .mobile-menu-toggle { display: none; }
+@media (max-width: 760px) {
+  .desktop-copy { display: none; }
+  .mobile-copy { display: inline; }
+  body { background: #f5f7f8; }
+  .site-header { padding: 12px 16px; gap: 8px; box-shadow: none; }
+  .site-header .brand { flex: 1 1 auto; }
+  .mobile-menu-toggle { display: block; min-height: 44px; padding: 8px 14px; border: 1px solid #547080; border-radius: 12px; color: #fff; background: transparent; font-size: 13px; }
+  .site-header nav { display: flex; gap: 8px; margin: 0; }
+  .site-header:not(.mobile-menu-open) nav > :not(#installAppButton) { display: none !important; }
+  .site-header:not(.mobile-menu-open) nav:has(#installAppButton[hidden]) { display: none; }
+  .site-header nav > .button { width: auto; min-width: 0; flex: 1 1 140px; }
+  .site-header .button-install:not([hidden]) { min-height: 44px; padding: 8px 12px; background: transparent; color: #d3e6ef; border: 1px solid #47606d; border-radius: 12px; box-shadow: none; }
+  .site-header .play-icon { width: 16px; height: 18px; }
+  .site-header .pharmacy-widget { margin: 0; padding: 6px 0; border: 0; border-radius: 0; background: transparent; justify-content: flex-start; color: #d3e6ef; }
+  .hero { padding: 20px 16px 24px; min-height: 0; background: #102c3b; }
+  .hero::before, .hero::after { display: none; }
+  .hero-copy .eyebrow { display: none; }
+  .hero-copy h1::before { content: none; }
+  .hero .hero-copy h1 { font: 800 34px/1.12 "Manrope", sans-serif; letter-spacing: -1.2px; color: #fff; }
+  .hero-copy > p { margin: 10px 0 0; font-size: 14px; color: #d2e0e7; }
+  .search-box { margin-top: 20px; padding: 8px; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; border-radius: 16px; box-shadow: none; }
+  .search-input { grid-column: 1 / -1; border: 0; border-bottom: 1px solid #dae3e8; border-radius: 0; background: #fff; padding: 0 8px; }
+  .search-input input { font-size: 16px; }
+  .location-select { padding: 0 8px; border: 0; border-radius: 10px; background: #f1f5f7; }
+  .location-select select { font-size: 14px; }
+  .search-box .button-primary { width: auto; padding: 0 20px; min-height: 48px; border-radius: 10px; background: #155571; box-shadow: none; }
+  .hero-copy .popular { gap: 8px; margin-top: 14px; }
+  .popular::before { display: none; }
+  .popular button { min-height: 40px; padding: 6px 10px; color: #e4eef3; background: transparent; border: 1px solid #55717f; box-shadow: none; font-size: 12px; font-weight: 500; }
+  .section { padding: 24px 16px; }
+  .section .section-heading { margin-bottom: 14px; padding-bottom: 0; border-bottom: 0; text-align: left; }
+  .section-heading .eyebrow { display: none; }
+  .section-heading h2 { font-size: 23px; line-height: 1.2; }
+  #rubros { order: 3; }
+  #rubros .section-heading { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+  #rubros .section-heading > div { width: 100%; inline-size: 100%; text-align: left; }
+  #showAllCategories { min-height: 44px; padding: 0; margin: 0; font-size: 13px; }
+  .category-grid { gap: 8px; }
+  .category-card { display: grid; grid-template-columns: 32px minmax(0,1fr); align-items: center; min-height: 66px; padding: 10px; gap: 8px; border-radius: 12px; box-shadow: none; background: #fff; }
+  .category-icon { width: 30px; height: 30px; border-radius: 8px; font-size: 17px; }
+  .category-card strong { font-size: 12px; line-height: 1.25; }
+  .category-card small { display: none; }
+  .category-grid[data-expanded="false"] .category-card:nth-child(n+7) { display: none; }
+  #profesionales-medicos { order: 4; }
+  .medical-summary, .medical-section .section-lead { display: none; }
+  .medical-section .section-heading > .text-link { font-size: 12px; margin: 0; min-height: 44px; align-items: center; }
+  .medical-selector { padding: 14px; background: white; }
+  .medical-list-heading { font-size: 13px; }
+  #trabajos { order: 5; padding: 24px 16px; }
+  #trabajos .section-heading { display: block; }
+  #jobCount, .job-card-empty > .job-source, .job-card-empty > h3, .job-card-empty > p { display: none; }
+  .job-card-empty { padding: 0; border: 0; background: transparent; box-shadow: none; }
+  .ad-section { order: 6; }
+  .trust-section { display: none; }
+  .growth-banner { order: 7; margin: 12px 16px 24px; padding: 20px; border-radius: 16px; box-shadow: none; }
+  .growth-banner::after, .growth-banner .eyebrow, .growth-banner p { display: none; }
+  .growth-banner h2 { font-size: 23px; margin: 0; }
+  .growth-actions { gap: 8px; }
+  .growth-actions .button { width: 100%; justify-content: center; }
+  .growth-actions .button { min-height: 46px; box-shadow: none; }
+  footer { padding: 24px 16px 16px; gap: 12px; }
+  footer small { line-height: 2; }
+  footer small a { display: inline-block; min-height: 44px; color: #b8d4e2; }
+  .support-fab { position: static; display: flex; width: calc(100% - 32px); max-width: none; margin: 0 16px 16px; min-height: 48px; justify-content: flex-start; padding: 8px 14px; font-size: 14px; border-radius: 12px; box-shadow: none; background: #153b4d; }
+  .support-panel { bottom: max(16px, env(safe-area-inset-bottom)); max-height: calc(100dvh - 32px); }
+  .toast { bottom: max(16px, env(safe-area-inset-bottom)); left: 16px; right: 16px; width: auto; max-width: none; }
+  body:has(.support-panel:not([hidden])) .toast { bottom: auto; top: 16px; }
+  .listing-card, .medical-card { box-shadow: none; }
+}
