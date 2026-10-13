@@ -3512,3 +3512,41 @@ body {
     position: static; transform: none; max-width: 100%;
   }
 }
+
+/* Header content stays in normal flow, including when account controls appear. */
+@media (min-width: 761px) {
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 76px;
+    gap: 12px 20px;
+    padding: 14px clamp(24px, 3.5vw, 64px);
+    justify-content: flex-start;
+  }
+  .site-header .brand { flex: 0 0 auto; }
+  .site-header .weather-widget,
+  .site-header .pharmacy-widget {
+    position: relative;
+    inset: auto;
+    transform: none;
+    margin: 0;
+    flex: 0 1 auto;
+    max-width: min(320px, 100%);
+    min-width: 0;
+  }
+  .site-header nav {
+    width: auto;
+    min-width: 0;
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+  }
+  .site-header nav > .button { flex: 0 0 auto; white-space: nowrap; }
+  .site-header .user-menu { display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
+  .site-header .user-menu #userName { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.site-header .user-menu #userName,
+.site-header .user-menu #manageListingsButton,
+.site-header .user-menu #logoutButton { color: #e5eef3; }
