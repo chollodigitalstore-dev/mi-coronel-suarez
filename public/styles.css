@@ -3551,33 +3551,47 @@ body {
 .site-header .user-menu #manageListingsButton,
 .site-header .user-menu #logoutButton { color: #e5eef3; }
 
-/* Deliberate laptop rows instead of independent left/right flex wrapping. */
-@media (min-width: 761px) and (max-width: 1500px) {
+/* One desktop row: secondary text yields space before primary actions. */
+@media (min-width: 761px) {
   .site-header {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 12px 20px;
+    gap: clamp(6px, 1vw, 18px);
+    padding-inline: clamp(12px, 2vw, 40px);
   }
   .site-header .weather-widget,
   .site-header .pharmacy-widget {
-    width: 100%;
-    max-width: none;
+    flex: 1 1 180px;
+    width: auto;
+    max-width: 280px;
     justify-content: center;
-    white-space: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    padding-inline: 12px;
   }
+  #weatherText, #pharmacyHeaderText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .site-header nav {
-    grid-column: 1 / -1;
-    width: 100%;
-    margin: 0;
-    justify-content: flex-start;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    width: auto;
+    margin: 0 0 0 auto;
     align-items: center;
-    padding-top: 12px;
-    border-top: 1px solid #36515e;
+    gap: 8px;
   }
-  .site-header .user-menu { margin-left: auto; }
+  .site-header .user-menu { flex-wrap: nowrap; gap: 8px; white-space: nowrap; }
 }
-@media (min-width: 761px) and (max-width: 1000px) {
-  .site-header { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .site-header .brand { grid-column: 1 / -1; }
+@media (min-width: 761px) and (max-width: 1350px) {
+  .site-header .current-date, .site-header #userName { display: none; }
+  .site-header nav > .button { padding-inline: 12px; font-size: 12px; min-height: 44px; }
+  .site-header .weather-widget, .site-header .pharmacy-widget { font-size: 12px; min-height: 44px; }
+}
+@media (min-width: 761px) and (max-width: 1050px) {
+  .site-header .brand { gap: 6px; }
+  .site-header .brand-name { font-size: 16px; }
+  .site-header .brand-mark, .site-header #userAvatar { display: none; }
+  .site-header .weather-widget, .site-header .pharmacy-widget { padding-inline: 6px; gap: 4px; }
+  .site-header nav > .button { padding-inline: 8px; font-size: 11px; }
+  .site-header .user-menu { gap: 5px; }
+  .site-header .user-menu button { font-size: 11px; padding-inline: 2px; }
 }

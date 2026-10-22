@@ -27,6 +27,10 @@ const assert = require('node:assert/strict');
         const a=boxes[i],b=boxes[j];
         assert.ok(!(a.x<b.right-1 && a.right>b.x+1 && a.y<b.bottom-1 && a.bottom>b.y+1),`${width}: overlap ${i}/${j}`);
       }
+      if (width > 760) {
+        const centers = boxes.map(b => (b.y+b.bottom)/2);
+        assert.ok(Math.max(...centers)-Math.min(...centers)<3, `${width}: header must stay on one row`);
+      }
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${width}: overflow`);
       if(width===1280) await page.locator('.site-header').screenshot({path:'tmp-screens/header-1280.png'});
       console.log(`${width}: no overlap or horizontal overflow`);
