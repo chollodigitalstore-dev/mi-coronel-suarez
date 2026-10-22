@@ -3550,3 +3550,34 @@ body {
 .site-header .user-menu #userName,
 .site-header .user-menu #manageListingsButton,
 .site-header .user-menu #logoutButton { color: #e5eef3; }
+
+/* Deliberate laptop rows instead of independent left/right flex wrapping. */
+@media (min-width: 761px) and (max-width: 1500px) {
+  .site-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 12px 20px;
+  }
+  .site-header .weather-widget,
+  .site-header .pharmacy-widget {
+    width: 100%;
+    max-width: none;
+    justify-content: center;
+    white-space: normal;
+  }
+  .site-header nav {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #36515e;
+  }
+  .site-header .user-menu { margin-left: auto; }
+}
+@media (min-width: 761px) and (max-width: 1000px) {
+  .site-header { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-header .brand { grid-column: 1 / -1; }
+}
