@@ -1,4 +1,3 @@
-import './local-sponsors.js';
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.108.2";
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-config.js";
 
